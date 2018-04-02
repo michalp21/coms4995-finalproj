@@ -1,20 +1,23 @@
+from Card import Card
+from Enum import *
 from InfoSet import InfoSet
+from ActionAndAmount import ActionAndAmount
 
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameState:
 	
 	def __init__(self):
-		self.player1_hole_cards = None
-		self.player2_hole_cards = None
-		self.flop_cards = None
+		self.player1_hole_cards = []
+		self.player2_hole_cards = []
+		self.flop_cards = []
 		self.turn_card = None
 		self.river_card = None
 
-		self.preflop_actions = None
-		self.flop_actions = None
-		self.turn_actions = None
-		self.river_actions = None
+		self.preflop_actions = []
+		self.flop_actions = []
+		self.turn_actions = []
+		self.river_actions = []
 
 		# Following variables are NOT part of the InfoSet, maintained for convenience
 		# Increase this on Call or Raise (increase by the amount of original bet) actions
@@ -23,11 +26,12 @@ class GameState:
 		self.winner = None
 		# Keep track of what round of betting it is - 0 is preflop, 1 flop, 2 turn, 3 river
 		self.round = 0
+		# Cards
+		self.cards = [Card(r,s) for r in range(13) for s in Suit]
 
 		# meta
 		self.cards = [self.flop_cards, self.turn_card, self.river_card]
 		self.actions = [self.preflop_actions, self.flop_actions, self.turn_actions, self.river_actions]
-
 
 	def get_infoset(self, player):
 		if player == 1:
@@ -44,19 +48,17 @@ class GameState:
 		if self.is_showdown():
 			return True
 
-		last_actions = None
 		# find the last round where there is action
-		for actions in [self.river_actions, self.turn_actions, self.flop_actions, self.preflop_actions]:
-			last_actions = actions
-			if actions is not None:
-				break
+		if all(len(a)==0 for a in reversed(self.actions)):
+			return False
+		last_actions = next(a for a in reversed(self.actions) if a)
 
 		# each round needs at least two actions to be complete
 		if len(last_actions) < 2:
-			return false
+			return False
 
 		# check if the last action is fold
-		return last_actions[-1] == 'Fold'
+		return last_actions[-1] == Action.FOLD
 
 	def get_utility(self, player):
 		pot_size = self.pot_size
@@ -65,12 +67,12 @@ class GameState:
 
 	def is_showdown(self):
 		# conditions for reaching showdown, last round is either check/check, bet/call, or raise/call
-		if self.river_actions is not None:
+		if self.river_actions:
 			return self.is_round_complete(self.river_actions)
 		return False
 
 	def get_winner(self):
-		if self.winner is not None:
+		if self.winner:
 			return self.winner
 		return self.showdown()
 
@@ -85,14 +87,15 @@ class GameState:
 		# raise exceptions at any point where the action does not seem valid
 		# include a reason why
 		# TODO: implement correctly
+		pass
 
 	def is_round_complete(self, actions):
 		if len(actions) >= 2:
 			last_action = actions[-1]
 			second_last_action = actions[-2]
-			if last_action.action == 'Check' and second_last_action.action == 'Check':
+			if last_action.action == Action.CHECK and second_last_action.action == Action.CHECK:
 				return True
-			elif last_action.action == 'Call' and second_last_action.action in ['Bet', 'Raise']:
+			elif last_action.action == Action.CALL and second_last_action.action in [Action.BET, Action.RAISE]:
 				return True
 		return False
 

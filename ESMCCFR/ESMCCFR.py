@@ -1,71 +1,104 @@
 from Card import Card
-from Action import Action
+from ActionAndAmount import ActionAndAmount
 from GameState import GameState
 from InfoSet import InfoSet
-from Strategy import Strategy
+from ExtraInfo import ExtraInfo
+from Enums import *
 from collections import defaultdict
 from numpy.random import choice
 
 players = range(2)
-infoset_strategy_map = defaultdict(Strategy)
+infoset_extrainfo_map = defaultdict(ExtraInfo)
 
 def get_random_action(strategy):
 	# return the index of the action the strategy chooses to take
-	return choice(range(len(strategy.actions)), 1, p=strategy.strategy)[0]
+	return choice(range(len(strategy)), 1, p=strategy)[0]
 
 def ESMCCFR_P(T):
 	# conduct external-sampling Monte Carlo Counterfactual Regret
-	infoset_map = {}
 	for t in range(T):
 		for p in players:
 			# what is "None"/empty set? presumably empty gamestate
 			g = GameState()
-			traverse_ESMCCFR_P(None, p, 1) if t > T/2 else traverse_ESMCCFR(None, p)
+			#traverse_ESMCCFR_P(g, p, 1) if t > T/2 else traverse_ESMCCFR(g, p)
+			traverse_ESMCCFR(g, p)
 
 def traverse_ESMCCFR(gamestate, player):
-	infoset = gamestate.get_infoset(player)
+	#default to chance player
+	other_player = 0
+	if player == 1:
+		other_player = 2
+	elif player == 2:
+		other_player = 1
+
 	if gamestate.is_terminal():
 		return gamestate.get_utility(player)
+
 	elif gamestate.get_players_turn() == player:
+		infoset = gamestate.get_infoset(player)
+
 		# Determine the strategy at this infoset
-		strategy = infoset_strategy_map[infoset]
+		extrainfo = infoset_extrainfo_map[infoset]
+		strategy = extrainfo.calculate_strategy()
+
+		# initialize expected value
+		# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 		value = 0
-		for action in gamestate.get_actions()
+		for action in gamestate.get_actions():
+
 			# need to define adding an action to a history, make Action class
 			# make sure to copy history and not change it if making multiple calls!
 			g = gamestate.deepcopy()
 			g.update(player, action)
-			# Traverse each action (each action changes the history)
+
+			# Traverse each action (per iteration of loop) (each action changes the history)
 			value_action = traverse_ESMCCFR(g, player)
+
 			# Update the expected value
 			value += strategy[action] * value_action
-			# Update the regret of each action
-			strategy.regret_sum[action] += value_action - value
+
+			# Update the cumulative regret of each action
+			extrainfo.regretSum[action] += value_action - value
+
 		return value
-	elif gamestate.get_players_turn() == 0 if player == 1 else 1:
-		strategy = infoset_strategy_map[infoset]
+
+	elif gamestate.get_players_turn() == other_player:
+		infoset = gamestate.get_infoset(other_player)
+
+		# Determine the strategy at this infoset
+		extrainfo = infoset_extrainfo_map[infoset]
+		strategy = extrainfo.calculate_strategy()
+
+		# Sample one action and increment action counter
 		action_index = get_random_action(strategy)
-		action = strategy.actions[action_index]
-		strategy.count[action_index] += 1
+		action = extrainfo.actions[action_index]
+		extrainfo.count[action_index] += 1
+
+		# Copy history, traverse one action
 		g = gamestate.deepcopy()
 		g.update(player, action)
-		return traverse_ESMCCFR(g, 0 if player == 1 else 1)
+		return traverse_ESMCCFR(g, other_player)
+
 	else:
+		chance = 0
+
 		# chance randomly selects a new card(s), note that chance updates differently
-		action = get_random_action(chance)
+		# update needs to remove card from gamestate
+		action = Action.NEWCARD
 		g = gamestate.deepcopy()
 		g.update(chance, action)
+		
 		# if I am first player I go first after chance?
-		return traverse_ESMCCFR(h, player)
+		return traverse_ESMCCFR(g, player)
 
 def test_equality():
-	c1 = Card(10, 'spades')
-	c2 = Card(11, 'clubs')
+	c1 = Card(10, Suit.SPADES)
+	c2 = Card(11, Suit.CLUBS)
 	infoset1 = InfoSet()
 	infoset1.hole_cards = [c1, c2]
 
-	d1 = Card(10, 'spades')
-	d2 = Card(11, 'clubs')
+	d1 = Card(10, Suit.SPADES)
+	d2 = Card(11, Suit.CLUBS)
 	infoset2 = InfoSet()
 	infoset2.hole_cards = [d1, d2]
 
@@ -80,3 +113,15 @@ def test_retrieval():
 	s[infoset2] = 2
 
 	print(s[infoset1])
+
+if __name__ == "__main__":
+	ESMCCFR_P(10)
+
+
+
+
+
+
+
+
+
