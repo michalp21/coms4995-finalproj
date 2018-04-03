@@ -14,19 +14,26 @@
 
 # infosets need to implement equals
 
+# oppo_reach_probabilities must be defined over top level histories in h
 # infoset: a set of public state and private state
 # subgame: a collection of top-level histories
-def opponent_action(subgame, action, gifts, oppo_reach_prob_fn):
-	if gifts is None:
-		gifts = {}
-	oppo_reach_prob_values = {}
-	v_bp = {}
-	for history in subgame:
-		oppo_reach_prob_values[history] = oppo_reach_prob_fn[history]
-	for oppo_infoset in set([h.get_opponent_infoset() for h in subgame]):
-		cards = oppo_infoset.private_state()
-		v_bp[oppo_infoset] = 0 # initial value
-		v_alt
+def opponent_action(
+	subgame,
+	action,
+	gifts,
+	 v_bp,
+	 oppo_reach_probabilities):
+	gifts = gifts if gifts is not None else defaultdict(int)
+
+	oppo_infosets = set([h.get_opponent_infoset() for h in subgame])
+
+	v_alt = [(gifts[oi] + v_bp[oi]) for oi in oppo_infosets]
+
+	augmented = construct_subgame(subgame, action)
+	solve_augmented(augmented, v_alt, oppo_reach_prob_values)
+
+	for each oi in oppo_infosets:
+		gifts[oi] += v_bp[oi] - v_bp(oi.move(a))
 
 # Literally, the pseudocode
 '''
