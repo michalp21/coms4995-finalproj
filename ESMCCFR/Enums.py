@@ -1,13 +1,13 @@
 from enum import Enum
 
 class Action(Enum):
-	FOLD = 1
-	CHECK = 2
-	CALL = 3
-	BET = 4
-	RAISE = 5
-	NEWCARD = 6
-	NEW3CARDS = 7
+	FOLD = 0
+	CHECK = 1
+	CALL = 2
+	BET = 3
+	RAISE = 4
+	NEWCARD = 5
+	NEW3CARDS = 6
 
 class Suit(Enum):
 	CLUBS = 1

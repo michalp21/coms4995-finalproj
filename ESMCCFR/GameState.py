@@ -20,6 +20,8 @@ class GameState:
 		self.turn_actions = []
 		self.river_actions = []
 
+		self.possible_actions = []
+
 		# Following variables are NOT part of the InfoSet, maintained for convenience
 		# Increase this on Call or Raise (increase by the amount of original bet) actions
 		self.pot_size = 0
@@ -80,6 +82,8 @@ class GameState:
 
 	def is_showdown(self):
 		# conditions for reaching showdown, last round is either check/check, bet/call, or raise/call
+
+		#### NEED to do for all rounds
 		if self.river_actions:
 			return self.is_round_complete(self.river_actions)
 		return False
