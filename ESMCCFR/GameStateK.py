@@ -24,8 +24,14 @@ class InfoSetKuhn:
 			s = trans[a] + s
 		s = str(self.hole_card) + s
 		while len(s) != 4:
-			s = " " + s
+			s += " "
 		return s
+
+	def __eq__(self, other):
+		return self.hole_card == other.hole_card and self.bet_sequence == other.bet_sequence
+
+	def __hash__(self):
+		return hash((self.hole_card, self.bet_sequence))
 
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees

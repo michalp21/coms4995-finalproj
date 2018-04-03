@@ -37,8 +37,6 @@ def traverse_ESMCCFR(gamestate, player):
 		other_player = 1
 	player_turn = gamestate.get_players_turn()
 
-	# print("------- ", player_turn, gamestate.bet_sequence)
-
 	if gamestate.is_terminal():
 		return gamestate.get_utility(player)
 
@@ -99,31 +97,8 @@ def traverse_ESMCCFR(gamestate, player):
 		# if I am first player I go first after chance?
 		return traverse_ESMCCFR(g, player)
 
-def test_equality():
-	c1 = Card(10, Suit.SPADES)
-	c2 = Card(11, Suit.CLUBS)
-	infoset1 = InfoSet()
-	infoset1.hole_cards = [c1, c2]
-
-	d1 = Card(10, Suit.SPADES)
-	d2 = Card(11, Suit.CLUBS)
-	infoset2 = InfoSet()
-	infoset2.hole_cards = [d1, d2]
-
-	print(infoset1 == infoset2)
-
-def test_retrieval():
-	infoset1 = InfoSet()
-	infoset2 = InfoSet()
-
-	s = {}
-	s[infoset1] = 1
-	s[infoset2] = 2
-
-	print(s[infoset1])
-
 if __name__ == "__main__":
-	ESMCCFR_P(100)
+	ESMCCFR_P(10000)
 
 
 
