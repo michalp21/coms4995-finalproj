@@ -30,31 +30,54 @@ def opponent_action(
 	alternative_values = [(gifts[oi] + blueprint_values[oi])
 		for oi in oppo_infosets]
 
-	## this is all the SECOND thing that happens after the
-	## initial chance node deals out cards
-	aug_get_active_player = 3 - subgame.get_active_player()
-	aug_get_available_actions = lambda: ['T', 'S']
-	aug_get_active_player_infoset = lambda: subgame.get_opponent
-	aug_get_opponent_infoset = lambda: []
-	act_T = lambda: terminal_with(value)
-	act_S = lambda: subgame
+	augmented = {
+		get_active_player: 3 - subgame.aug_get_active_player(),
+		get_available_actions: lambda: ['T', 'S'],
+		get_active_player_infoset: lambda: subgame.get_opponent_infoset(),
+		get_opponent_infoset: lambda: [], # not needed
+		is_terminal: lambda: False
+	}
+	augmented.act = (lambda action: subgame if action == 'S'
+		else terminal_with(alternative_values))
 
+	chance = chance_deals()
+	chance.act = lambda action: augmented
 
-	augmented = construct_subgame(subgame, action)
-	solve_augmented(augmented, alternative_values,
-		oppo_reach_probailities)
+	new_strategy = cfr(chance, oppo_reach_probabilities)
+	# merge new_strategy with v_bp
 
 	for each oi in oppo_infosets:
 		gifts[oi] += v_bp[oi] - v_bp(oi.move(a))
 
 
-def terminal_with(value):
+def chance_deals():
+	is_chance: lambda: True
+	get_active_player = lambda: None
+	# Temporary way to deal cards. Should be aware of existing flop
+	get_available_actions = lambda: ["cards: " + i + "," + j + ";" + k + "," + l
+		 for i,j,k,l in itertools.product(52, 4)]
+	get_active_player_infoset = lambda: None # not relevant
+	get_opponent_infoset = lambda: None # not relevant
+	is_terminal = lambda: False
+
+	return {
+		get_active_player: get_active_player,
+		get_available_actions: get_available_actions,
+		get_active_player_infoset: get_active_player_infoset,
+		get_opponent_infoset: get_opponent_infoset,
+		is_terminal: is_terminal,
+		utility: utility
+	}
+
+def terminal_with(values):
+	is_chance: False
 	get_active_player = lambda: None
 	get_available_actions = lambda: []
 	get_active_player_infoset = lambda: None
 	get_opponent_infoset = lambda: None
 	is_terminal = lambda: True
-	utility = lambda: value
+	# todo
+	utility = lambda private_state: values[private_state['p1cards']]
 
 	return {
 		get_active_player: get_active_player,
