@@ -65,11 +65,11 @@ class GameStateK:
 		### # ####### !!!!! need history
 		assert(self.round>1)
 
-        isTerminalPass = history[self.round - 1] == "p";
-        isDoubleBet = history[plays - 2: plays] == "bb";
+        isTerminalPass = self.actions[self.round - 1] == "p";
+        isDoubleBet = self.actions[plays - 2: plays] == "bb";
         isPlayerCardHigher = player1_card > player2_card;
         if isTerminalPass:
-            if (history == "pp"):
+            if (self.actions == "pp"):
                 return 1 if isPlayerCardHigher else -1
             else:
                 return 1
