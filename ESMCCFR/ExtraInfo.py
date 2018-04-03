@@ -1,5 +1,3 @@
-##### A Strategy tracks counts and regrets to determine a distribution over actions
-
 # ExtraInfo stores certain information corresponding to each InfoSet.
 class ExtraInfo:
 
@@ -34,8 +32,6 @@ class ExtraInfo:
 			maxRegretSum += max(0,self.regretSum[a])
 		for a in actions:
 			strategy[a] = max(0,self.regretSum[a])/maxRegretSum if (maxRegretSum > 0) else 1/len(actions)
-
-		self.strategy = strategy
 
 		# Testing
 		# if sum(strategy) != 0:

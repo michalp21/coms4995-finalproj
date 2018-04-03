@@ -20,10 +20,10 @@ class InfoSetKuhn:
 	def __repr__(self):
 		trans = {Action.PASS: "p", Action.BET: "b", Action.NEWCARD: "n"}
 		s = ""
-		for a in reversed(self.bet_sequence):
+		for a in reversed(self.bet_sequence[1:]):
 			s = trans[a] + s
 		s = str(self.hole_card) + s
-		while len(s) != 4:
+		while len(s) != 3:
 			s += " "
 		return s
 
@@ -54,9 +54,11 @@ class GameStateK:
 			setattr(result, k, deepcopy(v, memo))
 		return result
 
+	#Always bet and call in Kuhn
 	def get_possible_actions(self):
 		return {0,1}
 
+	#Get Infoset
 	def get_infoset(self, player):
 		if player == 1:
 			return InfoSetKuhn(self.player1_hole_card, self.bet_sequence)

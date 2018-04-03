@@ -10,7 +10,7 @@ from numpy.random import choice
 from copy import deepcopy
 
 players = [1,2]
-infoset_extrainfo_map = defaultdict(lambda: ExtraInfo(len(Action)))
+infoset_extrainfo_map = defaultdict(lambda: ExtraInfo(len(Action)-1))
 
 def get_random_action(strategy):
 	# return the index of the action the strategy chooses to take
@@ -20,11 +20,12 @@ def ESMCCFR_P(T):
 	# conduct external-sampling Monte Carlo Counterfactual Regret
 	for t in range(T):
 		for p in players:
-			# what is "None"/empty set? presumably empty gamestate
 			# g = GameState()
 			g = GameStateK()
 			#traverse_ESMCCFR_P(g, p, 1) if t > T/2 else traverse_ESMCCFR(g, p)
 			traverse_ESMCCFR(g, p)
+
+	#Print Infosets
 	for k,v in infoset_extrainfo_map.items():
 		print(k,v.get_average_strategy())
 
@@ -36,6 +37,7 @@ def traverse_ESMCCFR(gamestate, player):
 	elif player == 2:
 		other_player = 1
 	player_turn = gamestate.get_players_turn()
+	possible_actions = gamestate.get_possible_actions()
 
 	if gamestate.is_terminal():
 		return gamestate.get_utility(player)
@@ -45,12 +47,12 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy(gamestate.get_possible_actions())
+		strategy = extrainfo.calculate_strategy(possible_actions)
 
 		# initialize expected value
 		# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 		value = 0
-		for action in gamestate.get_possible_actions():
+		for action in possible_actions:
 
 			# need to define adding an action to a history, make Action class
 			# make sure to copy history and not change it if making multiple calls!
@@ -73,16 +75,16 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy(gamestate.get_possible_actions())
+		strategy = extrainfo.calculate_strategy(possible_actions)
 
 		# Sample one action and increment action counter
 		action_index = get_random_action(strategy)
-		action = extrainfo.actions[action_index]
+		# action = extrainfo.actions[action_index]
 		extrainfo.count[action_index] += 1
 
 		# Copy history, traverse one action
 		g = deepcopy(gamestate)
-		g.update(other_player, action)
+		g.update(other_player, action_index)
 		return traverse_ESMCCFR(g, player)
 
 	else:
@@ -98,7 +100,7 @@ def traverse_ESMCCFR(gamestate, player):
 		return traverse_ESMCCFR(g, player)
 
 if __name__ == "__main__":
-	ESMCCFR_P(10000)
+	ESMCCFR_P(100)
 
 
 
