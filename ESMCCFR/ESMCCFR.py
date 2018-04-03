@@ -1,6 +1,7 @@
 from Card import Card
 from ActionAndAmount import ActionAndAmount
 from GameState import GameState
+from GameStateK import GameStateK
 from InfoSet import InfoSet
 from ExtraInfo import ExtraInfo
 from Enums import *
@@ -9,7 +10,7 @@ from numpy.random import choice
 from copy import deepcopy
 
 players = [1,2]
-infoset_extrainfo_map = defaultdict(ExtraInfo)
+infoset_extrainfo_map = defaultdict(lambda: ExtraInfo(len(Action)))
 
 def get_random_action(strategy):
 	# return the index of the action the strategy chooses to take
@@ -20,6 +21,7 @@ def ESMCCFR_P(T):
 	for t in range(T):
 		for p in players:
 			# what is "None"/empty set? presumably empty gamestate
+			# g = GameState()
 			g = GameState()
 			#traverse_ESMCCFR_P(g, p, 1) if t > T/2 else traverse_ESMCCFR(g, p)
 			traverse_ESMCCFR(g, p)
@@ -40,12 +42,12 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy(action)
+		strategy = extrainfo.calculate_strategy(gamestate.possible_actions)
 
 		# initialize expected value
 		# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 		value = 0
-		for action in gamestate.get_actions():
+		for action in gamestate.possible_actions:
 
 			# need to define adding an action to a history, make Action class
 			# make sure to copy history and not change it if making multiple calls!
@@ -68,7 +70,7 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy(extrainfo.actions)
+		strategy = extrainfo.calculate_strategy(gamestate.possible_actions)
 
 		# Sample one action and increment action counter
 		action_index = get_random_action(strategy)
