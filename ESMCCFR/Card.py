@@ -7,3 +7,6 @@ class Card:
 
 	def __eq__(self, other):
 		return self.rank == other.rank and self.suit == other.suit
+
+	def __hash__(self):
+		return hash((self.rank, self.suit))

@@ -6,8 +6,9 @@ from ExtraInfo import ExtraInfo
 from Enums import *
 from collections import defaultdict
 from numpy.random import choice
+from copy import deepcopy
 
-players = range(2)
+players = [1,2]
 infoset_extrainfo_map = defaultdict(ExtraInfo)
 
 def get_random_action(strategy):
@@ -39,7 +40,7 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy()
+		strategy = extrainfo.calculate_strategy(action)
 
 		# initialize expected value
 		# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
@@ -48,7 +49,7 @@ def traverse_ESMCCFR(gamestate, player):
 
 			# need to define adding an action to a history, make Action class
 			# make sure to copy history and not change it if making multiple calls!
-			g = gamestate.deepcopy()
+			g = deepcopy(gamestate)
 			g.update(player, action)
 
 			# Traverse each action (per iteration of loop) (each action changes the history)
@@ -67,7 +68,7 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Determine the strategy at this infoset
 		extrainfo = infoset_extrainfo_map[infoset]
-		strategy = extrainfo.calculate_strategy()
+		strategy = extrainfo.calculate_strategy(extrainfo.actions)
 
 		# Sample one action and increment action counter
 		action_index = get_random_action(strategy)
@@ -75,9 +76,9 @@ def traverse_ESMCCFR(gamestate, player):
 		extrainfo.count[action_index] += 1
 
 		# Copy history, traverse one action
-		g = gamestate.deepcopy()
+		g = deepcopy(gamestate)
 		g.update(player, action)
-		return traverse_ESMCCFR(g, other_player)
+		return traverse_ESMCCFR(g, player)
 
 	else:
 		chance = 0
@@ -85,7 +86,7 @@ def traverse_ESMCCFR(gamestate, player):
 		# chance randomly selects a new card(s), note that chance updates differently
 		# update needs to remove card from gamestate
 		action = Action.NEWCARD
-		g = gamestate.deepcopy()
+		g = deepcopy(gamestate)
 		g.update(chance, action)
 		
 		# if I am first player I go first after chance?
