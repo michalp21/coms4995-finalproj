@@ -4,15 +4,15 @@
 class InfoSet:
 
 	def __init__(self, gamestate, hole_cards):
-		self.hole_cards = hole_cards
-		self.flop_cards = gamestate.flop_cards
+		self.hole_cards = tuple(hole_cards)
+		self.flop_cards = tuple(gamestate.flop_cards)
 		self.turn_card = gamestate.turn_card
 		self.river_card = gamestate.river_card
 
-		self.preflop_actions = gamestate.preflop_actions
-		self.flop_actions = gamestate.flop_actions
-		self.turn_actions = gamestate.turn_actions
-		self.river_actions = gamestate.river_actions
+		self.preflop_actions = tuple(gamestate.preflop_actions)
+		self.flop_actions = tuple(gamestate.flop_actions)
+		self.turn_actions = tuple(gamestate.turn_actions)
+		self.river_actions = tuple(gamestate.river_actions)
 
 	def __eq__(self, other):
 		return self.hole_cards == other.hole_cards and self.flop_cards == other.flop_cards and self.turn_card == other.turn_card and self.river_card == other.river_card and self.preflop_actions == other.preflop_actions and self.flop_actions == other.flop_actions and self.turn_actions == other.turn_actions and self.river_actions == other.river_actions

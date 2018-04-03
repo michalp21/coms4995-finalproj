@@ -1,7 +1,8 @@
 from Card import Card
-from Enum import *
+from Enums import *
 from InfoSet import InfoSet
 from ActionAndAmount import ActionAndAmount
+from copy import deepcopy
 
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
@@ -27,11 +28,19 @@ class GameState:
 		# Keep track of what round of betting it is - 0 is preflop, 1 flop, 2 turn, 3 river
 		self.round = 0
 		# Cards
-		self.cards = [Card(r,s) for r in range(13) for s in Suit]
+		self.cards = {Card(r,s) for r in range(13) for s in Suit}
 
 		# meta
 		self.cards = [self.flop_cards, self.turn_card, self.river_card]
 		self.actions = [self.preflop_actions, self.flop_actions, self.turn_actions, self.river_actions]
+
+	def __deepcopy__(self, memo):
+		cls = self.__class__
+		result = cls.__new__(cls)
+		memo[id(self)] = result
+		for k, v in self.__dict__.items():
+			setattr(result, k, deepcopy(v, memo))
+		return result
 
 	def get_infoset(self, player):
 		if player == 1:
@@ -42,6 +51,10 @@ class GameState:
 			raise Exception('player must be 1 or 2')
 
 	def is_terminal(self):
+		##### TEMP
+		if self.round >= 3:
+			return True
+
 		# note that pre-flop, player1 is the small blind
 		# note that post-flop, player1 is the big blind
 
@@ -87,7 +100,9 @@ class GameState:
 		# raise exceptions at any point where the action does not seem valid
 		# include a reason why
 		# TODO: implement correctly
-		pass
+
+		##### TEMP
+		self.round+=1
 
 	def is_round_complete(self, actions):
 		if len(actions) >= 2:
