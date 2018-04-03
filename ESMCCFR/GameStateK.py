@@ -4,12 +4,12 @@ from InfoSet import InfoSet
 from ActionAndAmount import ActionAndAmount
 from copy import deepcopy
 from enum import Enum
+import random
 
-class Actions(Enum):
-	FOLD = 0
-	CHECK = 1
-	CALL = 2
-	BET = 3
+class Action(Enum):
+	PASS = 0
+	BET = 1
+	NEWCARD = 2
 
 class InfoSetKuhn:
 
@@ -17,17 +17,27 @@ class InfoSetKuhn:
 		self.hole_card = hole_card
 		self.bet_sequence = bet_sequence
 
+	def __repr__(self):
+		trans = {Action.PASS: "p", Action.BET: "b", Action.NEWCARD: "n"}
+		s = ""
+		for a in reversed(self.bet_sequence):
+			s = trans[a] + s
+		s = str(self.hole_card) + s
+		while len(s) != 4:
+			s = " " + s
+		return s
+
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
-class GameStateKuhn:
+class GameStateK:
 	
 	def __init__(self):
 		# Kuhn is small, so we can easily define all possible states
 		self.player1_hole_card = None
 		self.player2_hole_card = None
 		self.bet_sequence = ()
-		self.allowable_bet_sequences = set([(), (Actions.CHECK), (Actions.CHECK, Actions.CHECK), (Actions.CHECK, Actions.BET), (Actions.CHECK, Actions.BET, Actions.FOLD), (Actions.CHECK, Actions.BET, Actions.CALL), (Actions.BET, Actions.FOLD), (Actions.BET, Actions.CALL)])
-		self.terminal_bet_sequences = set([(Actions.CHECK, Actions.CHECK), (Actions.CHECK, Actions.BET, Actions.FOLD), (Actions.CHECK, Actions.BET, Actions.CALL), (Actions.BET, Actions.FOLD), (Actions.BET, Actions.CALL)])
+		self.allowable_bet_sequences = set([(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
+		self.terminal_bet_sequences = set([(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
 		self.pot_size = 2
 
 	def __deepcopy__(self, memo):
@@ -38,11 +48,14 @@ class GameStateKuhn:
 			setattr(result, k, deepcopy(v, memo))
 		return result
 
+	def get_possible_actions(self):
+		return {0,1}
+
 	def get_infoset(self, player):
 		if player == 1:
-			return InfoSet(self.player1_hole_card, self.bet_sequence)
+			return InfoSetKuhn(self.player1_hole_card, self.bet_sequence)
 		elif player == 2:
-			return InfoSet(self.player2_hole_card, self.bet_sequence)
+			return InfoSetKuhn(self.player2_hole_card, self.bet_sequence)
 		else:
 			raise Exception('player must be 1 or 2')
 
@@ -62,7 +75,19 @@ class GameStateKuhn:
 				return self.pot_size
 
 	def update(self, player, action):
-		if player != len(self.bet_sequence) % 2:
+		action = Action(action)
+		if player == 0 and self.bet_sequence == ():
+			bet_sequence_list = list(self.bet_sequence)
+			bet_sequence_list.append(action)
+			bet_sequence_tuple = tuple(bet_sequence_list)
+			if bet_sequence_tuple not in self.allowable_bet_sequences:
+				raise Exception('Chance chose invalid action', bet_sequence_tuple)
+			else:
+				self.bet_sequence = bet_sequence_tuple
+				sample = random.sample(range(1, 4), 2)
+				self.player1_hole_card, self.player2_hole_card = sample[0], sample[1]
+
+		elif player == (len(self.bet_sequence)+1) % 2 + 1:
 			bet_sequence_list = list(self.bet_sequence)
 			bet_sequence_list.append(action)
 			bet_sequence_tuple = tuple(bet_sequence_list)
@@ -70,11 +95,18 @@ class GameStateKuhn:
 				raise Exception('Player', player, 'chose invalid action', bet_sequence_tuple)
 			else:
 				self.bet_sequence = bet_sequence_tuple
-			if action == Actions.CALL or action == Actions.BET:
+			if action == Action.PASS or action == Action.BET:
 				self.pot_size += 1
 		else:
 			raise Exception('Player', player, 'cannot act on history', self.bet_sequence)
 
-
 	def get_players_turn(self):
-		return len(bet_sequence) % 2 + 1
+		if len(self.bet_sequence) == 0:
+			return 0
+		else:
+			return (len(self.bet_sequence)+1) % 2 +1
+
+
+
+
+

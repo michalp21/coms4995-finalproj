@@ -44,6 +44,9 @@ class GameState:
 			setattr(result, k, deepcopy(v, memo))
 		return result
 
+	def get_possible_actions(self):
+		pass
+
 	def get_infoset(self, player):
 		if player == 1:
 			return InfoSet(self, self.player1_hole_cards)
