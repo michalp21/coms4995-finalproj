@@ -9,8 +9,8 @@ from copy import deepcopy
 class GameStateK:
 	
 	def __init__(self):
-		self.player1_hole_cards = []
-		self.player2_hole_cards = []
+		self.player1_card = 0
+		self.player2_card = 0
 		self.actions = ""
 
 		# Following variables are NOT part of the InfoSet, maintained for convenience
@@ -18,7 +18,7 @@ class GameStateK:
 		self.pot_size = 0
 		# Set this to the other player when one player Folds, or determine at showdown
 		self.winner = None
-		# Keep track of what round of betting it is - 0 is preflop, 1 flop, 2 turn, 3 river
+		# Keep track of what round of betting it is - should be the length of self.actions
 		self.round = 0
 
 	def __deepcopy__(self, memo):
@@ -61,9 +61,20 @@ class GameStateK:
 		return last_actions[-1] == Action.FOLD
 
 	def get_utility(self, player):
-		pot_size = self.pot_size
-		winner = self.get_winner()
-		return pot_size if winner == player else -pot_size
+
+		### # ####### !!!!! need history
+		assert(self.round>1)
+
+        isTerminalPass = history[self.round - 1] == "p";
+        isDoubleBet = history[plays - 2: plays] == "bb";
+        isPlayerCardHigher = player1_card > player2_card;
+        if isTerminalPass:
+            if (history == "pp"):
+                return 1 if isPlayerCardHigher else -1
+            else:
+                return 1
+        elif isDoubleBet:
+            return 2 if isPlayerCardHigher else -2
 
 	def is_showdown(self):
 		# conditions for reaching showdown, last round is either check/check, bet/call, or raise/call
