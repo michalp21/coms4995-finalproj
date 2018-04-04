@@ -27,6 +27,9 @@ class InfoSetKuhn:
 			s += " "
 		return s
 
+	def __lt__(self,other):
+		return self.__repr__() < other.__repr__()
+
 	def __eq__(self, other):
 		return self.hole_card == other.hole_card and self.bet_sequence == other.bet_sequence
 
