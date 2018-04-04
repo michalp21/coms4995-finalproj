@@ -47,14 +47,12 @@ class GameStateK:
 		self.player1_hole_card = None
 		self.player2_hole_card = None
 		self.bet_sequence = ()
-		self.pot_size = 2
 
 	def deepcopy(self):
 		gsk = GameStateK()
 		gsk.player1_hole_card = self.player1_hole_card
 		gsk.player2_hole_card = self.player2_hole_card
 		gsk.bet_sequence = self.bet_sequence
-		gsk.pot_size = self.pot_size
 		return gsk
 
 	#Always bet and call in Kuhn
@@ -121,8 +119,6 @@ class GameStateK:
 				raise Exception('Player', player, 'chose invalid action', bet_sequence_tuple)
 			else:
 				self.bet_sequence = bet_sequence_tuple
-			if action == Action.PASS or action == Action.BET:
-				self.pot_size += 1
 		else:
 			raise Exception('Player', player, 'cannot act on history', self.bet_sequence)
 
