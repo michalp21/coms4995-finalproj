@@ -6,8 +6,7 @@ from InfoSet import InfoSet
 from ExtraInfo import ExtraInfo
 from Enums import *
 from collections import defaultdict
-from numpy.random import choice
-from copy import deepcopy
+import random
 import cProfile
 
 players = [1,2]
@@ -15,7 +14,8 @@ infoset_extrainfo_map = defaultdict(lambda: ExtraInfo(len(Action)-1))
 
 def get_random_action(strategy):
 	# return the index of the action the strategy chooses to take
-	return choice(range(len(strategy)), 1, p=strategy)[0]
+	# return choice(range(len(strategy)), 1, p=strategy)[0]
+	return random.choices([i for i in range(len(strategy))], weights=strategy, k=1)[0]
 
 def ESMCCFR_P(T):
 	# conduct external-sampling Monte Carlo Counterfactual Regret
@@ -104,8 +104,8 @@ def traverse_ESMCCFR(gamestate, player):
 		return traverse_ESMCCFR(g, player)
 
 if __name__ == "__main__":
-	# cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
-	ESMCCFR_P(10000)
+	cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
+	# ESMCCFR_P(10000)
 
 
 

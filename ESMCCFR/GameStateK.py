@@ -49,14 +49,6 @@ class GameStateK:
 		self.bet_sequence = ()
 		self.pot_size = 2
 
-	# def __deepcopy__(self, memo):
-	# 	cls = self.__class__
-	# 	result = cls.__new__(cls)
-	# 	memo[id(self)] = result
-	# 	for k, v in self.__dict__.items():
-	# 		setattr(result, k, deepcopy(v, memo))
-	# 	return result
-
 	def deepcopy(self):
 		gsk = GameStateK()
 		gsk.player1_hole_card = self.player1_hole_card
