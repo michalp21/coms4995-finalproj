@@ -8,6 +8,7 @@ from Enums import *
 from collections import defaultdict
 from numpy.random import choice
 from copy import deepcopy
+import cProfile
 
 players = [1,2]
 infoset_extrainfo_map = defaultdict(lambda: ExtraInfo(len(Action)-1))
@@ -59,7 +60,7 @@ def traverse_ESMCCFR(gamestate, player):
 
 			# need to define adding an action to a history, make Action class
 			# make sure to copy history and not change it if making multiple calls!
-			g = deepcopy(gamestate)
+			g = gamestate.deepcopy()
 			g.update(player, action)
 
 			# Traverse each action (per iteration of loop) (each action changes the history)
@@ -86,7 +87,7 @@ def traverse_ESMCCFR(gamestate, player):
 		extrainfo.count[action_index] += 1
 
 		# Copy history, traverse one action
-		g = deepcopy(gamestate)
+		g = gamestate.deepcopy()
 		g.update(other_player, action_index)
 		return traverse_ESMCCFR(g, player)
 
@@ -96,14 +97,15 @@ def traverse_ESMCCFR(gamestate, player):
 		# chance randomly selects a new card(s), note that chance updates differently
 		# update needs to remove card from gamestate in HUNL
 		action = Action.NEWCARD
-		g = deepcopy(gamestate)
+		g = gamestate.deepcopy()
 		g.update(chance, action)
 		
 		# if I am first player I go first after chance?
 		return traverse_ESMCCFR(g, player)
 
 if __name__ == "__main__":
-	ESMCCFR_P(1000)
+	# cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
+	ESMCCFR_P(10000)
 
 
 

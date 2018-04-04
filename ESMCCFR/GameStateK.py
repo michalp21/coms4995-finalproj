@@ -39,23 +39,31 @@ class InfoSetKuhn:
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameStateK:
+	allowable_bet_sequences = set([(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
+	terminal_bet_sequences = set([(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
 	
 	def __init__(self):
 		# Kuhn is small, so we can easily define all possible states
 		self.player1_hole_card = None
 		self.player2_hole_card = None
 		self.bet_sequence = ()
-		self.allowable_bet_sequences = set([(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
-		self.terminal_bet_sequences = set([(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
 		self.pot_size = 2
 
-	def __deepcopy__(self, memo):
-		cls = self.__class__
-		result = cls.__new__(cls)
-		memo[id(self)] = result
-		for k, v in self.__dict__.items():
-			setattr(result, k, deepcopy(v, memo))
-		return result
+	# def __deepcopy__(self, memo):
+	# 	cls = self.__class__
+	# 	result = cls.__new__(cls)
+	# 	memo[id(self)] = result
+	# 	for k, v in self.__dict__.items():
+	# 		setattr(result, k, deepcopy(v, memo))
+	# 	return result
+
+	def deepcopy(self):
+		gsk = GameStateK()
+		gsk.player1_hole_card = self.player1_hole_card
+		gsk.player2_hole_card = self.player2_hole_card
+		gsk.bet_sequence = self.bet_sequence
+		gsk.pot_size = self.pot_size
+		return gsk
 
 	#Always bet and call in Kuhn
 	def get_possible_actions(self):
@@ -71,7 +79,7 @@ class GameStateK:
 			raise Exception('player must be 1 or 2')
 
 	def is_terminal(self):
-		return self.bet_sequence in self.terminal_bet_sequences
+		return self.bet_sequence in GameStateK.terminal_bet_sequences
 
 	def get_utility(self, player):
 		if player == 1:
@@ -91,7 +99,7 @@ class GameStateK:
 			bet_sequence_list = list(self.bet_sequence)
 			bet_sequence_list.append(action)
 			bet_sequence_tuple = tuple(bet_sequence_list)
-			if bet_sequence_tuple not in self.allowable_bet_sequences:
+			if bet_sequence_tuple not in GameStateK.allowable_bet_sequences:
 				raise Exception('Chance chose invalid action', bet_sequence_tuple)
 			else:
 				self.bet_sequence = bet_sequence_tuple
@@ -102,7 +110,7 @@ class GameStateK:
 			bet_sequence_list = list(self.bet_sequence)
 			bet_sequence_list.append(action)
 			bet_sequence_tuple = tuple(bet_sequence_list)
-			if bet_sequence_tuple not in self.allowable_bet_sequences:
+			if bet_sequence_tuple not in GameStateK.allowable_bet_sequences:
 				raise Exception('Player', player, 'chose invalid action', bet_sequence_tuple)
 			else:
 				self.bet_sequence = bet_sequence_tuple
