@@ -18,20 +18,23 @@ def get_random_action(strategy):
 	return random.choices([i for i in range(len(strategy))], weights=strategy, k=1)[0]
 
 def ESMCCFR_P(T):
+	util = 0
 	# conduct external-sampling Monte Carlo Counterfactual Regret
 	for t in range(T):
 		for p in players:
 			# g = GameState()
 			g = GameStateK()
-			#traverse_ESMCCFR_P(g, p, 1) if t > T/2 else traverse_ESMCCFR(g, p)
-			traverse_ESMCCFR(g, p)
+			# traverse_ESMCCFR_P(g, p, 1) if t > T/2 else traverse_ESMCCFR(g, p)
+			util += traverse_ESMCCFR(g, p)
+
+	print("Average game value: " + str(util / T))
 
 	#Print Infosets
 	infosets = []
 	for k,v in infoset_extrainfo_map.items():
-		infosets.append((k,v.get_average_strategy()))
+		infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
 	for i in sorted(infosets, key=lambda i:i[0]):
-		print(i[0],i[1])
+		print(i[0],i[1],i[2],i[3])
 
 def traverse_ESMCCFR(gamestate, player):
 	#default to chance player
@@ -56,6 +59,7 @@ def traverse_ESMCCFR(gamestate, player):
 		# initialize expected value
 		# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 		value = 0
+		value_action = [0]*len(strategy)
 		for action in possible_actions:
 
 			# need to define adding an action to a history, make Action class
@@ -64,13 +68,14 @@ def traverse_ESMCCFR(gamestate, player):
 			g.update(player, action)
 
 			# Traverse each action (per iteration of loop) (each action changes the history)
-			value_action = traverse_ESMCCFR(g, player)
+			value_action[action] = traverse_ESMCCFR(g, player)
 
 			# Update the expected value
-			value += strategy[action] * value_action
+			value += strategy[action] * value_action[action]
 
+		for action in possible_actions:
 			# Update the cumulative regret of each action
-			extrainfo.regretSum[action] += value_action - value
+			extrainfo.regretSum[action] += value_action[action] - value
 
 		return value
 
@@ -83,7 +88,6 @@ def traverse_ESMCCFR(gamestate, player):
 
 		# Sample one action and increment action counter
 		action_index = get_random_action(strategy)
-		# action = extrainfo.actions[action_index]
 		extrainfo.count[action_index] += 1
 
 		# Copy history, traverse one action
@@ -104,8 +108,8 @@ def traverse_ESMCCFR(gamestate, player):
 		return traverse_ESMCCFR(g, player)
 
 if __name__ == "__main__":
-	cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
-	# ESMCCFR_P(10000)
+	# cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
+	ESMCCFR_P(20000)
 
 
 

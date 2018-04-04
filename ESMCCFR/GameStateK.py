@@ -39,8 +39,8 @@ class InfoSetKuhn:
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameStateK:
-	allowable_bet_sequences = set([(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
-	terminal_bet_sequences = set([(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)])
+	allowable_bet_sequences = {(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)}
+	terminal_bet_sequences = {(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)}
 	
 	def __init__(self):
 		# Kuhn is small, so we can easily define all possible states
@@ -57,7 +57,7 @@ class GameStateK:
 
 	#Always bet and call in Kuhn
 	def get_possible_actions(self):
-		return {0,1}
+		return [0,1]
 
 	#Get Infoset
 	def get_infoset(self, player):
