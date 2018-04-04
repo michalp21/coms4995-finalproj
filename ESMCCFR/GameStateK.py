@@ -74,16 +74,31 @@ class GameStateK:
 		return self.bet_sequence in GameStateK.terminal_bet_sequences
 
 	def get_utility(self, player):
-		if player == 1:
+		utility = None
+		if self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.PASS):
+			utility = 1
+		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS):
+			utility = 1
+		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.BET):
+			utility = 2
+		elif self.bet_sequence == (Action.NEWCARD, Action.BET, Action.PASS):
+			utility = 1
+		elif self.bet_sequence == (Action.NEWCARD, Action.BET, Action.BET):
+			utility = 2
+		else:
+			raise Exception('Invalid bet sequence?')
+
+		winner = None
+		if self.bet_sequence == (Action.NEWCARD, Action.BET, Action.PASS):
+			winner = 1
+		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS):
+			winner = 2
+		else:
 			if self.player1_hole_card > self.player2_hole_card:
-				return self.pot_size
+				winner = 1
 			else:
-				return -self.pot_size
-		elif player == 2:
-			if self.player1_hole_card > self.player2_hole_card:
-				return -self.pot_size
-			else:
-				return self.pot_size
+				winner = 2
+		return utility if player == winner else -utility
 
 	def update(self, player, action):
 		action = Action(action)
