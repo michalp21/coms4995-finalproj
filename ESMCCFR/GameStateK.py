@@ -99,26 +99,24 @@ class GameStateK:
 		return utility if player == winner else -utility
 
 	def update(self, player, action):
-		action = Action(action)
+		action = (Action(action),)
+		new_bet_sequence = self.bet_sequence + action
+		
 		if player == 0 and self.bet_sequence == ():
-			bet_sequence_list = list(self.bet_sequence)
-			bet_sequence_list.append(action)
-			bet_sequence_tuple = tuple(bet_sequence_list)
-			if bet_sequence_tuple not in GameStateK.allowable_bet_sequences:
-				raise Exception('Chance chose invalid action', bet_sequence_tuple)
+			
+			if new_bet_sequence not in GameStateK.allowable_bet_sequences:
+				raise Exception('Chance chose invalid action', new_bet_sequence)
 			else:
-				self.bet_sequence = bet_sequence_tuple
+				self.bet_sequence = new_bet_sequence
 				sample = random.sample(range(1, 4), 2)
 				self.player1_hole_card, self.player2_hole_card = sample[0], sample[1]
 
 		elif player == (len(self.bet_sequence)+1) % 2 + 1:
-			bet_sequence_list = list(self.bet_sequence)
-			bet_sequence_list.append(action)
-			bet_sequence_tuple = tuple(bet_sequence_list)
-			if bet_sequence_tuple not in GameStateK.allowable_bet_sequences:
-				raise Exception('Player', player, 'chose invalid action', bet_sequence_tuple)
+			
+			if new_bet_sequence not in GameStateK.allowable_bet_sequences:
+				raise Exception('Player', player, 'chose invalid action', new_bet_sequence)
 			else:
-				self.bet_sequence = bet_sequence_tuple
+				self.bet_sequence = new_bet_sequence
 		else:
 			raise Exception('Player', player, 'cannot act on history', self.bet_sequence)
 

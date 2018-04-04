@@ -34,7 +34,7 @@ def ESMCCFR_P(T):
 	for k,v in infoset_extrainfo_map.items():
 		infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
 	for i in sorted(infosets, key=lambda i:i[0]):
-		print(i[0],i[1],i[2],i[3])
+		print(i[0],i[1],i[2])
 
 def traverse_ESMCCFR(gamestate, player):
 	#default to chance player
@@ -108,8 +108,8 @@ def traverse_ESMCCFR(gamestate, player):
 		return traverse_ESMCCFR(g, player)
 
 if __name__ == "__main__":
-	# cProfile.runctx("ESMCCFR_P(10000)",globals(),locals())
-	ESMCCFR_P(20000)
+	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
+	ESMCCFR_P(100000)
 
 
 
