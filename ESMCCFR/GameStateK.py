@@ -1,24 +1,21 @@
 from Card import Card
 from Enums import *
-from InfoSet import InfoSet
-from ActionAndAmount import ActionAndAmount
-from copy import deepcopy
 from enum import Enum
 import random
 
-class Action(Enum):
+class ActionK(Enum):
 	PASS = 0
 	BET = 1
 	NEWCARD = 2
 
-class InfoSetKuhn:
+class InfosetK:
 
 	def __init__(self, hole_card, bet_sequence):
 		self.hole_card = hole_card
 		self.bet_sequence = bet_sequence
 
 	def __repr__(self):
-		trans = {Action.PASS: "p", Action.BET: "b", Action.NEWCARD: "n"}
+		trans = {ActionK.PASS: "p", ActionK.BET: "b", ActionK.NEWCARD: "n"}
 		s = ""
 		for a in reversed(self.bet_sequence[1:]):
 			s = trans[a] + s
@@ -39,8 +36,8 @@ class InfoSetKuhn:
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameStateK:
-	allowable_bet_sequences = {(), (Action.NEWCARD,), (Action.NEWCARD, Action.PASS), (Action.NEWCARD, Action.BET), (Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)}
-	terminal_bet_sequences = {(Action.NEWCARD, Action.PASS, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS), (Action.NEWCARD, Action.PASS, Action.BET, Action.BET), (Action.NEWCARD, Action.BET, Action.PASS), (Action.NEWCARD, Action.BET, Action.BET)}
+	allowable_bet_sequences = {(), (ActionK.NEWCARD,), (ActionK.NEWCARD, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET), (ActionK.NEWCARD, ActionK.PASS, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.BET), (ActionK.NEWCARD, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET, ActionK.BET)}
+	terminal_bet_sequences = {(ActionK.NEWCARD, ActionK.PASS, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.BET), (ActionK.NEWCARD, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET, ActionK.BET)}
 	
 	def __init__(self):
 		# Kuhn is small, so we can easily define all possible states
@@ -62,9 +59,9 @@ class GameStateK:
 	#Get Infoset
 	def get_infoset(self, player):
 		if player == 1:
-			return InfoSetKuhn(self.player1_hole_card, self.bet_sequence)
+			return InfosetK(self.player1_hole_card, self.bet_sequence)
 		elif player == 2:
-			return InfoSetKuhn(self.player2_hole_card, self.bet_sequence)
+			return InfosetK(self.player2_hole_card, self.bet_sequence)
 		else:
 			raise Exception('player must be 1 or 2')
 
@@ -73,23 +70,23 @@ class GameStateK:
 
 	def get_utility(self, player):
 		utility = None
-		if self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.PASS):
+		if self.bet_sequence == (ActionK.NEWCARD, ActionK.PASS, ActionK.PASS):
 			utility = 1
-		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS):
+		elif self.bet_sequence == (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS):
 			utility = 1
-		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.BET):
+		elif self.bet_sequence == (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.BET):
 			utility = 2
-		elif self.bet_sequence == (Action.NEWCARD, Action.BET, Action.PASS):
+		elif self.bet_sequence == (ActionK.NEWCARD, ActionK.BET, ActionK.PASS):
 			utility = 1
-		elif self.bet_sequence == (Action.NEWCARD, Action.BET, Action.BET):
+		elif self.bet_sequence == (ActionK.NEWCARD, ActionK.BET, ActionK.BET):
 			utility = 2
 		else:
 			raise Exception('Invalid bet sequence?')
 
 		winner = None
-		if self.bet_sequence == (Action.NEWCARD, Action.BET, Action.PASS):
+		if self.bet_sequence == (ActionK.NEWCARD, ActionK.BET, ActionK.PASS):
 			winner = 1
-		elif self.bet_sequence == (Action.NEWCARD, Action.PASS, Action.BET, Action.PASS):
+		elif self.bet_sequence == (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS):
 			winner = 2
 		else:
 			if self.player1_hole_card > self.player2_hole_card:
@@ -99,9 +96,9 @@ class GameStateK:
 		return utility if player == winner else -utility
 
 	def update(self, player, action):
-		action = (Action(action),)
+		action = (ActionK(action),)
 		new_bet_sequence = self.bet_sequence + action
-		
+
 		if player == 0 and self.bet_sequence == ():
 			
 			if new_bet_sequence not in GameStateK.allowable_bet_sequences:
