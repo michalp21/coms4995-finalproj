@@ -2,6 +2,7 @@ from Card import Card
 from Enums import *
 from enum import Enum
 import random
+import itertools
 
 class ActionK(Enum):
 	PASS = 0
@@ -20,12 +21,21 @@ class InfosetK:
 		for a in reversed(self.bet_sequence[1:]):
 			s = trans[a] + s
 		s = str(self.hole_card) + s
-		while len(s) != 3:
+		#Give enough space to represent the infoset properly
+		while len(s) != len(str(abs(GameStateK.num_possible_cards))) + 2:
 			s += " "
 		return s
 
-	def __lt__(self,other):
-		return self.__repr__() < other.__repr__()
+	def __lt__(self,other):	
+		# Compare numeric portion first, then alpha portion
+
+		numSelf = ''.join(itertools.takewhile(lambda x: x.isnumeric(),self.__repr__()))
+		numOther = ''.join(itertools.takewhile(lambda x: x.isnumeric(),other.__repr__()))
+
+		if numSelf == numOther:
+			return self.__repr__() < other.__repr__()
+		else:
+			return int(numSelf) < int(numOther)		
 
 	def __eq__(self, other):
 		return self.hole_card == other.hole_card and self.bet_sequence == other.bet_sequence
@@ -38,7 +48,8 @@ class InfosetK:
 class GameStateK:
 	allowable_bet_sequences = {(), (ActionK.NEWCARD,), (ActionK.NEWCARD, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET), (ActionK.NEWCARD, ActionK.PASS, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.BET), (ActionK.NEWCARD, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET, ActionK.BET)}
 	terminal_bet_sequences = {(ActionK.NEWCARD, ActionK.PASS, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.PASS, ActionK.BET, ActionK.BET), (ActionK.NEWCARD, ActionK.BET, ActionK.PASS), (ActionK.NEWCARD, ActionK.BET, ActionK.BET)}
-	
+	num_possible_cards = 99
+
 	def __init__(self):
 		# Kuhn is small, so we can easily define all possible states
 		self.player1_hole_card = None
@@ -105,7 +116,7 @@ class GameStateK:
 				raise Exception('Chance chose invalid action', new_bet_sequence)
 			else:
 				self.bet_sequence = new_bet_sequence
-				sample = random.sample(range(1, 4), 2)
+				sample = random.sample(range(1, GameStateK.num_possible_cards+1), 2)
 				self.player1_hole_card, self.player2_hole_card = sample[0], sample[1]
 
 		elif player == (len(self.bet_sequence)+1) % 2 + 1:

@@ -38,7 +38,7 @@ class ESMCCFR_P:
 		infosets = []
 		for k,v in self.infoset_extrainfo_map.items():
 			infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
-		for i in sorted(infosets, key=lambda i:i[0]):
+		for i in sorted(infosets, key=lambda j: j[0]):
 			print(i[0],i[1])
 
 	def traverse_ESMCCFR(self, gamestate, player):
