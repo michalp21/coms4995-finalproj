@@ -3,6 +3,7 @@ from GameStateK import *
 from InfoSet import InfoSet
 from ExtraInfo import ExtraInfo
 from Enums import *
+from Utilities import *
 from collections import defaultdict
 import random
 import cProfile
@@ -22,6 +23,7 @@ class ESMCCFR_P:
 		util = 0
 
 		start = timeit.default_timer()
+		printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for p in self.PLAYERS:
@@ -29,6 +31,7 @@ class ESMCCFR_P:
 				g = GameStateK()
 				# util += traverse_ESMCCFR_P(g, p, 1) if t > T//2 else traverse_ESMCCFR(g, p)
 				util += self.traverse_ESMCCFR(g, p)
+				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
 		stop = timeit.default_timer()
 
 		print("Time elapsed: " + str(stop-start))
@@ -193,7 +196,7 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P()
-	ESMCCFR_P.run(1000)
+	ESMCCFR_P.run(10000)
 
 
 
