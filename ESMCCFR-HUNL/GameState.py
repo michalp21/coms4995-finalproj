@@ -19,16 +19,11 @@ class GameState:
 		self.turn_card = turn_card
 		self.river_card = river_card
 
-		self.preflop_actions = []
-		self.flop_actions = []
-		self.turn_actions = []
-		self.river_actions = []
-
 		# original contribution is blinds. p1 goes first on every round except first one
 		self.p1_contrib = 200
 		self.p2_contrib = 100
 		# stack size is always 2,000 (scale later), bet abstraction is 100 for now
-		self._stack_size = 2000
+		self._stack_size = 500
 		self._bet_increment = 100
 
 		# Keep track of what round of betting it is - 0 is preflop, 1 flop, 2 turn, 3 river, 4 terminal
@@ -36,8 +31,7 @@ class GameState:
 
 		# meta
 		self.player_turn = 2
-		self.cards = [self.flop_cards, self.turn_card, self.river_card]
-		self.actions = [self.preflop_actions, self.flop_actions, self.turn_actions, self.river_actions]
+		self.actions = {0: [], 1: [], 2: [], 3: []}
 
 	def __deepcopy__(self, memo):
 		cls = self.__class__
@@ -53,10 +47,7 @@ class GameState:
 		# cards and actions will reference the correct values by default which are set
 		gamestate = GameState(self.p1_cards, self.p2_cards, self.flop_cards, self.turn_card, self.river_card)
 		gamestate.players = self.players
-		gamestate.preflop_actions = self.preflop_actions
-		gamestate.flop_actions = self.flop_actions
-		gamestate.turn_actions = self.turn_actions
-		gamestate.river_actions = self.river_actions
+		gamestate.actions = deepcopy(self.actions)
 		gamestate.p1_contrib = self.p1_contrib
 		gamestate.p2_contrib = self.p2_contrib
 		gamestate.round = self.round
@@ -93,17 +84,20 @@ class GameState:
 			return -self.p1_contrib if player == 1 else -self.p2_contrib
 
 	def get_utility_showdown(self, player):
-		board = self.flop_cards
+		board = deepcopy(self.flop_cards)
+		print('board', board)
 		board.append(self.turn_card)
 		board.append(self.river_card)
+		print('evaluating', self.p1_cards, board)
 		p1_hand_rank = self.evaluator.evaluate(self.p1_cards, board)
+		print('evaluating', self.p2_cards, board)
 		p2_hand_rank = self.evaluator.evaluate(self.p2_cards, board)
 		if p1_hand_rank == p2_hand_rank:
 			return 0
 		elif p1_hand_rank > p2_hand_rank:
 			return self.p2_contrib if player == 1 else -self.p2_contrib
-		elif p1_hand_rank < p2_hand_rank:
-			return -self.p1_contrib if player == 1 else -self.p1_contrib
+		elif p2_hand_rank > p1_hand_rank:
+			return self.p1_contrib if player == 2 else -self.p1_contrib
 		else: raise Exception ('How did we get here?')
 
 	def get_utility(self, player):

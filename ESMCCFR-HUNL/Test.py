@@ -1,0 +1,1 @@
+print (hash((1,frozenset(tuple([(1,2)])))))

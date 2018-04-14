@@ -10,6 +10,7 @@ import cProfile
 import timeit
 from deuces2.card import Card
 from deuces2.deck import Deck
+import csv
 
 class ESMCCFR_P:
 	def __init__(self):
@@ -33,7 +34,6 @@ class ESMCCFR_P:
 
 	def run(self,T):
 		util = 0
-
 		start = timeit.default_timer()
 		printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
@@ -49,12 +49,15 @@ class ESMCCFR_P:
 		print("Time elapsed: " + str(stop-start))
 		print("Average game value: " + str(util / T))
 
-		#Print Infosets
-		infosets = []
-		for k,v in self.infoset_strategy_map.items():
-			infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
-		for i in sorted(infosets, key=lambda j: j[0]):
-			print(i[0],i[1])
+		#Save Infosets
+		with open('strategy.csv', 'w') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter = ',')
+
+			infosets = []
+			for k,v in self.infoset_strategy_map.items():
+				infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
+			for i in infosets:
+				csvwriter.writerow([i[0],i[1]])
 
 	def traverse_ESMCCFR(self, gamestate, player):
 		#default to chance player
@@ -73,7 +76,9 @@ class ESMCCFR_P:
 
 			# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
-				strategy = infoset_strategy_map[infoset]
+				strategy = self.infoset_strategy_map[infoset]
+			else:
+				self.infoset_strategy_map[infoset] = strategy
 
 			player_strategy = strategy.calculate_strategy(possible_actions)
 
@@ -105,7 +110,9 @@ class ESMCCFR_P:
 
 			# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
-				strategy = infoset_strategy_map[infoset]
+				strategy = self.infoset_strategy_map[infoset]
+			else: self.infoset_strategy_map[infoset] = strategy
+
 			player_strategy = strategy.calculate_strategy(possible_actions)
 
 			# Sample one action and increment action counter
