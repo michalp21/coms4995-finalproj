@@ -1,1 +1,3 @@
-print (hash((1,frozenset(tuple([(1,2)])))))
+from deuces2.card import Card
+
+print (Card.int_to_str(1))
