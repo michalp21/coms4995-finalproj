@@ -88,9 +88,7 @@ class GameState:
 		print('board', board)
 		board.append(self.turn_card)
 		board.append(self.river_card)
-		print('evaluating', self.p1_cards, board)
 		p1_hand_rank = self.evaluator.evaluate(self.p1_cards, board)
-		print('evaluating', self.p2_cards, board)
 		p2_hand_rank = self.evaluator.evaluate(self.p2_cards, board)
 		if p1_hand_rank == p2_hand_rank:
 			return 0
@@ -153,7 +151,9 @@ class GameState:
 				self.player_turn = 2
 			elif self.p2_contrib + amount > self.p1_contrib:
 				self.p2_contrib += amount
-			else: raise Exception('How did we get here?')
+			else: 
+				print(amount, self.p1_contrib, self.p2_contrib)
+				raise Exception('How did we get here?')
 		else: raise Exception('How did we get here?')
 
 	def get_players_turn(self):

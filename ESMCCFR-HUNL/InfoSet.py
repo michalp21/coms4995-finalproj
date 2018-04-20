@@ -6,7 +6,6 @@ from deuces2.card import Card
 class InfoSet:
 
 	def __init__(self, gamestate, hole_cards):
-		#NEED TO UPDATE THIS TO ONLY GIVE THE COMMUNITY CARDS PLAYERS CAN ACCESS!!!
 		self.hole_cards = tuple(hole_cards)
 		self.flop_cards = () if gamestate.round < 1 else tuple(gamestate.flop_cards)
 		self.turn_card = () if gamestate.round < 2 else (gamestate.turn_card,)
