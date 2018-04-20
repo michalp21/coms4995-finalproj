@@ -85,7 +85,6 @@ class GameState:
 
 	def get_utility_showdown(self, player):
 		board = deepcopy(self.flop_cards)
-		print('board', board)
 		board.append(self.turn_card)
 		board.append(self.river_card)
 		p1_hand_rank = self.evaluator.evaluate(self.p1_cards, board)

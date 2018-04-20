@@ -11,6 +11,7 @@ import timeit
 from deuces2.card import Card
 from deuces2.deck import Deck
 import csv
+import pickle
 
 class ESMCCFR_P:
 	def __init__(self):
@@ -57,6 +58,9 @@ class ESMCCFR_P:
 				infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
 			for i in infosets:
 				csvwriter.writerow([i[0],i[1]])
+
+		with open('strategy.pkl', 'wb') as pklfile:
+			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 	def traverse_ESMCCFR(self, gamestate, player):
 		#default to chance player
