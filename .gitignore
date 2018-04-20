@@ -1,0 +1,8 @@
+#java
+*.class
+
+#mac
+.DS_Store
+
+#Byte-compiled
+__pycache__/
