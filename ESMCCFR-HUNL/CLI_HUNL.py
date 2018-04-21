@@ -11,6 +11,7 @@ utility_methods = ESMCCFR_P()
 gamestate = utility_methods.initialize_gamestate()
 
 player = random.randint(1, 2)
+print("You are player", player)
 if player == 1:
 	print("You are the big blind, you post", gamestate.p1_contrib)
 	print("Your private cards are", [Card.int_to_str(c) for c in gamestate.p1_cards])

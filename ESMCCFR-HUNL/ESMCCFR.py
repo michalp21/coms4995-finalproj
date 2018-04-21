@@ -156,7 +156,7 @@ class ESMCCFR_P:
 				action = possible_actions[action_index]
 				threshold = 1
 				if strategy.regretSum[action_index] < C:
-					threshold = max(0.02/p, K/(K+C-action_regret))
+					threshold = max(0.02/p, K/(K+C-strategy.regretSum[action_index]))
 
 				if random.random() < threshold:
 					g = gamestate.deepcopy()
@@ -201,7 +201,7 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P()
-	ESMCCFR_P.run(100)
+	ESMCCFR_P.run(100000)
 
 
 

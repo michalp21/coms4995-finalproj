@@ -89,11 +89,12 @@ class GameState:
 		board.append(self.river_card)
 		p1_hand_rank = self.evaluator.evaluate(self.p1_cards, board)
 		p2_hand_rank = self.evaluator.evaluate(self.p2_cards, board)
+		print('p1_hand_rank', p1_hand_rank, 'p2_hand_rank', p2_hand_rank)
 		if p1_hand_rank == p2_hand_rank:
 			return 0
-		elif p1_hand_rank > p2_hand_rank:
+		elif p1_hand_rank < p2_hand_rank:
 			return self.p2_contrib if player == 1 else -self.p2_contrib
-		elif p2_hand_rank > p1_hand_rank:
+		elif p2_hand_rank < p1_hand_rank:
 			return self.p1_contrib if player == 2 else -self.p1_contrib
 		else: raise Exception ('How did we get here?')
 
@@ -146,8 +147,10 @@ class GameState:
 				else: raise Exception('How did we get here?')
 			elif self.p2_contrib + amount == self.p1_contrib:
 				self.p2_contrib += amount
-				self.round += 1
-				self.player_turn = 2
+				# if p2_contrib == 200, then it was a big blind call, big blind needs option
+				if self.p2_contrib > 200:
+					self.round += 1
+					self.player_turn = 2
 			elif self.p2_contrib + amount > self.p1_contrib:
 				self.p2_contrib += amount
 			else: 
