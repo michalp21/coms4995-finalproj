@@ -33,14 +33,14 @@ class ESMCCFR_P:
 	def run(self,T):
 		util = 0
 		start = timeit.default_timer()
-		# printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
+		printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for player in self.PLAYERS:
 				gamestate = self.initialize_gamestate()
 				# util += self.traverse_ESMCCFR_P(gamestate, player, 1) if t > T//2 else self.traverse_ESMCCFR(gamestate, player)
 				util += self.traverse_ESMCCFR(gamestate, player)
-				# printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
+				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
 		stop = timeit.default_timer()
 
 		print("Time elapsed: " + str(stop-start))
@@ -63,14 +63,14 @@ class ESMCCFR_P:
 	def traverse_ESMCCFR(self, gamestate, player):
 
 		if gamestate.is_terminal():
-			print('terminal', gamestate.get_utility(player))
+			# print('terminal', gamestate.get_utility(player))
 			return gamestate.get_utility(player)
 
 		#default to chance player
 		other_player = 2 if player == 1 else 1
 		player_turn = gamestate.get_players_turn()
 		# print(player, player_turn, gamestate)
-		print('we care about player', player, 'and it is', player_turn, 's turn')
+		# print('we care about player', player, 'and it is', player_turn, 's turn')
 		possible_actions = gamestate.get_possible_actions(player_turn)
 		strategy = Strategy(len(possible_actions))
 
@@ -99,7 +99,7 @@ class ESMCCFR_P:
 				# Traverse each action (per iteration of loop) (each action changes the history)
 				va = self.traverse_ESMCCFR(g, player)
 				# print(Card.int_to_str(gamestate.p1_card))
-				print('action:', action, 'value:', va)
+				# print('action:', action, 'value:', va)
 
 				value_action[action_index] = va
 
@@ -156,7 +156,7 @@ class ESMCCFR_P:
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else:
-				print('found new infoset', other_player)
+				# print('found new infoset', other_player)
 				self.infoset_strategy_map[infoset] = strategy
 
 			player_strategy = strategy.calculate_strategy()
@@ -198,7 +198,7 @@ class ESMCCFR_P:
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else: 
-				print('found new infoset:', infoset)
+				# print('found new infoset:', infoset)
 				self.infoset_strategy_map[infoset] = strategy
 
 			player_strategy = strategy.calculate_strategy()
@@ -217,4 +217,4 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P()
-	ESMCCFR_P.run(1)
+	ESMCCFR_P.run(10000)

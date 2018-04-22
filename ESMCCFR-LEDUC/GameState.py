@@ -96,7 +96,7 @@ class GameState:
 		else: raise Exception ('How did we get here?')
 
 	def get_utility(self, player):
-		print(self)
+		# print(self)
 		if len(self.players) == 1:
 			return self.get_utility_folder(player)
 		else:
@@ -104,7 +104,7 @@ class GameState:
 
 
 	def update(self, player, amount):
-		print('before', self.p1_contrib, self.p2_contrib, player, amount)
+		# print('before', self.p1_contrib, self.p2_contrib, player, amount)
 		# print(player, amount)
 		if player == 1:
 			# always record what the player did
@@ -154,11 +154,11 @@ class GameState:
 			elif self.p2_contrib + amount > self.p1_contrib:
 				self.p2_contrib += amount
 			else: 
-				print(amount, self.p1_contrib, self.p2_contrib)
+				# print(amount, self.p1_contrib, self.p2_contrib)
 				raise Exception('How did we get here?')
 		else: raise Exception('How did we get here?')
 
-		print('after', self.p1_contrib, self.p2_contrib, player, amount, self.players)
+		# print('after', self.p1_contrib, self.p2_contrib, player, amount, self.players)
 
 	def get_players_turn(self):
 		return self.player_turn
