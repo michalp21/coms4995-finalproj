@@ -27,7 +27,10 @@ class ESMCCFR_P:
 		p1_card = deck.draw(1)
 		p2_card = deck.draw(1)
 		flop_card = deck.draw(1)
-		gamestate = GameState(p1_card, p2_card, flop_card)
+		gamestate = GameState(poker_config=GameState.leduc,
+			p1_card=p1_card,
+			p2_card=p2_card,
+			flop_card=flop_card)
 		return gamestate
 
 	def run(self,T):
