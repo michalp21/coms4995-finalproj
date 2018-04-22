@@ -39,14 +39,14 @@ class GameState:
 	def __repr__(self):
 		hc = [Card.int_to_str(self.p1_card), Card.int_to_str(self.p2_card)]
 		fc = [Card.int_to_str(self.flop_card)] if self.flop_card else ''
-		return 'Hole Card: %s, Flop Card: %s' % (hc, fc) + ' Actions: ' + ':'.join([','.join(str(h) for h in self.actions[k]) for k in sorted(self.actions)])
+		return 'Hole Card: %s, Flop Card: %s' % (hc, fc) + ' Actions: ' + ':'.join([','.join(str(h) for h in self.actions[k]) for k in sorted(self.actions)]) + 'Round:' + str(self.round)
 
 	def deepcopy(self):
 		# copy over the fields that change.
 		# stack_size and bet_increment do not change within a run of ESMCCFR
 		# cards and actions will reference the correct values by default which are set
 		gamestate = GameState(self.p1_card, self.p2_card, self.flop_card)
-		gamestate.players = self.players
+		gamestate.players = deepcopy(self.players)
 		gamestate.actions = deepcopy(self.actions)
 		gamestate.p1_contrib = self.p1_contrib
 		gamestate.p2_contrib = self.p2_contrib
@@ -76,6 +76,7 @@ class GameState:
 		return len(self.players) == 1 or self.round == 2
 
 	def get_utility_folder(self, player):
+		# print('folder!!!', self.round)
 		# if p1 wins, p1 wins what p2 contributed and vice versa
 		# if p1 loses, p1 loses what p1 contributed and vice versa
 		if player in self.players:
@@ -95,6 +96,7 @@ class GameState:
 		else: raise Exception ('How did we get here?')
 
 	def get_utility(self, player):
+		print(self)
 		if len(self.players) == 1:
 			return self.get_utility_folder(player)
 		else:
@@ -102,6 +104,7 @@ class GameState:
 
 
 	def update(self, player, amount):
+		print('before', self.p1_contrib, self.p2_contrib, player, amount)
 		# print(player, amount)
 		if player == 1:
 			# always record what the player did
@@ -112,6 +115,7 @@ class GameState:
 			if amount == 0:
 				# player folds, removed from game
 				if self.p1_contrib < self.p2_contrib:
+					# print('removing player', player)
 					self.players.remove(player)
 				# player checks
 				elif self.p1_contrib == self.p2_contrib:
@@ -135,6 +139,7 @@ class GameState:
 			self.actions[self.round].append(amount)
 			if amount == 0:
 				if self.p2_contrib < self.p1_contrib:
+					# print('removing player', player)
 					self.players.remove(player)
 				elif self.p2_contrib == self.p1_contrib:
 					if len(self.actions[self.round]) > 1:
@@ -152,6 +157,8 @@ class GameState:
 				print(amount, self.p1_contrib, self.p2_contrib)
 				raise Exception('How did we get here?')
 		else: raise Exception('How did we get here?')
+
+		print('after', self.p1_contrib, self.p2_contrib, player, amount, self.players)
 
 	def get_players_turn(self):
 		return self.player_turn
