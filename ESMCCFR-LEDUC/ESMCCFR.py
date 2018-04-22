@@ -2,7 +2,6 @@
 from GameState import GameState
 from InfoSet import InfoSet
 from Strategy import Strategy
-from Enums import *
 from Utilities import *
 from collections import defaultdict
 import random
@@ -25,12 +24,10 @@ class ESMCCFR_P:
 	def initialize_gamestate(self):
 		# create a game in which "chance" has taken all actions, but the players will not be aware
 		deck = Deck()
-		p1_cards = deck.draw(2)
-		p2_cards = deck.draw(2)
-		flop_cards = deck.draw(3)
-		turn_card = deck.draw(1)
-		river_card = deck.draw(1)
-		gamestate = GameState(p1_cards, p2_cards, flop_cards, turn_card, river_card)
+		p1_card = deck.draw(1)
+		p2_card = deck.draw(1)
+		flop_card = deck.draw(1)
+		gamestate = GameState(p1_card, p2_card, flop_card)
 		return gamestate
 
 	def run(self,T):
@@ -41,8 +38,8 @@ class ESMCCFR_P:
 		for t in range(T):
 			for player in self.PLAYERS:
 				gamestate = self.initialize_gamestate()
-				util += self.traverse_ESMCCFR_P(gamestate, player, 1) if t > T//2 else self.traverse_ESMCCFR(gamestate, player)
-				# util += self.traverse_ESMCCFR_P(gamestate, player, 1)
+				# util += self.traverse_ESMCCFR_P(gamestate, player, 1) if t > T//2 else self.traverse_ESMCCFR(gamestate, player)
+				util += self.traverse_ESMCCFR(gamestate, player)
 				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
 		stop = timeit.default_timer()
 
@@ -55,54 +52,64 @@ class ESMCCFR_P:
 
 			infosets = []
 			for k,v in self.infoset_strategy_map.items():
-				infosets.append((k,v.get_average_strategy(),v.count,v.regretSum))
+				infosets.append((k,v.calculate_strategy(),v.count,v.regret_sum))
 			for i in infosets:
+				# print(i)
 				csvwriter.writerow([i[0],i[1]])
 
 		with open('strategy.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 	def traverse_ESMCCFR(self, gamestate, player):
+
+		if gamestate.is_terminal():
+			# print('terminal', gamestate.get_utility(player))
+			return gamestate.get_utility(player)
+
 		#default to chance player
 		other_player = 2 if player == 1 else 1
 		player_turn = gamestate.get_players_turn()
+		# print(player, player_turn, gamestate)
+		# print('we care about player', player, 'and it is', player_turn, 's turn')
 		possible_actions = gamestate.get_possible_actions(player_turn)
 		strategy = Strategy(len(possible_actions))
 
-		if gamestate.is_terminal():
-			return gamestate.get_utility(player)
-
-		elif player_turn == player:
+		if player_turn == player:
 			infoset = gamestate.get_infoset(player)
 
 			# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else:
+				# print('found new infoset:', infoset)
 				self.infoset_strategy_map[infoset] = strategy
-
-			player_strategy = strategy.calculate_strategy(possible_actions)
-
+			player_strategy = strategy.calculate_strategy()
 			# initialize expected value
 			# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 			value = 0
-			value_action = [0]*len(player_strategy)
-			for action in range(len(possible_actions)):
-
+			value_action = [0 for i in range(len(player_strategy))]
+			for action_index in range(len(possible_actions)):
+				action = possible_actions[action_index]
 				# need to define adding an action to a history, make Action class
 				# make sure to copy history and not change it if making multiple calls!
 				g = gamestate.deepcopy()
-				g.update(player, possible_actions[action])
+				# print('updating', player, action)
+				g.update(player, action)
 
 				# Traverse each action (per iteration of loop) (each action changes the history)
-				value_action[action] = self.traverse_ESMCCFR(g, player)
+				va = self.traverse_ESMCCFR(g, player)
+				# print(Card.int_to_str(gamestate.p1_card))
+				# print('action:', action, 'value:', va)
+
+				value_action[action_index] = va
 
 				# Update the expected value
-				value += player_strategy[action] * value_action[action]
-
-			for action in range(len(possible_actions)):
+				value += player_strategy[action_index] * value_action[action_index]
+			# print('value', value)
+			# print('value_action', value_action)
+			for action_index in range(len(possible_actions)):
 				# Update the cumulative regret of each action
-				strategy.regretSum[action] += value_action[action] - value
+				strategy.regret_sum[action_index] += value_action[action_index] - value
 
 			return value
 
@@ -112,18 +119,24 @@ class ESMCCFR_P:
 			# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
-			else: self.infoset_strategy_map[infoset] = strategy
+			else:
+				# print('found new infoset:', infoset)
+				self.infoset_strategy_map[infoset] = strategy
 
-			player_strategy = strategy.calculate_strategy(possible_actions)
-
+			player_strategy = strategy.calculate_strategy()
 			# Sample one action and increment action counter
-			action = self.get_random_action(player_strategy)
-			strategy.count[action] += 1
+			action_index = self.get_random_action(player_strategy)
+			action = possible_actions[action_index]
+			# print('action:', action)
+			strategy.count[action_index] += 1
 
 			# Copy history, traverse one action
 			g = gamestate.deepcopy()
-			g.update(other_player, possible_actions[action])
+			# print('other player picked action:', possible_actions[action_index])
+			g.update(other_player, action)
 			return self.traverse_ESMCCFR(g, player)
+		else:
+			raise Exception('How did we get here? There are no other players')
 
 	def traverse_ESMCCFR_P(self, gamestate, player, p, C = -1000, K = 2):
 		# C is a negative constant, paper does not provide any more information
@@ -139,24 +152,25 @@ class ESMCCFR_P:
 		elif player_turn == player:
 			infoset = gamestate.get_infoset(player)
 
-						# Determine the strategy at this infoset
+			# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else:
+				# print('found new infoset', other_player)
 				self.infoset_strategy_map[infoset] = strategy
 
-			player_strategy = strategy.calculate_strategy(possible_actions)
+			player_strategy = strategy.calculate_strategy()
 
 			# initialize expected value
 			# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 			value = 0
-			value_action = [0]*len(player_strategy)
-			explored = [False]*len(player_strategy)
+			value_action = [0 for i in range(len(player_strategy))]
+			explored = [False for i in range(len(player_strategy))]
 			for action_index in range(len(possible_actions)):
 				action = possible_actions[action_index]
 				threshold = 1
-				if strategy.regretSum[action_index] < C:
-					threshold = max(0.02/p, K/(K+C-strategy.regretSum[action_index]))
+				if strategy.regret_sum[action_index] < C:
+					threshold = max(0.02/p, K/(K+C-strategy.regret_sum[action_index]))
 
 				if random.random() < threshold:
 					g = gamestate.deepcopy()
@@ -173,7 +187,7 @@ class ESMCCFR_P:
 
 			for action_index in range(len(possible_actions)):
 				if explored[action_index]:
-					strategy.regretSum[action_index] += value_action[action_index] - value
+					strategy.regret_sum[action_index] += value_action[action_index] - value
 
 			return value
 
@@ -183,9 +197,11 @@ class ESMCCFR_P:
 						# Determine the strategy at this infoset
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
-			else: self.infoset_strategy_map[infoset] = strategy
+			else: 
+				# print('found new infoset:', infoset)
+				self.infoset_strategy_map[infoset] = strategy
 
-			player_strategy = strategy.calculate_strategy(possible_actions)
+			player_strategy = strategy.calculate_strategy()
 
 			# Sample one action and increment action counter
 			action_index = self.get_random_action(player_strategy)
@@ -201,13 +217,4 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P()
-	ESMCCFR_P.run(100000)
-
-
-
-
-
-
-
-
-
+	ESMCCFR_P.run(10000)

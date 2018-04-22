@@ -14,17 +14,17 @@ player = random.randint(1, 2)
 print("You are player", player)
 if player == 1:
 	print("You are the big blind, you post", gamestate.p1_contrib)
-	print("Your private cards are", [Card.int_to_str(c) for c in gamestate.p1_cards])
+	print("Your private card is", Card.int_to_str(gamestate.p1_card))
 elif player == 2:
 	print("You are the small blind, you post", gamestate.p2_contrib)
-	print("Your private cards are", [Card.int_to_str(c) for c in gamestate.p2_cards])
+	print("Your private card is", Card.int_to_str(gamestate.p2_card))
 
 while not gamestate.is_terminal():
 	players_turn = gamestate.get_players_turn()
 	possible_actions = gamestate.get_possible_actions(players_turn)
 	infoset = gamestate.get_infoset(players_turn)
 	if players_turn == player:
-		print("The current community cards are", [Card.int_to_str(c) for c in infoset.flop_cards], [Card.int_to_str(c) for c in infoset.turn_card], [Card.int_to_str(c) for c in infoset.river_card])
+		print("The current community card is", [Card.int_to_str(c) for c in infoset.flop_card])
 		print("You can bet the following amounts:", possible_actions)
 		action = int(input('Your action: '))
 		gamestate.update(players_turn, action)
