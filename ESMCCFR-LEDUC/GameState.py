@@ -14,8 +14,8 @@ class GameState:
 		'stack_size': 500,
 		'bet_increment': 100,
 		'rounds': 2,
-		'starting_player': 2,
-		'switch_starting_player': True
+		'starting_player': 1,
+		'switch_starting_player': False
 	}
 
 	def __init__(self, poker_config, p1_card, p2_card, flop_card):
