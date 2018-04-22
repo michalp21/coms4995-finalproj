@@ -33,14 +33,14 @@ class ESMCCFR_P:
 	def run(self,T):
 		util = 0
 		start = timeit.default_timer()
-		# printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
+		printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for player in self.PLAYERS:
 				gamestate = self.initialize_gamestate()
 				# util += self.traverse_ESMCCFR_P(gamestate, player, 1) if t > T//2 else self.traverse_ESMCCFR(gamestate, player)
 				util += self.traverse_ESMCCFR(gamestate, player)
-				# printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
+				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
 		stop = timeit.default_timer()
 
 		print("Time elapsed: " + str(stop-start))
@@ -61,19 +61,20 @@ class ESMCCFR_P:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 	def traverse_ESMCCFR(self, gamestate, player):
-		print(gamestate)
-		#default to chance player
-		other_player = 2 if player == 1 else 1
-		player_turn = gamestate.get_players_turn()
-		# print('we care about player', player, 'and it is', player_turn, 's turn')
-		possible_actions = gamestate.get_possible_actions(player_turn)
-		strategy = Strategy(len(possible_actions))
 
 		if gamestate.is_terminal():
 			# print('terminal', gamestate.get_utility(player))
 			return gamestate.get_utility(player)
 
-		elif player_turn == player:
+		#default to chance player
+		other_player = 2 if player == 1 else 1
+		player_turn = gamestate.get_players_turn()
+		# print(player, player_turn, gamestate)
+		# print('we care about player', player, 'and it is', player_turn, 's turn')
+		possible_actions = gamestate.get_possible_actions(player_turn)
+		strategy = Strategy(len(possible_actions))
+
+		if player_turn == player:
 			infoset = gamestate.get_infoset(player)
 
 			# Determine the strategy at this infoset
@@ -92,6 +93,7 @@ class ESMCCFR_P:
 				# need to define adding an action to a history, make Action class
 				# make sure to copy history and not change it if making multiple calls!
 				g = gamestate.deepcopy()
+				# print('updating', player, action)
 				g.update(player, action)
 
 				# Traverse each action (per iteration of loop) (each action changes the history)
@@ -123,14 +125,15 @@ class ESMCCFR_P:
 
 			player_strategy = strategy.calculate_strategy()
 			# Sample one action and increment action counter
-			# print('player_strategy', player_strategy)
 			action_index = self.get_random_action(player_strategy)
+			action = possible_actions[action_index]
+			# print('action:', action)
 			strategy.count[action_index] += 1
 
 			# Copy history, traverse one action
 			g = gamestate.deepcopy()
 			# print('other player picked action:', possible_actions[action_index])
-			g.update(other_player, possible_actions[action_index])
+			g.update(other_player, action)
 			return self.traverse_ESMCCFR(g, player)
 		else:
 			raise Exception('How did we get here? There are no other players')
@@ -153,7 +156,7 @@ class ESMCCFR_P:
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else:
-				print('found new infoset', other_player)
+				# print('found new infoset', other_player)
 				self.infoset_strategy_map[infoset] = strategy
 
 			player_strategy = strategy.calculate_strategy()
@@ -195,7 +198,7 @@ class ESMCCFR_P:
 			if infoset in self.infoset_strategy_map.keys():
 				strategy = self.infoset_strategy_map[infoset]
 			else: 
-				print('found new infoset:', infoset)
+				# print('found new infoset:', infoset)
 				self.infoset_strategy_map[infoset] = strategy
 
 			player_strategy = strategy.calculate_strategy()
@@ -214,4 +217,4 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P()
-	ESMCCFR_P.run(1)
+	ESMCCFR_P.run(10000)

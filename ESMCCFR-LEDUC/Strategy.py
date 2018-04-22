@@ -10,7 +10,6 @@ class Strategy:
 		self.count = [0 for i in range(num_actions)]
 
 	def get_average_strategy(self):
-		# what is this for?????
 		average_strategy = []
 		normalizing_sum = sum(self.count)
 		if normalizing_sum > 0:
