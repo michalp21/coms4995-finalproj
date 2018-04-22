@@ -109,7 +109,7 @@ class GameState:
 	def get_infoset(self, player):
 		return InfoSet(
 			hole=self._my_hole(player),
-			board=self.board,
+			board=self.board[0:round]
 			history=self.history)
 
 	def is_terminal(self):
