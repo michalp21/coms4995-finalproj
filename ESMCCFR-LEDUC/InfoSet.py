@@ -5,19 +5,19 @@
 from deuces2.card import Card
 class InfoSet:
 
-	def __init__(self, gamestate, hole_card):
-		self.hole_card = tuple([hole_card])
-		self.flop_card = () if gamestate.round < 1 else tuple([gamestate.flop_card])
-		self.history = gamestate.history
+	def __init__(self, hole, board, history):
+		self.hole = hole
+		self.board = board
+		self.history = history
 
 	def __eq__(self, other):
-		return self.hole_card == other.hole_card and self.flop_card == other.flop_card and self.history == other.history
+		return self.hole == other.hole and self. board == other.board and self.history == other.history
 	def __hash__(self):
-		return hash((self.hole_card, self.flop_card, tuple([(k, tuple(v)) for k, v in self.history.items()])))
+		return hash((self.hole, self.board, tuple([(k, tuple(v)) for k, v in self.history.items()])))
 
 	def __repr__(self):
-		hc = [Card.int_to_str(c) for c in self.hole_card]
-		fc = [Card.int_to_str(c) for c in self.flop_card] if len(self.flop_card) > 0 else ''
+		hc = [Card.int_to_str(c) for c in self.hole]
+		fc = [[Card.int_to_str(c) for c in round_cards] for round_cards in self.board]
 		return ('Hole: %s, Flop: %s' % (hc, fc) + ' Actions: ' +
 			':'.join([','.join(str(h) for h in self.history[k])
 			 for k in sorted(self.history)]))

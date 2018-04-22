@@ -18,7 +18,7 @@ class GameState:
 		'switch_starting_player': False
 	}
 
-	def __init__(self, poker_config, p1_card, p2_card, flop_card):
+	def __init__(self, poker_config, p1_card, p2_card, flop):
 		self.poker_config = poker_config
 		self.evaluator = poker_config['evaluator']
 		self.p1_contrib = poker_config['big_blind']
@@ -33,7 +33,7 @@ class GameState:
 		self.folded_player = None
 		self.p1_card = p1_card
 		self.p2_card = p2_card
-		self.flop_card = flop_card
+		self.flop = flop
 
 		self.player_turn = poker_config['starting_player']
 		self.history = {0: [], 1: []}
@@ -61,7 +61,7 @@ class GameState:
 
 	def _my_hand_rank(self, player):
 		return self.evaluator.evaluate(
-			self.p1_card if player == 1 else self.p2_card, self.flop_card)
+			self.p1_card if player == 1 else self.p2_card, self.flop)
 
 	def _other_hand_rank(self, player):
 		return self._my_hand_rank(self._other_player(player))
@@ -76,7 +76,7 @@ class GameState:
 
 	def __repr__(self):
 		hc = [Card.int_to_str(self.p1_card), Card.int_to_str(self.p2_card)]
-		fc = [Card.int_to_str(self.flop_card)] if self.flop_card else ''
+		fc = [Card.int_to_str(self.flop)] if self.flop else ''
 		return 'Hole Card: %s, Flop Card: %s' % (hc, fc) + ' Actions: ' + ':'.join(
 			[','.join(str(h) for h in self.history[k]) for k in sorted(self.history)]) + 'Round:' + str(self.round)
 
@@ -84,7 +84,7 @@ class GameState:
 		# copy over the fields that change.
 		# stack_size and bet_increment do not change within a run of ESMCCFR
 		# cards and actions will reference the correct values by default which are set
-		gamestate = GameState(self.poker_config, self.p1_card, self.p2_card, self.flop_card)
+		gamestate = GameState(self.poker_config, self.p1_card, self.p2_card, self.flop)
 		gamestate.folded_player = self.folded_player
 		gamestate.history = deepcopy(self.history)
 		gamestate.p1_contrib = self.p1_contrib
@@ -104,7 +104,10 @@ class GameState:
 		return possible_actions
 
 	def get_infoset(self, player):
-		return InfoSet(self, self._my_card(player))
+		return InfoSet(
+			hole=(self._my_card(player),),
+			board=((self.flop,),) if self.flop is not None else (),
+			history=self.history)
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
