@@ -3,6 +3,8 @@ from InfoSet import InfoSet
 from copy import deepcopy
 from deuces2.card import Card
 
+from Utilities import *
+
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameState:
@@ -18,25 +20,27 @@ class GameState:
 		'switch_starting_player': False
 	}
 
-	def __init__(self, poker_config, p1_card, p2_card, flop):
+	def __init__(self, poker_config, p1_hole, p2_hole, board):
 		self.poker_config = poker_config
 		self.evaluator = poker_config['evaluator']
 		self.p1_contrib = poker_config['big_blind']
 		self.p2_contrib = poker_config['small_blind']
 		self.stack_size = poker_config['stack_size']
 		self.bet_increment = poker_config['bet_increment']
-		self.rounds = poker_config['rounds']
+		self.num_rounds = poker_config['rounds']
 		self.round = 0
 		self.starting_player = poker_config['starting_player']
 		self.switch_starting_player = poker_config['switch_starting_player']
 
 		self.folded_player = None
-		self.p1_card = p1_card
-		self.p2_card = p2_card
-		self.flop = flop
+		self.p1_hole = p1_hole
+		self.p2_hole = p2_hole
+		self.board = board
 
 		self.player_turn = poker_config['starting_player']
 		self.history = {0: [], 1: []}
+
+		assert len(self.board) == self.num_rounds - 1
 
 	def _other_player(self, player):
 		return 3 - player
@@ -53,15 +57,15 @@ class GameState:
 	def _other_contrib(self, player):
 		return self._my_contrib(self._other_player(player))
 
-	def _my_card(self, player):
-		return self.p1_card if player == 1 else self.p2_card
+	def _my_hole(self, player):
+		return self.p1_hole if player == 1 else self.p2_hole
 
-	def _other_card(self, player):
-		return self._my_card(self._other_player(player))
+	def _other_hole(self, player):
+		return self._my_hole(self._other_player(player))
 
 	def _my_hand_rank(self, player):
-		return self.evaluator.evaluate(
-			self.p1_card if player == 1 else self.p2_card, self.flop)
+		assert 	self.folded_player is None
+		return self.evaluator.evaluate(self._my_hole(player)[0], self.board[0][0])
 
 	def _other_hand_rank(self, player):
 		return self._my_hand_rank(self._other_player(player))
@@ -75,16 +79,15 @@ class GameState:
 		return result
 
 	def __repr__(self):
-		hc = [Card.int_to_str(self.p1_card), Card.int_to_str(self.p2_card)]
-		fc = [Card.int_to_str(self.flop)] if self.flop else ''
-		return 'Hole Card: %s, Flop Card: %s' % (hc, fc) + ' Actions: ' + ':'.join(
-			[','.join(str(h) for h in self.history[k]) for k in sorted(self.history)]) + 'Round:' + str(self.round)
+		return 'Hole 1: %s, Hole 2: %s, Board: %s, Actions: %s, Round: %d' % (
+			repr_hole(self.p1_hole), repr_hole(self.p2_hole),
+			repr_board(self.board), repr_history(self.history), self.round)
 
 	def deepcopy(self):
 		# copy over the fields that change.
 		# stack_size and bet_increment do not change within a run of ESMCCFR
 		# cards and actions will reference the correct values by default which are set
-		gamestate = GameState(self.poker_config, self.p1_card, self.p2_card, self.flop)
+		gamestate = GameState(self.poker_config, self.p1_hole, self.p2_hole, self.board)
 		gamestate.folded_player = self.folded_player
 		gamestate.history = deepcopy(self.history)
 		gamestate.p1_contrib = self.p1_contrib
@@ -105,18 +108,16 @@ class GameState:
 
 	def get_infoset(self, player):
 		return InfoSet(
-			hole=(self._my_card(player),),
-			board=((self.flop,),) if self.flop is not None else (),
+			hole=self._my_hole(player),
+			board=self.board,
 			history=self.history)
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
-		return self.folded_player is not None or self.round == self.rounds
+		return self.folded_player is not None or self.round == self.num_rounds
 
 	def get_utility(self, player):
 		assert self.is_terminal()
-		my_hand_rank = self._my_hand_rank(player)
-		other_hand_rank = self._other_hand_rank(player)
 
 		# cases where a player folded
 		if self.folded_player == player:

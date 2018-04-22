@@ -1,3 +1,5 @@
+from deuces2.card import Card
+
 # Credit: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
 
 # Print iterations progress
@@ -18,5 +20,16 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     bar = fill * filledLength + '-' * (length - filledLength)
     print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
     # Print New Line on Complete
-    if iteration == total: 
+    if iteration == total:
         print()
+
+
+def repr_board(board):
+    return repr([[Card.int_to_str(c) for c in round_cards] for round_cards in board])
+
+def repr_hole(hole):
+    return repr([Card.int_to_str(c) for c in hole])
+
+def repr_history(history):
+    return ':'.join(
+        [','.join(str(h) for h in history[k])for k in sorted(history)])

@@ -3,6 +3,7 @@
 # this class should be immutable as it is the key to look up strategies in a map
 
 from deuces2.card import Card
+from Utilities import *
 class InfoSet:
 
 	def __init__(self, hole, board, history):
@@ -16,8 +17,5 @@ class InfoSet:
 		return hash((self.hole, self.board, tuple([(k, tuple(v)) for k, v in self.history.items()])))
 
 	def __repr__(self):
-		hc = [Card.int_to_str(c) for c in self.hole]
-		fc = [[Card.int_to_str(c) for c in round_cards] for round_cards in self.board]
-		return ('Hole: %s, Flop: %s' % (hc, fc) + ' Actions: ' +
-			':'.join([','.join(str(h) for h in self.history[k])
-			 for k in sorted(self.history)]))
+		return ('Hole: %s, Flop: %s, Actions: %s' %
+			(repr_hole(self.hole), repr_board(self.board), repr_history(self.history)))
