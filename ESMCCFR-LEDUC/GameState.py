@@ -6,11 +6,13 @@ from deuces2.card import Card
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameState:
-	
+
 	def __init__(self, p1_card, p2_card, flop_card):
 		self.evaluator = Evaluator()
 		self.players = set([1,2])
 		self.p1_card = p1_card
+		self.p1_is_in_game = True
+		self.p2_is_in_game = True
 		self.p2_card = p2_card
 		self.flop_card = flop_card
 
@@ -27,6 +29,31 @@ class GameState:
 		# meta
 		self.player_turn = 2
 		self.actions = {0: [], 1: []}
+
+	def _pot(self):
+		return self.p1_contrib + self.p2_contrib
+
+	def _other_player(self, player):
+		return 3 - player
+
+	def _my_contrib(self, player):
+		return player == 1 ? self.p1_contrib : self.p2_contrib
+
+	def _other_contrib(self, player):
+		return self._my_contrib(self._other_player(player))
+
+	def _my_card(self, player)
+		return player == 1 ? self.p1_card : self.p2_card
+
+	def _other_card(self, player):
+		return self._my_card(self._other_player(player))
+
+	def _my_hand_rank(self, player):
+		return self.evaluator.evaluate(
+			player == 1 ? self.p1_card : self.p2_card, self.flop_card)
+
+	def _other_hand_rank(self, player):
+		return self._my_hand_rank(self, self._other_player(player))
 
 	def __deepcopy__(self, memo):
 		cls = self.__class__
@@ -51,7 +78,7 @@ class GameState:
 		gamestate.p1_contrib = self.p1_contrib
 		gamestate.p2_contrib = self.p2_contrib
 		gamestate.round = self.round
-		gamestate.player_turn = self.player_turn 
+		gamestate.player_turn = self.player_turn
 		return gamestate
 
 	def get_possible_actions(self, player):
@@ -65,12 +92,7 @@ class GameState:
 		return possible_actions
 
 	def get_infoset(self, player):
-		if player == 1:
-			return InfoSet(self, self.p1_card)
-		elif player == 2:
-			return InfoSet(self, self.p2_card)
-		else:
-			raise Exception('player must be 1 or 2')
+		return InfoSet(self, self.my_card(player))
 
 	def is_terminal(self):
 		return len(self.players) == 1 or self.round == 2
@@ -84,8 +106,11 @@ class GameState:
 			return -self.p1_contrib if player == 1 else -self.p2_contrib
 
 	def get_utility_showdown(self, player):
+		my_hand_rank = self.evaluator(evaluate(self._my_card(player), self.flop_card))
+		other_hand_rank = self.evaluator
 		p1_hand_rank = self.evaluator.evaluate(self.p1_card, self.flop_card)
 		p2_hand_rank = self.evaluator.evaluate(self.p2_card, self.flop_card)
+		win_coefficient = sign(p1_hand_rank - p2_hand_rank) *
 		if p1_hand_rank == p2_hand_rank:
 			return 0
 		elif p1_hand_rank < p2_hand_rank:
@@ -148,7 +173,7 @@ class GameState:
 					self.round += 1
 			elif self.p2_contrib + amount > self.p1_contrib:
 				self.p2_contrib += amount
-			else: 
+			else:
 				print(amount, self.p1_contrib, self.p2_contrib)
 				raise Exception('How did we get here?')
 		else: raise Exception('How did we get here?')
