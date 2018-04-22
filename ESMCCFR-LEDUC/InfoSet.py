@@ -20,4 +20,4 @@ class InfoSet:
 		# print('actions', self.actions)
 		hc = [Card.int_to_str(c) for c in self.hole_card]
 		fc = [Card.int_to_str(c) for c in self.flop_card] if len(self.flop_card) > 0 else ''
-		return 'Hole Cards: %s, Flop Cards: %s' % (hc, fc) + ' Actions: ' + ':'.join([','.join(str(h) for h in self.actions[k]) for k in sorted(self.actions)])
+		return 'Hole: %s, Flop: %s' % (hc, fc) + ' Actions: ' + ':'.join([','.join(str(h) for h in self.actions[k]) for k in sorted(self.actions)])
