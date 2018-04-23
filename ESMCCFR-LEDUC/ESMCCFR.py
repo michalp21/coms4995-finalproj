@@ -94,15 +94,12 @@ class ESMCCFR_P:
 			for action_index in range(len(possible_actions)):
 				action = possible_actions[action_index]
 				# need to define adding an action to a history, make Action class
-				# make sure to copy history and not change it if making multiple calls!
-				g = gamestate.deepcopy()
-				# print('updating', player, action)
-				g.update(player, action)
+				prev_round = gamestate.round
+				gamestate.update(player, action)
 
 				# Traverse each action (per iteration of loop) (each action changes the history)
-				va = self.traverse_ESMCCFR(g, player)
-				# print(Card.int_to_str(gamestate.p1_card))
-				# print('action:', action, 'value:', va)
+				va = self.traverse_ESMCCFR(gamestate, player)
+				gamestate.reverse_update(player, action, prev_round)
 
 				value_action[action_index] = va
 
@@ -133,11 +130,11 @@ class ESMCCFR_P:
 			# print('action:', action)
 			strategy.count[action_index] += 1
 
-			# Copy history, traverse one action
-			g = gamestate.deepcopy()
-			# print('other player picked action:', possible_actions[action_index])
-			g.update(other_player, action)
-			return self.traverse_ESMCCFR(g, player)
+			prev_round = gamestate.round
+			gamestate.update(other_player, action)
+			val = self.traverse_ESMCCFR(gamestate, player)
+			gamestate.reverse_update(player, action, prev_round)
+			return val
 		else:
 			raise Exception('How did we get here? There are no other players')
 
