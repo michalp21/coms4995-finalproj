@@ -94,15 +94,12 @@ class ESMCCFR_P:
 			for action_index in range(len(possible_actions)):
 				action = possible_actions[action_index]
 				# need to define adding an action to a history, make Action class
-				# make sure to copy history and not change it if making multiple calls!
-				g = gamestate.deepcopy()
-				# print('updating', player, action)
-				g.update(player, action)
+				prev_round = gamestate.round
+				gamestate.update(player, action)
 
 				# Traverse each action (per iteration of loop) (each action changes the history)
-				va = self.traverse_ESMCCFR(g, player)
-				# print(Card.int_to_str(gamestate.p1_card))
-				# print('action:', action, 'value:', va)
+				va = self.traverse_ESMCCFR(gamestate, player)
+				gamestate.reverse_update(player, action, prev_round)
 
 				value_action[action_index] = va
 

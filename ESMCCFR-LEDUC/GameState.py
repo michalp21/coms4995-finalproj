@@ -63,31 +63,10 @@ class GameState:
 	def _other_hole(self, player):
 		return self._my_hole(self._other_player(player))
 
-	def __deepcopy__(self, memo):
-		cls = self.__class__
-		result = cls.__new__(cls)
-		memo[id(self)] = result
-		for k, v in self.__dict__.items():
-			setattr(result, k, deepcopy(v, memo))
-		return result
-
 	def __repr__(self):
 		return 'Hole 1: %s, Hole 2: %s, Board: %s, Actions: %s, Round: %d' % (
 			repr_hole(self.p1_hole), repr_hole(self.p2_hole),
 			repr_board(self.board), repr_history(self.history), self.round)
-
-	def deepcopy(self):
-		# copy over the fields that change.
-		# stack_size and bet_increment do not change within a run of ESMCCFR
-		# cards and actions will reference the correct values by default which are set
-		gamestate = GameState(self.poker_config, self.p1_hole, self.p2_hole, self.board)
-		gamestate.folded_player = self.folded_player
-		gamestate.history = deepcopy(self.history)
-		gamestate.p1_contrib = self.p1_contrib
-		gamestate.p2_contrib = self.p2_contrib
-		gamestate.round = self.round
-		gamestate.player_turn = self.player_turn
-		return gamestate
 
 	def get_possible_actions(self, player):
 		# returns a list of amounts of chips that can be added to pot in appropriate increments
@@ -142,6 +121,13 @@ class GameState:
 			 if self.switch_starting_player else self.starting_player)
 		else:
 			self.player_turn = self._other_player(player)
+
+	def reverse_update(self, player, amount, round):
+		self.round = round
+		self.history[self.round].pop()
+		self._increase_contrib(player, -1 * amount)
+		self.folded_player = None
+		self.player_turn = player
 
 	def get_players_turn(self):
 		return self.player_turn
