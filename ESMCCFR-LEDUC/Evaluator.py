@@ -1,28 +1,27 @@
 from deuces2.card import Card
 
-class Evaluator:
-
-	def __init__(self):
-		pass
-
-	def evaluate(self, card, board):
-		card_rank = Card.int_to_str(card)[0]
-		board_rank = Card.int_to_str(board)[0]
-		if card_rank == board_rank:
-			if card_rank == 'A':
-				return 1
-			elif card_rank == 'K':
-				return 2
-			elif card_rank == 'Q':
-				return 3
-			else:
-				raise Exception('How did we get here?')
+def _rank(card, flop_card):
+	card_rank = Card.int_to_str(card)[0]
+	flop_rank = Card.int_to_str(flop_card)[0]
+	if card_rank == flop_rank:
+		if card_rank == 'A':
+			return 1
+		elif card_rank == 'K':
+			return 2
+		elif card_rank == 'Q':
+			return 3
 		else:
-			if card_rank == 'A':
-				return 4
-			elif card_rank == 'K':
-				return 5
-			elif card_rank == 'Q':
-				return 6
-			else:
-				raise Exception('How did we get here?')
+			raise Exception('How did we get here?')
+	else:
+		if card_rank == 'A':
+			return 4
+		elif card_rank == 'K':
+			return 5
+		elif card_rank == 'Q':
+			return 6
+		else:
+			raise Exception('How did we get here?')
+
+def leduc_evaluate(p1_hole, p2_hole, board):
+	# return positive if p1 wins
+	return _rank(p2_hole[0], board[0][0]) - _rank(p1_hole[0], board[0][0])

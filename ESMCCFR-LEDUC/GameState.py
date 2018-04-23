@@ -1,4 +1,4 @@
-from Evaluator import Evaluator
+from Evaluator import leduc_evaluate
 from InfoSet import InfoSet
 from copy import deepcopy
 from deuces2.card import Card
@@ -10,7 +10,7 @@ from Utilities import *
 class GameState:
 
 	leduc = {
-		'evaluator': Evaluator(),
+		'evaluate': leduc_evaluate,
 		'small_blind': 100,
 		'big_blind': 200,
 		'stack_size': 500,
@@ -22,7 +22,7 @@ class GameState:
 
 	def __init__(self, poker_config, p1_hole, p2_hole, board):
 		self.poker_config = poker_config
-		self.evaluator = poker_config['evaluator']
+		self.evaluate = poker_config['evaluate']
 		self.p1_contrib = poker_config['big_blind']
 		self.p2_contrib = poker_config['small_blind']
 		self.stack_size = poker_config['stack_size']
@@ -63,13 +63,6 @@ class GameState:
 	def _other_hole(self, player):
 		return self._my_hole(self._other_player(player))
 
-	def _my_hand_rank(self, player):
-		assert 	self.folded_player is None
-		return self.evaluator.evaluate(self._my_hole(player)[0], self.board[0][0])
-
-	def _other_hand_rank(self, player):
-		return self._my_hand_rank(self._other_player(player))
-
 	def __deepcopy__(self, memo):
 		cls = self.__class__
 		result = cls.__new__(cls)
@@ -109,7 +102,7 @@ class GameState:
 	def get_infoset(self, player):
 		return InfoSet(
 			hole=self._my_hole(player),
-			board=self.board[0:round]
+			board=self.board,
 			history=self.history)
 
 	def is_terminal(self):
@@ -126,10 +119,10 @@ class GameState:
 			return self._other_contrib(player)
 
 		# showdown cases
-		hand_rank_difference = self._my_hand_rank(player) - self._other_hand_rank(player)
-		if hand_rank_difference == 0:
+		result = self.evaluate(self.p1_hole, self.p2_hole, self.board)
+		if result == 0:
 			return 0
-		elif hand_rank_difference < 0:
+		elif result > 0:
 			return self._other_contrib(player)
 		else:
 			return -1 * self._my_contrib(player)
