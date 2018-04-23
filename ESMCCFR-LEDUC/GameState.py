@@ -91,13 +91,9 @@ class GameState:
 
 	def get_possible_actions(self, player):
 		# returns a list of amounts of chips that can be added to pot in appropriate increments
-		minimum = abs(self.p1_contrib - self.p2_contrib) // self.bet_increment
-		maximum = (self.stack_size - min(self.p1_contrib, self.p2_contrib)) // self.bet_increment
-		possible_actions = [b*self.bet_increment for b in range(minimum, maximum + 1)]
-		# action of 0 when less than required amount will be a fold
-		if minimum > 0:
-			possible_actions.insert(0, 0)
-		return possible_actions
+		minimum = self._other_contrib(player) - self._my_contrib(player)
+		maximum = self.stack_size - self._my_contrib(player)
+		return ([] if minimum == 0 else [0]) + list(range(minimum, maximum + 1, self.bet_increment))
 
 	def get_infoset(self, player):
 		return InfoSet(
