@@ -101,11 +101,11 @@ class ESMCCFR_P:
 			for action_index, action in enumerate(possible_actions):
 				# need to define adding an action to a history, make Action class
 				prev_round = gamestate.round
-				gamestate.update(player, action)
+				gamestate.update(player_turn, action)
 
 				# Traverse each action (per iteration of loop) (each action changes the history)
 				va = self.traverse_ESMCCFR(gamestate, player)
-				gamestate.reverse_update(player, action, prev_round)
+				gamestate.reverse_update(player_turn, action, prev_round)
 
 				value_action[action_index] = va
 
@@ -124,9 +124,9 @@ class ESMCCFR_P:
 			strategy.count[action_index] += 1
 
 			prev_round = gamestate.round
-			gamestate.update(other_player, action)
+			gamestate.update(player_turn, action)
 			val = self.traverse_ESMCCFR(gamestate, player)
-			gamestate.reverse_update(player, action, prev_round)
+			gamestate.reverse_update(player_turn, action, prev_round)
 			return val
 		else:
 			raise Exception('How did we get here? There are no other players')

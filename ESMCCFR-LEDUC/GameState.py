@@ -37,10 +37,10 @@ class GameState:
 		'evaluate': hunl_evaluate,
 		'small_blind': 1,
 		'big_blind': 2,
-		'stack_size': 50,
+		'stack_size': 10,
 		'bet_increment': 1,
 		'rounds': 4,
-		'starting_player': 1,
+		'starting_player': 2,
 		'switch_starting_player': True
 	}
 
@@ -57,6 +57,8 @@ class GameState:
 		self.round = 0
 		self.starting_player = poker_config['starting_player']
 		self.switch_starting_player = poker_config['switch_starting_player']
+		self.small_blind = poker_config['small_blind']
+		self.big_blind = poker_config['big_blind']
 
 		self.folded_player = None
 		self.p1_hole = p1_hole
@@ -66,6 +68,7 @@ class GameState:
 		self.player_turn = poker_config['starting_player']
 		self.history = [[] for _ in range(self.num_rounds)]
 
+		# todo starting player small blind thing
 		assert len(self.board) == self.num_rounds - 1
 
 	def _other_player(self, player):
@@ -95,16 +98,21 @@ class GameState:
 			repr_board(self.board), repr_history(self.history), self.round)
 
 	def get_possible_actions(self, player):
-		# returns a list of amounts of chips that can be added to pot in appropriate increments
-		minimum = self._other_contrib(player) - self._my_contrib(player)
-		maximum = self.stack_size - self._my_contrib(player)
+
+		# returns a list of amounts of chips that can be added to pot in appropriate increment
+		call = self._other_contrib(player) - self._my_contrib(player)
+		min_raise = (max(self.bet_increment, 2 * call)
+			if self._my_contrib(player) > self.small_blind
+			else self.small_blind + self.big_blind)
+		max_raise = self.stack_size - self._my_contrib(player)
 
 		# can always fold
-		return (([] if minimum == 0 else [0])
+		return ([0]
+		+ [call] if call > 0 else  []
 		# bets in range
-		+ list(range(minimum, maximum + 1, self.bet_increment))
+		+ list(range(min_raise, max_raise + 1, self.bet_increment))
 		# can always go all in
-		+ ([] if minimum <= maximum else [maximum]))
+		+ ([] if min_raise <= max_raise else [max_raise]))
 
 	def get_infoset(self, player):
 		return InfoSet(
@@ -114,7 +122,7 @@ class GameState:
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
-		return self.folded_player is not None or self.round == self.num_rounds
+		return self.folded_player == 1 or self.folded_player == 2 or self.round == self.num_rounds
 
 	def get_utility(self, player):
 		assert self.is_terminal()
@@ -139,6 +147,7 @@ class GameState:
 		assert self.folded_player is None
 		self.history[self.round].append(amount)
 
+		assert amount >= 0
 		self._increase_contrib(player, amount)
 
 		# on fold, remove player
@@ -160,6 +169,8 @@ class GameState:
 		self._increase_contrib(player, -1 * amount)
 		self.folded_player = None
 		self.player_turn = player
+
+		assert self._my_contrib(player) <= self._other_contrib(player)
 
 	def get_players_turn(self):
 		return self.player_turn
