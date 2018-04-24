@@ -72,7 +72,13 @@ class GameState:
 		# returns a list of amounts of chips that can be added to pot in appropriate increments
 		minimum = self._other_contrib(player) - self._my_contrib(player)
 		maximum = self.stack_size - self._my_contrib(player)
-		return ([] if minimum == 0 else [0]) + list(range(minimum, maximum + 1, self.bet_increment))
+
+		# can always fold
+		return (([] if minimum == 0 else [0])
+		# bets in range
+		+ list(range(minimum, maximum + 1, self.bet_increment))
+		# can always go all in
+		+ ([] if minimum <= maximum else [maximum]))
 
 	def get_infoset(self, player):
 		return InfoSet(
