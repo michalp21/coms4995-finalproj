@@ -4,7 +4,6 @@
 
 from deuces2.card import Card
 from Utilities import *
-import copy
 
 class InfoSet:
 
