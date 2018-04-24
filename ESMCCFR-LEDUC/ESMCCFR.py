@@ -74,6 +74,8 @@ class ESMCCFR_P:
 		with open('strategy.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
+		return self.infoset_strategy_map
+
 	def traverse_ESMCCFR(self, gamestate, player):
 
 		if gamestate.is_terminal():
