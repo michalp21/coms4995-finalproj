@@ -16,7 +16,6 @@ class GameState:
 		'small_blind': 1,
 		'big_blind': 2,
 		'stack_size': 5,
-		'bet_increment': 1,
 		'rounds': 2,
 		'starting_player': 2,
 		'switch_starting_player': False
@@ -27,7 +26,6 @@ class GameState:
 		'small_blind': 1,
 		'big_blind': 1,
 		'stack_size': 2,
-		'bet_increment': 1,
 		'rounds': 1,
 		'starting_player': 1,
 		'switch_starting_player': False
@@ -38,7 +36,6 @@ class GameState:
 		'small_blind': 1,
 		'big_blind': 2,
 		'stack_size': 5,
-		'bet_increment': 1,
 		'rounds': 4,
 		'starting_player': 2,
 		'switch_starting_player': True
@@ -52,7 +49,6 @@ class GameState:
 		self.p1_contrib = poker_config['big_blind']
 		self.p2_contrib = poker_config['small_blind']
 		self.stack_size = poker_config['stack_size']
-		self.bet_increment = poker_config['bet_increment']
 		self.num_rounds = poker_config['rounds']
 		self.round = 0
 		self.starting_player = poker_config['starting_player']
@@ -102,7 +98,7 @@ class GameState:
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
 		if call == 0:
-			min_raise = (self.bet_increment if self._my_contrib(player) > self.small_blind
+			min_raise = (1 if self._my_contrib(player) > self.small_blind
 			 else self.small_blind + self.big_blind)
 		else:
 			min_raise = 2 * call
@@ -112,7 +108,7 @@ class GameState:
 		return ([0]
 		+ ([call] if call > 0 else  [])
 		# bets in range
-		+ list(range(min_raise, max_raise + 1, self.bet_increment))
+		+ list(range(min_raise, max_raise + 1))
 		# can always go all in
 		+ ([] if min_raise <= max_raise else [max_raise]))
 
