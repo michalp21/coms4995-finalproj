@@ -11,10 +11,15 @@ computer = 3 - human
 
 print("Training strategy")
 
-cards = 6
-strategy_map = ESMCCFR_P(cards).run(20000)
+cards = 52
+strategy_map = ESMCCFR_P(cards).run(100)
 
 print("Done training")
+
+def pp(cards):
+  if isinstance(cards, int):
+    cards = [cards]
+  return '[' + ' '.join([Card.int_to_pretty_str(c) for c in cards]) + ']'
 
 def play_game():
   if cards == 52:
@@ -36,9 +41,7 @@ def play_game():
     poker_config=(GameState.hunl if cards == 52 else GameState.leduc),
     board=board)
 
-  print("Your cards:")
-  Card.print_pretty_cards(p1 if human == 1 else p2)
-  print("%s round" % round_names[round])
+  print("%s round, your cards: %s" % (round_names[round], pp(p1 if human == 1 else p2)))
 
   while not gs.is_terminal():
     player_turn = gs.get_players_turn()
@@ -66,8 +69,7 @@ def play_game():
     print("Contributions: human %d, computer %d" % (gs._my_contrib(human), gs._other_contrib(human)))
 
     if gs.round > round:
-      print("%s round:" % (round_names[round]))
-      Card.print_pretty_cards(board[round-1])
+      print("%s round: %s" % (round_names[gs.round], pp(board[gs.round-1])))
       round = gs.round
 
   util = gs.get_utility(human)
@@ -76,12 +78,9 @@ def play_game():
   elif gs.folded_player == computer:
     print("Computer folded")
   else:
-    print("Game went to showdown")
-    print("Your cards: ")
-    Card.print_pretty_cards(p1 if human == 1 else p2)
-    Card.print_pretty_cards(p2 if human == 1 else p1)
-    print("Board:")
-    Card.print_pretty_cards((board[0] + board[1] + board[2]) if cards == 52 else board[0])
+    print("Game went to showdown. Your cards: %s. Opponent: %s. Board: %s" %
+      (pp(p1 if human == 1 else p2), pp(p2 if human == 1 else p1),
+      pp((board[0] + board[1] + board[2]) if cards == 52 else board[0])))
 
   print(("You won %d dollars " if util > 0 else "You lost %d dollars") % util)
   return util

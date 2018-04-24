@@ -189,7 +189,7 @@ class Card ():
 
         r = str(Card.STR_RANKS[rank_int])
 
-        return " [ " +r+ " " +str(s)+ " ] "
+        return r+str(s)
 
     @staticmethod
     def print_pretty_card(card_int):
