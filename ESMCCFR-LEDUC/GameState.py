@@ -13,10 +13,10 @@ class GameState:
 
 	leduc = {
 		'evaluate': leduc_evaluate,
-		'small_blind': 100,
-		'big_blind': 200,
-		'stack_size': 500,
-		'bet_increment': 100,
+		'small_blind': 1,
+		'big_blind': 2,
+		'stack_size': 5,
+		'bet_increment': 1,
 		'rounds': 2,
 		'starting_player': 2,
 		'switch_starting_player': False
