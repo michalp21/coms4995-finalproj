@@ -37,7 +37,7 @@ class GameState:
 		'evaluate': hunl_evaluate,
 		'small_blind': 1,
 		'big_blind': 2,
-		'stack_size': 10,
+		'stack_size': 5,
 		'bet_increment': 1,
 		'rounds': 4,
 		'starting_player': 2,
