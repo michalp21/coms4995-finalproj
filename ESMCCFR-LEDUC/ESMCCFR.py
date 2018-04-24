@@ -41,7 +41,6 @@ class ESMCCFR_P:
 		for t in range(T):
 			for player in self.PLAYERS:
 				gamestate = self.initialize_gamestate()
-				# util += self.traverse_ESMCCFR_P(gamestate, player, 1) if t > T//2 else self.traverse_ESMCCFR(gamestate, player)
 				util += self.traverse_ESMCCFR(gamestate, player)
 				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
 		stop = timeit.default_timer()

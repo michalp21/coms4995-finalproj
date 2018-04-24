@@ -124,7 +124,7 @@ class GameState:
 
 	def reverse_update(self, player, amount, round):
 		self.round = round
-		self.history[self.round].pop()
+		del self.history[self.round][-1]
 		self._increase_contrib(player, -1 * amount)
 		self.folded_player = None
 		self.player_turn = player

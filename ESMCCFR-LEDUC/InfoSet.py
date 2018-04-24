@@ -4,18 +4,18 @@
 
 from deuces2.card import Card
 from Utilities import *
+import copy
+
 class InfoSet:
 
 	def __init__(self, hole, board, history):
-		self.hole = hole
-		self.board = board
-		self.history = history
+		self.data = "%s:%s:%s,%s" % (hole, board, history[0], history[1])
 
 	def __eq__(self, other):
-		return self.hole == other.hole and self. board == other.board and self.history == other.history
+		return self.data == other.data
+
 	def __hash__(self):
-		return hash((self.hole, self.board, tuple([(k, tuple(v)) for k, v in self.history.items()])))
+		return hash((self.data,))
 
 	def __repr__(self):
-		return ('Hole: %s, Flop: %s, Actions: %s' %
-			(repr_hole(self.hole), repr_board(self.board), repr_history(self.history)))
+		return self.data
