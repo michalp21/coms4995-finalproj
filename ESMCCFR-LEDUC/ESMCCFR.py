@@ -34,18 +34,19 @@ class ESMCCFR_P:
 		return gamestate
 
 	def run(self,T):
-		util = 0
+		utility = 0
 		start = timeit.default_timer()
-		printProgressBar(0, T, prefix = ' Iter '+str(0)+"/"+str(T), suffix = 'Complete', length = 50)
+
+		printProgressBar(0, T)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for player in self.PLAYERS:
-				util += self.traverse_ESMCCFR(self.new_gamestate(), player)
-				printProgressBar(t+1, T, prefix = ' Iter '+str(t)+"/"+str(T), suffix = 'Complete', length = 50)
+				utility += self.traverse_ESMCCFR(self.new_gamestate(), player)
+				printProgressBar(t+1, T)
 		stop = timeit.default_timer()
 
-		print("Time elapsed: " + str(stop-start))
-		print("Average game value: " + str(util / T))
+		print("Time elapsed: %.2f" % (stop - start,))
+		print("Average game value: %.2f" % (utility / T,))
 
 		#Save Infosets
 		with open('strategy.csv', 'w') as csvfile:
@@ -101,7 +102,7 @@ class ESMCCFR_P:
 
 			return value
 
-		elif player_turn == other_player:	
+		elif player_turn == other_player:
 			# Sample one action and increment action counter
 			action_index = self.get_random_action(player_strategy)
 			action = possible_actions[action_index]

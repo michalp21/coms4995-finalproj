@@ -3,7 +3,9 @@ from deuces2.card import Card
 # Credit: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
 
 # Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█'):
+length = 50
+
+def printProgressBar (iteration, total, decimals = 1, fill = '█'):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -18,7 +20,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s%% %s' % (prefix, bar, percent, suffix), end = '\r')
+    print('\rIter %d/%d |%s| %s%% Complete' % (iteration, total, bar, percent), end = '\r')
     # Print New Line on Complete
     if iteration == total:
         print()
