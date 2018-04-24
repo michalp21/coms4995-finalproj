@@ -13,9 +13,11 @@ import csv
 import pickle
 
 class ESMCCFR_P:
-	def __init__(self):
+	def __init__(self, deck_size):
+		assert deck_size == 6 or deck_size == 52
 		self.PLAYERS = [1,2]
 		self.infoset_strategy_map = {}
+		self.deck_size = deck_size
 
 	def get_random_action(self, player_strategy):
 		# return the index of the action the strategy chooses to take
@@ -24,8 +26,7 @@ class ESMCCFR_P:
 
 	def new_gamestate(self):
 		# create a game in which "chance" has taken all actions, but the players will not be aware
-		cards = 52
-		if cards == 52:
+		if self.deck_size == 52:
 			deck = Deck(52)
 			p1_cards = deck.draw(2)
 			p2_cards = deck.draw(2)
@@ -36,7 +37,7 @@ class ESMCCFR_P:
 				p1_hole=p1_cards,
 				p2_hole=p2_cards,
 				board=[flop, turn, river])
-		elif cards == 6:
+		else:
 			deck = Deck(6)
 			p1_cards = [deck.draw(1)]
 			p2_cards = [deck.draw(1)]
@@ -60,7 +61,7 @@ class ESMCCFR_P:
 		stop = timeit.default_timer()
 
 		print("Time elapsed: %.2f" % (stop - start,))
-		print("Average game value: %.2f" % (utility / T,))
+		print("Average game value: %.4f" % (utility / T,))
 
 		#Save Infosets
 		with open('strategy.csv', 'w') as csvfile:
@@ -132,5 +133,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P()
+	ESMCCFR_P = ESMCCFR_P(52)
 	ESMCCFR_P.run(10000)
