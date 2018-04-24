@@ -79,7 +79,7 @@ class GameState:
 
 	def _increase_contrib(self, player, amount):
 		if player == 1:
-			self.p2_contrib += amount
+			self.p1_contrib += amount
 		else:
 			self.p2_contrib += amount
 
