@@ -5,7 +5,7 @@ from deuces2.card import Card
 # Print iterations progress
 length = 50
 
-def printProgressBar (iteration, total, decimals = 1, fill = '█'):
+def printProgressBar (iteration, total):
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -17,10 +17,10 @@ def printProgressBar (iteration, total, decimals = 1, fill = '█'):
         length      - Optional  : character length of bar (Int)
         fill        - Optional  : bar fill character (Str)
     """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    percent = ("{0:.1f}%%").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print('\rIter %d/%d |%s| %s%% Complete' % (iteration, total, bar, percent), end = '\r')
+    bar = '█' * filledLength + '-' * (length - filledLength)
+    print(('\rIter %d/%d |%s| %s Complete' % (iteration, total, bar, percent)), end='\r')
     # Print New Line on Complete
     if iteration == total:
         print()
