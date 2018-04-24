@@ -101,14 +101,16 @@ class GameState:
 
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
-		min_raise = (max(self.bet_increment, 2 * call)
-			if self._my_contrib(player) > self.small_blind
-			else self.small_blind + self.big_blind)
+		if call == 0:
+			min_raise = (self.bet_increment if self._my_contrib(player) > self.small_blind
+			 else self.small_blind + self.big_blind)
+		else:
+			min_raise = 2 * call
 		max_raise = self.stack_size - self._my_contrib(player)
 
 		# can always fold
 		return ([0]
-		+ [call] if call > 0 else  []
+		+ ([call] if call > 0 else  [])
 		# bets in range
 		+ list(range(min_raise, max_raise + 1, self.bet_increment))
 		# can always go all in
