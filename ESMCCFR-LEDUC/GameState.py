@@ -149,6 +149,7 @@ class GameState:
 
 	def update(self, player, amount):
 		assert self.folded_player is None
+		assert self._my_contrib(player) <= self._other_contrib(player)
 		self.history[self.round].append(amount)
 
 		assert amount >= 0
