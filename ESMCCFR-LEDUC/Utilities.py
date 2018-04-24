@@ -19,7 +19,7 @@ def printProgressBar (iteration, total):
     """
     percent = ("{0:.1f}%%").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
-    bar = '█' * filledLength + '-' * (length - filledLength)
+    bar = u"♣" * filledLength + '-' * (length - filledLength)
     print(('\rIter %d/%d |%s| %s Complete' % (iteration, total, bar, percent)), end='\r')
     # Print New Line on Complete
     if iteration == total:
