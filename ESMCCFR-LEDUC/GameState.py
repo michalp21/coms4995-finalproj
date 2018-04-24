@@ -1,5 +1,6 @@
 from Evaluator import leduc_evaluate
 from Evaluator import kuhn_evaluate
+from Evaluator import hunl_evaluate
 from InfoSet import InfoSet
 from copy import deepcopy
 from deuces2.card import Card
@@ -29,8 +30,21 @@ class GameState:
 		'bet_increment': 1,
 		'rounds': 1,
 		'starting_player': 1,
-		'switch_starting_player': false
+		'switch_starting_player': False
+		}
+
+	hunl = {
+		'evaluate': hunl_evaluate,
+		'small_blind': 1,
+		'big_blind': 2,
+		'stack_size': 50,
+		'bet_increment': 1,
+		'rounds': 4,
+		'starting_player': 1,
+		'switch_starting_player': True
 	}
+
+
 
 	def __init__(self, poker_config, p1_hole, p2_hole, board):
 		self.poker_config = poker_config
@@ -50,7 +64,7 @@ class GameState:
 		self.board = board
 
 		self.player_turn = poker_config['starting_player']
-		self.history = {0: [], 1: []}
+		self.history = [[] for _ in range(self.num_rounds)]
 
 		assert len(self.board) == self.num_rounds - 1
 

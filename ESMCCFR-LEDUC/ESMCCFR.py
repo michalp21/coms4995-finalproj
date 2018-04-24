@@ -19,18 +19,32 @@ class ESMCCFR_P:
 
 	def get_random_action(self, player_strategy):
 		# return the index of the action the strategy chooses to take
-		return random.choices([i for i in range(len(player_strategy))], weights=player_strategy, k=1)[0]
+		return random.choices(list(range(len(player_strategy))),
+			weights=player_strategy, k=1)[0]
 
 	def new_gamestate(self):
 		# create a game in which "chance" has taken all actions, but the players will not be aware
-		deck = Deck()
-		p1_card = deck.draw(1)
-		p2_card = deck.draw(1)
-		flop = deck.draw(1)
-		gamestate = GameState(poker_config=GameState.leduc,
-			p1_hole=(p1_card,),
-			p2_hole=(p2_card,),
-			board=((flop,),))
+		cards = 52
+		if cards == 52:
+			deck = Deck(52)
+			p1_cards = deck.draw(2)
+			p2_cards = deck.draw(2)
+			flop = deck.draw(3)
+			turn = [deck.draw(1)]
+			river = [deck.draw(1)]
+			gamestate = GameState(poker_config=GameState.hunl,
+				p1_hole=p1_cards,
+				p2_hole=p2_cards,
+				board=[flop, turn, river])
+		elif cards == 6:
+			deck = Deck(6)
+			p1_cards = [deck.draw(1)]
+			p2_cards = [deck.draw(1)]
+			flop = [deck.draw(1)]
+			gamestate = GameState(poker_config=GameState.leduc,
+				p1_hole=p1_cards,
+				p2_hole=p2_cards,
+				board=[flop])
 		return gamestate
 
 	def run(self,T):

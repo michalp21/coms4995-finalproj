@@ -35,6 +35,8 @@ class Card ():
     CHAR_SUIT_TO_INT_SUIT = {
         's' : 1, # spades
         'h' : 2, # hearts
+        'd' : 4, # diamonds
+        'c' : 8, # clubs
     }
     INT_SUIT_TO_CHAR_SUIT = 'xshxdxxxc'
 
