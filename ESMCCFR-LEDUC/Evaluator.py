@@ -25,3 +25,7 @@ def _rank(card, flop_card):
 def leduc_evaluate(p1_hole, p2_hole, board):
 	# return positive if p1 wins
 	return _rank(p2_hole[0], board[0][0]) - _rank(p1_hole[0], board[0][0])
+
+def kuhn_evaluate(p1_hole, p2_hole, board)
+	# no board, one card hole, bigger card wins
+	return p1_hole[0] - p2_hole[0]

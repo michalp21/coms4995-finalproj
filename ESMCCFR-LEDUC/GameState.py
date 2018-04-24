@@ -1,4 +1,5 @@
 from Evaluator import leduc_evaluate
+from Evaluator import kuhn_evaluate
 from InfoSet import InfoSet
 from copy import deepcopy
 from deuces2.card import Card
@@ -18,6 +19,17 @@ class GameState:
 		'rounds': 2,
 		'starting_player': 1,
 		'switch_starting_player': False
+	}
+
+	kuhn = {
+		'evaluate': kuhn_evaluate,
+		'small_blind': 1,
+		'big_blind': 1,
+		'stack_size': 2,
+		'bet_increment': 1,
+		'rounds': 1,
+		'starting_player': 1,
+		'switch_starting_player': false
 	}
 
 	def __init__(self, poker_config, p1_hole, p2_hole, board):
