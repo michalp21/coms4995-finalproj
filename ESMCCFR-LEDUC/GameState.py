@@ -124,7 +124,9 @@ class GameState:
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
-		return self.folded_player == 1 or self.folded_player == 2 or self.round == self.num_rounds
+		return (self.folded_player == 1 or self.folded_player == 2
+			 or (self.p1_contrib == self.stack_size and self.p2_contrib == self.stack_size)
+			 or self.round == self.num_rounds)
 
 	def get_utility(self, player):
 		assert self.is_terminal()
