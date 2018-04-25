@@ -16,8 +16,8 @@ class GameState:
 		self.player_turn = 2
 		self.folded_player = 0
 
-		self.p1_contrib = self.game_setup.big_blind
-		self.p2_contrib = self.game_setup.small_blind
+		self.big_contrib = self.game_setup.big_blind
+		self.small_contrib = self.game_setup.small_blind
 
 		self.bets = [[] for _ in range(self.game_def.rounds)]
 
@@ -25,13 +25,13 @@ class GameState:
 		return 3 - player
 
 	def _my_contrib(self, player):
-		return self.p1_contrib if player == 1 else self.p2_contrib
+		return self.big_contrib if player == 1 else self.small_contrib
 
 	def _increase_contrib(self, player, amount):
 		if player == 1:
-			self.p1_contrib += amount
+			self.big_contrib += amount
 		else:
-			self.p2_contrib += amount
+			self.small_contrib += amount
 
 	def _other_contrib(self, player):
 		return self._my_contrib(self._other_player(player))
@@ -66,7 +66,7 @@ class GameState:
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
 		return (self.folded_player == 1 or self.folded_player == 2
-			 or (self.p1_contrib == self.p2_contrib == self.game_setup.stack_size)
+			 or (self.big_contrib == self.small_contrib == self.game_setup.stack_size)
 			 or self.round == self.game_def.rounds)
 
 	def get_utility(self, player):

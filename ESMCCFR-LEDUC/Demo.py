@@ -31,7 +31,7 @@ def play_game():
   round = 0
   gs = GameState(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
 
-  print("%s round, your cards: %s" % (round_names[round], pp(gs.deal.p1 if human == 1 else gs.deal.p2)))
+  print("%s round, your cards: %s" % (round_names[round], pp(gs.deal.big if human == 1 else gs.deal.small)))
 
   while not gs.is_terminal():
     player_turn = gs.get_players_turn()
@@ -69,7 +69,7 @@ def play_game():
     print("Computer folded")
   else:
     print("Game went to showdown. Your cards: %s. Opponent: %s. Board: %s" %
-      (pp(gs.deal.p1 if human == 1 else gs.deal.p2), pp(gs.deal.p2 if human == 1 else gs.deal.p1),
+      (pp(gs.deal.big if human == 1 else gs.deal.small), pp(gs.deal.small if human == 1 else gs.deal.big),
       pp((gs.deal.board[0] + gs.deal.board[1] + gs.deal.board[2]) if cards == 52 else gs.deal.board[0])))
 
   print(("You won %d dollars " if util > 0 else "You lost %d dollars") % abs(util))
