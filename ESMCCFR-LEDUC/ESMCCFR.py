@@ -2,6 +2,8 @@
 from GameState import GameState
 from InfoSet import InfoSet
 from Strategy import Strategy
+from GameDefinition import GameDefinition
+from GameSetup import GameSetup
 from Utilities import *
 from collections import defaultdict
 import random
@@ -26,27 +28,10 @@ class ESMCCFR_P:
 
 	def new_gamestate(self):
 		# create a game in which "chance" has taken all actions, but the players will not be aware
-		if self.deck_size == 52:
-			deck = Deck(52)
-			p1_cards = deck.draw(2)
-			p2_cards = deck.draw(2)
-			flop = deck.draw(3)
-			turn = [deck.draw(1)]
-			river = [deck.draw(1)]
-			gamestate = GameState(poker_config=GameState.hunl,
-				p1_hole=p1_cards,
-				p2_hole=p2_cards,
-				board=[flop, turn, river])
-		else:
-			deck = Deck(6)
-			p1_cards = [deck.draw(1)]
-			p2_cards = [deck.draw(1)]
-			flop = [deck.draw(1)]
-			gamestate = GameState(poker_config=GameState.leduc,
-				p1_hole=p1_cards,
-				p2_hole=p2_cards,
-				board=[flop])
-		return gamestate
+		game_def = GameDefinition.leduc
+		game_setup = GameSetup(small_blind=1, big_blind=2, stack_size=5)
+		round = 0
+		return GameState(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
 
 	def run(self,T):
 		utility = 0

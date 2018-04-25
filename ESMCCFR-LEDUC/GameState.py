@@ -1,71 +1,25 @@
-from Evaluator import leduc_evaluate
-from Evaluator import kuhn_evaluate
-from Evaluator import hunl_evaluate
-from InfoSet import InfoSet
-from copy import deepcopy
 from deuces2.card import Card
 
+from InfoSet import InfoSet
 from Utilities import *
 
 # A GameState tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
 class GameState:
 
-	leduc = {
-		'evaluate': leduc_evaluate,
-		'small_blind': 1,
-		'big_blind': 2,
-		'stack_size': 5,
-		'rounds': 2,
-		'starting_player': 2,
-		'switch_starting_player': False
-	}
+	def __init__(self, game_definition, game_setup, deal):
+		self.game_def = game_definition
+		self.game_setup = game_setup
+		self.deal = deal
 
-	kuhn = {
-		'evaluate': kuhn_evaluate,
-		'small_blind': 1,
-		'big_blind': 1,
-		'stack_size': 2,
-		'rounds': 1,
-		'starting_player': 1,
-		'switch_starting_player': False
-		}
-
-	hunl = {
-		'evaluate': hunl_evaluate,
-		'small_blind': 1,
-		'big_blind': 2,
-		'stack_size': 5,
-		'rounds': 4,
-		'starting_player': 2,
-		'switch_starting_player': True
-	}
-
-
-
-	def __init__(self, poker_config, p1_hole, p2_hole, board):
-		self.poker_config = poker_config
-		self.evaluate = poker_config['evaluate']
-		self.p1_contrib = poker_config['big_blind']
-		self.p2_contrib = poker_config['small_blind']
-		self.stack_size = poker_config['stack_size']
-		self.num_rounds = poker_config['rounds']
 		self.round = 0
-		self.starting_player = poker_config['starting_player']
-		self.switch_starting_player = poker_config['switch_starting_player']
-		self.small_blind = poker_config['small_blind']
-		self.big_blind = poker_config['big_blind']
+		self.player_turn = 2
+		self.folded_player = 0
 
-		self.folded_player = None
-		self.p1_hole = p1_hole
-		self.p2_hole = p2_hole
-		self.board = board
+		self.p1_contrib = self.game_setup.big_blind
+		self.p2_contrib = self.game_setup.small_blind
 
-		self.player_turn = poker_config['starting_player']
-		self.history = [[] for _ in range(self.num_rounds)]
-
-		# todo starting player small blind thing
-		assert len(self.board) == self.num_rounds - 1
+		self.history = [[] for _ in range(self.game_def.rounds)]
 
 	def _other_player(self, player):
 		return 3 - player
@@ -82,27 +36,20 @@ class GameState:
 	def _other_contrib(self, player):
 		return self._my_contrib(self._other_player(player))
 
-	def _my_hole(self, player):
-		return self.p1_hole if player == 1 else self.p2_hole
-
-	def _other_hole(self, player):
-		return self._my_hole(self._other_player(player))
-
 	def __repr__(self):
-		return 'Hole 1: %s, Hole 2: %s, Board: %s, Actions: %s, Round: %d' % (
-			repr_hole(self.p1_hole), repr_hole(self.p2_hole),
-			repr_board(self.board), repr_history(self.history), self.round)
+		return ('%s, Actions: %s, Round: %d' %
+			(str(self.deal), repr_history(self.history), self.round))
 
 	def get_possible_actions(self, player):
 
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
 		if call == 0:
-			min_raise = (1 if self._my_contrib(player) > self.small_blind
-			 else self.small_blind + self.big_blind)
+			min_raise = (1 if self._my_contrib(player) > self.game_setup.small_blind
+			 else self.game_setup.small_blind + self.game_setup.big_blind)
 		else:
 			min_raise = 2 * call
-		max_raise = self.stack_size - self._my_contrib(player)
+		max_raise = self.game_setup.stack_size - self._my_contrib(player)
 
 		# can always fold
 		return ([0]
@@ -114,15 +61,15 @@ class GameState:
 
 	def get_infoset(self, player):
 		return InfoSet(
-			hole=self._my_hole(player),
-			board=self.board[0:self.round],
+			hole=self.deal.player(player),
+			board=self.deal.board[0:self.round],
 			history=self.history)
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
 		return (self.folded_player == 1 or self.folded_player == 2
-			 or (self.p1_contrib == self.stack_size and self.p2_contrib == self.stack_size)
-			 or self.round == self.num_rounds)
+			 or (self.p1_contrib == self.p2_contrib == self.game_setup.stack_size)
+			 or self.round == self.game_def.rounds)
 
 	def get_utility(self, player):
 		assert self.is_terminal()
@@ -134,7 +81,7 @@ class GameState:
 			return self._other_contrib(player)
 
 		# showdown cases
-		result = self.evaluate(self.p1_hole, self.p2_hole, self.board)
+		result = self.game_def.evaluate(self.deal)
 		if result == 0:
 			return 0
 		elif result > 0:
@@ -144,7 +91,7 @@ class GameState:
 
 
 	def update(self, player, amount):
-		assert self.folded_player is None
+		assert self.folded_player == 0
 		assert self._my_contrib(player) <= self._other_contrib(player)
 		self.history[self.round].append(amount)
 
@@ -159,8 +106,7 @@ class GameState:
 		# on check, if not first action in round, advance round
 		if self._my_contrib(player) == self._other_contrib(player) and len(self.history[self.round]) > 1:
 			self.round += 1
-			self.player_turn = (self._other_player(self.starting_player)
-			 if self.switch_starting_player else self.starting_player)
+			self.player_turn = 1 if self.game_def.switch else 2
 		else:
 			self.player_turn = self._other_player(player)
 
@@ -168,7 +114,7 @@ class GameState:
 		self.round = round
 		del self.history[self.round][-1]
 		self._increase_contrib(player, -1 * amount)
-		self.folded_player = None
+		self.folded_player = 0
 		self.player_turn = player
 
 		assert self._my_contrib(player) <= self._other_contrib(player)

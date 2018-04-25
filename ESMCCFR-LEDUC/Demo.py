@@ -3,6 +3,8 @@ from ESMCCFR import ESMCCFR_P
 from deuces2.deck import Deck
 from deuces2.card import Card
 from GameState import GameState
+from GameDefinition import GameDefinition
+from GameSetup import GameSetup
 from Strategy import Strategy
 
 human = random.choice([1, 2])
@@ -11,8 +13,8 @@ computer = 3 - human
 
 print("Training strategy")
 
-cards = 52
-strategy_map = ESMCCFR_P(cards).run(100)
+cards = 6
+strategy_map = ESMCCFR_P(cards).run(5000)
 
 print("Done training")
 
@@ -22,26 +24,14 @@ def pp(cards):
   return '[' + ' '.join([Card.int_to_pretty_str(c) for c in cards]) + ']'
 
 def play_game():
-  if cards == 52:
-    deck = Deck(52)
-    p1 = deck.draw(2)
-    p2 = deck.draw(2)
-    board = [ deck.draw(3), [deck.draw(1)], [deck.draw(1)] ]
-  else:
-    deck = Deck(6)
-    p1 = [deck.draw(1)]
-    p2 = [deck.draw(1)]
-    board = [[deck.draw(1)]]
+  game_def = GameDefinition.leduc
+  game_setup = GameSetup(small_blind=1, big_blind=2, stack_size=5)
 
   round_names = ['Pre-flop', 'Flop', 'Turn', 'River']
   round = 0
+  gs = GameState(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
 
-
-  gs = GameState(p1_hole=p1, p2_hole=p2,
-    poker_config=(GameState.hunl if cards == 52 else GameState.leduc),
-    board=board)
-
-  print("%s round, your cards: %s" % (round_names[round], pp(p1 if human == 1 else p2)))
+  print("%s round, your cards: %s" % (round_names[round], pp(gs.deal.p1 if human == 1 else gs.deal.p2)))
 
   while not gs.is_terminal():
     player_turn = gs.get_players_turn()
@@ -69,7 +59,7 @@ def play_game():
     print("Contributions: human %d, computer %d" % (gs._my_contrib(human), gs._other_contrib(human)))
 
     if gs.round > round:
-      print("%s round: %s" % (round_names[gs.round], pp(board[gs.round-1])))
+      print("%s round: %s" % (round_names[gs.round], pp(gs.deal.board[gs.round-1])))
       round = gs.round
 
   util = gs.get_utility(human)
@@ -79,10 +69,10 @@ def play_game():
     print("Computer folded")
   else:
     print("Game went to showdown. Your cards: %s. Opponent: %s. Board: %s" %
-      (pp(p1 if human == 1 else p2), pp(p2 if human == 1 else p1),
-      pp((board[0] + board[1] + board[2]) if cards == 52 else board[0])))
+      (pp(gs.deal.p1 if human == 1 else gs.deal.p2), pp(gs.deal.p2 if human == 1 else gs.deal.p1),
+      pp((gs.deal.board[0] + gs.deal.board[1] + gs.deal.board[2]) if cards == 52 else gs.deal.board[0])))
 
-  print(("You won %d dollars " if util > 0 else "You lost %d dollars") % util)
+  print(("You won %d dollars " if util > 0 else "You lost %d dollars") % abs(util))
   return util
 
 games = 0

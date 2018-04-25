@@ -12,14 +12,11 @@ class Deck:
     _FULL_DECK_HUNL = [Card.new(rank + suit)
         for suit, val in Card.CHAR_SUIT_TO_INT_SUIT.items()
         for rank in Card.STR_RANKS]
-    def __init__(self, deck_size):
-        assert deck_size == 6 or deck_size == 52
-        self.deck_size = deck_size
-        self.shuffle()
+    _FULL_DECK_KUHN = [1, 2, 3]
 
-    def shuffle(self):
-        # and then shuffle
-        self.cards = Deck.GetFullDeck(self.deck_size)
+    def __init__(self, deck_size):
+        assert deck_size in (3, 6, 52)
+        self.cards = Deck.GetFullDeck(deck_size)
         shuffle(self.cards)
 
     def draw(self, n=1):
@@ -38,5 +35,7 @@ class Deck:
     def GetFullDeck(deck_size):
         if deck_size == 6:
             return list(Deck._FULL_DECK_LEDUC)
-        else:
+        elif deck_size == 52:
             return list(Deck._FULL_DECK_HUNL)
+        else:
+            return list(Deck._FULL_DECK_KUHN)
