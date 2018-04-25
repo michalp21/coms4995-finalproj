@@ -7,8 +7,7 @@ class Deck:
     deck with the list of unique card integers. Each object instantiated simply
     makes a copy of this object and shuffles it.
     """
-    _FULL_DECK_LEDUC = [Card.new(rank + suit)
-        for suit in ('s','h') for rank in ('Q','K','A')]
+    _FULL_DECK_LEDUC = [1, 1, 2, 2, 3, 3]
     _FULL_DECK_HUNL = [Card.new(rank + suit)
         for suit, val in Card.CHAR_SUIT_TO_INT_SUIT.items()
         for rank in Card.STR_RANKS]
