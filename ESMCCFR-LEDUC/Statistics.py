@@ -1,6 +1,6 @@
 import re
-from GameSummary import GameSummary
-from GameDefinition import GameDefinition
+from Summary import Summary
+from Rules import Rules
 
 def isTerminal(cards, betting):
 	# if the line looks like 'card|card/card', then it is terminal
@@ -67,7 +67,7 @@ def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 
 	# evaluate cards to determine winner if no one folded yet
 	if winner is None:
-		winner = 0 if GameDefinition.leduc.evaluate((cards[0], cards[1], cards[2]) > 0 else 1
+		winner = 0 if Rules.leduc.evaluate((cards[0], cards[1], cards[2]) > 0 else 1
 	amt = min(contribs)
 	return amt, winner
 
@@ -77,7 +77,7 @@ def get_stats(position, cards, betting):
 	p1_pfr, p2_pfr, p1_vpip, p2_vpip = pfr_vpip(position, betting[0], p1_contrib, p2_contrib)
 	amt, winner = amt_winner(position, betting[0], betting[1], [p1_contrib, p2_contrib], cards)
 	# need to count the winner and the amount that they won!!!
-	return GameSummary(p1_pfr, p2_pfr, p1_vpip, p2_vpip, amt, winner)
+	return Summary(p1_pfr, p2_pfr, p1_vpip, p2_vpip, amt, winner)
 
 def parse_cards(cards):
 	card0, card1 = cards.split('|')

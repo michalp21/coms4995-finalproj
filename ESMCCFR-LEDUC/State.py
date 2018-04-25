@@ -3,9 +3,9 @@ from deuces2.card import Card
 from InfoSet import InfoSet
 from Utilities import *
 
-# A GameState tracks the progress of a game and can give information about it
+# A State tracks the progress of a game and can give information about it
 # In particular, it can provide the infosets each player sees
-class GameState:
+class State:
 
 	def __init__(self, game_definition, game_setup, deal):
 		self.game_def = game_definition

@@ -1,4 +1,4 @@
 import collections
 
-GameSetup = collections.namedtuple('GameSetup',
+Setup = collections.namedtuple('Setup',
 	'small_blind big_blind stack_size')

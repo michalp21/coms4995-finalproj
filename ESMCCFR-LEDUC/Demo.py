@@ -2,9 +2,9 @@ import random
 from ESMCCFR import ESMCCFR_P
 from deuces2.deck import Deck
 from deuces2.card import Card
-from GameState import GameState
-from GameDefinition import GameDefinition
-from GameSetup import GameSetup
+from State import State
+from Rules import Rules
+from Setup import Setup
 from Strategy import Strategy
 
 human = random.choice([1, 2])
@@ -24,12 +24,12 @@ def pp(cards):
   return '[' + ' '.join([Card.int_to_pretty_str(c) for c in cards]) + ']'
 
 def play_game():
-  game_def = GameDefinition.leduc
-  game_setup = GameSetup(small_blind=1, big_blind=2, stack_size=5)
+  game_def = Rules.leduc
+  game_setup = Setup(small_blind=1, big_blind=2, stack_size=5)
 
   round_names = ['Pre-flop', 'Flop', 'Turn', 'River']
   round = 0
-  gs = GameState(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
+  gs = State(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
 
   print("%s round, your cards: %s" % (round_names[round], pp(gs.deal.big if human == 1 else gs.deal.small)))
 

@@ -4,7 +4,7 @@ from deuces2.deck import Deck
 from deuces2.evaluator import Evaluator
 from Deal import Deal
 
-GameDefinition = collections.namedtuple('GameDefinition', 'evaluate deal rounds switch')
+Rules = collections.namedtuple('Rules', 'evaluate deal rounds switch')
 
 def _leduc_rank(card, flop_card):
 	card_rank = Card.int_to_str(card)[0]
@@ -22,7 +22,7 @@ def _leduc_rank(card, flop_card):
 		if card_rank == 'A':
 			return 4
 		elif card_rank == 'K':
-			return 5
+			return 5	
 		elif card_rank == 'Q':
 			return 6
 		else:
@@ -58,17 +58,17 @@ def _kuhn_deal():
 		small=[deck.draw(1)],
 		board=[[]])
 
-GameDefinition.leduc = GameDefinition(evaluate=_leduc_evaluate,
+Rules.leduc = Rules(evaluate=_leduc_evaluate,
 	deal=_leduc_deal,
 	rounds=2,
 	switch=False)
 
-GameDefinition.kuhn = GameDefinition(evaluate=_kuhn_evaluate,
+Rules.kuhn = Rules(evaluate=_kuhn_evaluate,
 	deal=_kuhn_deal,
 	rounds=1,
 	switch=False)
 
-GameDefinition.hunl = GameDefinition(evaluate=Evaluator().evaluate,
+Rules.hunl = Rules(evaluate=Evaluator().evaluate,
 	deal=_hunl_deal,
 	rounds=4,
 	switch=True)

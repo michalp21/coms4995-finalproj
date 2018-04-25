@@ -1,4 +1,4 @@
-class GameSummary:
+class Summary:
 
 	def __init__(self, p1_pfr, p2_pfr, p1_vpip, p2_vpip, pot_size, winner):
 		self.p1_pfr = p1_pfr

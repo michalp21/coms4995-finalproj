@@ -2,7 +2,7 @@ import random
 import sys
 
 import acpc_python_client as acpc
-from GameState import GameState as gs
+from State import State as gs
 
 class Libratus(acpc.Agent):
     def __init__(self):

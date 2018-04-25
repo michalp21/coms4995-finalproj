@@ -1,4 +1,4 @@
-# An InfoSet contains information about the GameState available to a player
+# An InfoSet contains information about the State available to a player
 # it implements __eq__ and __hash__ so it can be used as a key to look up strategies
 # this class should be immutable as it is the key to look up strategies in a map
 
