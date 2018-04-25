@@ -7,7 +7,9 @@ from Deal import Deal
 Rules = collections.namedtuple('Rules', 'evaluate deal rounds switch')
 
 def _leduc_rank(card, flop_card):
-	return card - 3 * (flop_card == card)
+	# assumes A is 1, K is 2, Q is 3 
+	product = card*flop_card
+	return product if flop_card == card else product + 10
 
 def _leduc_evaluate(deal):
 	# return positive if big wins
