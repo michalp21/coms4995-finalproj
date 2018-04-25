@@ -30,7 +30,7 @@ def _leduc_rank(card, flop_card):
 
 def _leduc_evaluate(deal):
 	# return positive if p1 wins
-	return _leduc_rank(deal.p1[0], deal.board[0][0]) - _leduc_rank(deal.p1[0], deal.board[0][0])
+	return _leduc_rank(deal.p2[0], deal.board[0][0]) - _leduc_rank(deal.p1[0], deal.board[0][0])
 
 def _kuhn_evaluate(deal):
 	# no board, one card hole, bigger card wins
