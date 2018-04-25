@@ -51,7 +51,7 @@ class ESMCCFR_P:
 
 			infosets = [(k, v.calculate_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
 			for i in infosets:
-				csvwriter.writerow([i[0],i[1]])
+				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
 
 		with open('strategy.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
@@ -115,5 +115,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(rules=Rules.leduc, setup=Setup(stack_size=5, big_blind=2, small_blind=1))
+	ESMCCFR_P = ESMCCFR_P(rules=Rules.leduc, setup=Setup(stack_size=5, big_blind=1, small_blind=1))
 	ESMCCFR_P.run(10000)

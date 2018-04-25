@@ -8,6 +8,8 @@ from Utilities import *
 class InfoSet:
 
 	def __init__(self, hole, board, bets):
+		hole = [Card.int_to_str(c) for c in hole]
+		board = [[Card.int_to_str(c) for c in b] for b in board]
 		if len(bets) == 2:
 			self.data = "%s:%s:%s,%s" % (hole, board, bets[0], bets[1])
 		else:
