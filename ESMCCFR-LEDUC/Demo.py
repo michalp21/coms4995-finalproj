@@ -35,27 +35,27 @@ def play_game():
 
   while not gs.is_terminal():
     player_turn = gs.get_players_turn()
-    possible_actions = gs.get_possible_actions(player_turn)
+    possible_bets = gs.get_possible_bets(player_turn)
 
     if player_turn == human:
-      action = -1
-      while action not in possible_actions:
-        # action = int(input("Human's turn: select bet from %s:\n" % str(possible_actions)))
-        action = possible_actions[-1]
+      bet = -1
+      while bet not in possible_bets:
+        # bet = int(input("Human's turn: select bet from %s:\n" % str(possible_bets)))
+        bet = possible_bets[-1]
     else:
       infoset = gs.get_infoset(player_turn)
       if infoset in strategy_map.keys():
         strategy = strategy_map[infoset]
       else:
-        strategy = Strategy(len(possible_actions))
+        strategy = Strategy(len(possible_bets))
       now_strategy = strategy.calculate_strategy()
-      action = possible_actions[random.choices(list(range(len(now_strategy))),
+      bet = possible_bets[random.choices(list(range(len(now_strategy))),
         weights=now_strategy, k=1)[0]]
 
-      print("Computer's turn: computer bets: %d" % action)
+      print("Computer's turn: computer bets: %d" % bet)
 
 
-    gs.update(player_turn, action)
+    gs.update(player_turn, bet)
     print("Contributions: human %d, computer %d" % (gs._my_contrib(human), gs._other_contrib(human)))
 
     if gs.round > round:

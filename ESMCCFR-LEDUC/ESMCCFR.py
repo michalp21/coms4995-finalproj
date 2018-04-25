@@ -21,13 +21,13 @@ class ESMCCFR_P:
 		self.infoset_strategy_map = {}
 		self.deck_size = deck_size
 
-	def get_random_action(self, player_strategy):
-		# return the index of the action the strategy chooses to take
+	def get_random_bet(self, player_strategy):
+		# return the index of the bet the strategy chooses to take
 		return random.choices(list(range(len(player_strategy))),
 			weights=player_strategy, k=1)[0]
 
 	def new_gamestate(self):
-		# create a game in which "chance" has taken all actions, but the players will not be aware
+		# create a game in which "chance" has taken all bets, but the players will not be aware
 		game_def = GameDefinition.leduc
 		game_setup = GameSetup(small_blind=1, big_blind=2, stack_size=5)
 		round = 0
@@ -69,13 +69,13 @@ class ESMCCFR_P:
 		#default to chance player
 		other_player = 3 - player
 		player_turn = gamestate.get_players_turn()
-		possible_actions = gamestate.get_possible_actions(player_turn)
+		possible_bets = gamestate.get_possible_bets(player_turn)
 		# Determine the strategy at this infoset
 		infoset = gamestate.get_infoset(player_turn)
 		if infoset in self.infoset_strategy_map.keys():
 			strategy = self.infoset_strategy_map[infoset]
 		else:
-			strategy = Strategy(len(possible_actions))
+			strategy = Strategy(len(possible_bets))
 			self.infoset_strategy_map[infoset] = strategy
 
 		player_strategy = strategy.calculate_strategy()
@@ -84,36 +84,36 @@ class ESMCCFR_P:
 			# initialize expected value
 			# value of a node h is the value player i expects to achieve if all players play according to given strategy, having reached h
 			value = 0
-			value_action = [0] * len(player_strategy)
-			for action_index, action in enumerate(possible_actions):
-				# need to define adding an action to a bets, make Action class
+			value_bet = [0] * len(player_strategy)
+			for bet_index, bet in enumerate(possible_bets):
+				# need to define adding an bet to a bets, make bet class
 				prev_round = gamestate.round
-				gamestate.update(player_turn, action)
+				gamestate.update(player_turn, bet)
 
-				# Traverse each action (per iteration of loop) (each action changes the bets)
+				# Traverse each bet (per iteration of loop) (each bet changes the bets)
 				va = self.traverse_ESMCCFR(gamestate, player)
-				gamestate.reverse_update(player_turn, action, prev_round)
+				gamestate.reverse_update(player_turn, bet, prev_round)
 
-				value_action[action_index] = va
+				value_bet[bet_index] = va
 
 				# Update the expected value
-				value += player_strategy[action_index] * value_action[action_index]
-			for action_index in range(len(possible_actions)):
-				# Update the cumulative regret of each action
-				strategy.regret_sum[action_index] += value_action[action_index] - value
+				value += player_strategy[bet_index] * value_bet[bet_index]
+			for bet_index in range(len(possible_bets)):
+				# Update the cumulative regret of each bet
+				strategy.regret_sum[bet_index] += value_bet[bet_index] - value
 
 			return value
 
 		elif player_turn == other_player:
-			# Sample one action and increment action counter
-			action_index = self.get_random_action(player_strategy)
-			action = possible_actions[action_index]
-			strategy.count[action_index] += 1
+			# Sample one bet and increment bet counter
+			bet_index = self.get_random_bet(player_strategy)
+			bet = possible_bets[bet_index]
+			strategy.count[bet_index] += 1
 
 			prev_round = gamestate.round
-			gamestate.update(player_turn, action)
+			gamestate.update(player_turn, bet)
 			val = self.traverse_ESMCCFR(gamestate, player)
-			gamestate.reverse_update(player_turn, action, prev_round)
+			gamestate.reverse_update(player_turn, bet, prev_round)
 			return val
 		else:
 			raise Exception('How did we get here? There are no other players')

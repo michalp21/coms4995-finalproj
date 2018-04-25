@@ -1,6 +1,6 @@
 import re
 from GameSummary import GameSummary
-import Evaluator
+from GameDefinition import GameDefinition
 
 def isTerminal(cards, betting):
 	# if the line looks like 'card|card/card', then it is terminal
@@ -67,7 +67,7 @@ def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 
 	# evaluate cards to determine winner if no one folded yet
 	if winner is None:
-		winner = 0 if Evaluator.leduc_evaluate_str(cards[0], cards[1], cards[2]) > 0 else 1
+		winner = 0 if GameDefinition.leduc.evaluate((cards[0], cards[1], cards[2]) > 0 else 1
 	amt = min(contribs)
 	return amt, winner
 

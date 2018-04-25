@@ -37,10 +37,10 @@ class GameState:
 		return self._my_contrib(self._other_player(player))
 
 	def __repr__(self):
-		return ('%s, Actions: %s, Round: %d' %
+		return ('%s, bets: %s, Round: %d' %
 			(str(self.deal), repr_bets(self.bets), self.round))
 
-	def get_possible_actions(self, player):
+	def get_possible_bets(self, player):
 
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
@@ -101,7 +101,7 @@ class GameState:
 			self.folded_player = player
 			return
 
-		# on check, if not first action in round, advance round
+		# on check, if not first bet in round, advance round
 		if self._my_contrib(player) == self._other_contrib(player) and len(self.bets[self.round]) > 1:
 			self.round += 1
 			self.player_turn = 1 if self.game_def.switch else 2
