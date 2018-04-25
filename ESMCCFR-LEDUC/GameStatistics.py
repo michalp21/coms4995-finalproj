@@ -43,7 +43,6 @@ def pfr_vpip(position, round1_bets, p1_contrib, p2_contrib):
 
 def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 	winner = None
-	amt = 0
 	previous_bet = 0
 	# assume player 1 in position 0. otherwise switch at the end
 	for i in range(len(round1_bets)):
@@ -51,10 +50,9 @@ def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 		if bet.startswith('c'):
 			contribs[i%2] += previous_bet
 		elif bet.startswith('r'):
-			contribs[i%2] += int(bet[1:])
+			contribs[i%2] = int(bet[1:])
 			previous_bet = int(bet[1:]) - previous_bet
 		elif bet.startswith('f'):
-			amt = min(contribs)
 			winner = 1-(i%2)
 
 	for i in range(len(round2_bets)):
@@ -62,15 +60,15 @@ def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 		if bet.startswith('c'):
 			contribs[i%2] += previous_bet
 		elif bet.startswith('r'):
-			contribs[i%2] += int(bet[1:])
+			contribs[i%2] = int(bet[1:])
 			previous_bet = int(bet[1:]) - previous_bet
 		elif bet.startswith('f'):
-			amt = min(contribs)
 			winner = 1-(i%2)
 
-	#evaluate cards to determine winner if no one folded yet
+	# evaluate cards to determine winner if no one folded yet
 	if winner is None:
 		winner = 0 if Evaluator.leduc_evaluate_str(cards[0], cards[1], cards[2]) > 0 else 1
+	amt = min(contribs)
 	return amt, winner
 
 def get_stats(position, cards, betting):
@@ -99,7 +97,7 @@ def parse_betting(betting):
 	return (betting0, betting1)
 
 games = []
-with open('server_output_all.txt', 'r') as file:
+with open('server_output.txt', 'r') as file:
 
 	for row in file:
 		# arbitrarily choose player to parse
