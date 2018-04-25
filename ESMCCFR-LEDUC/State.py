@@ -54,13 +54,10 @@ class State:
 			min_raise = min(2 * call, remaining_chips)
 
 		if call == 0:
-			print('1', [0] + list(range(min_raise, remaining_chips + 1)))
 			return [0] + list(range(min_raise, remaining_chips + 1))
 		elif self._my_contrib(player) + call == self.setup.stack_size:
-			print('2', [0, call])
 			return [0, call]
 		else:
-			print('3', [0, call] + list(range(min_raise, remaining_chips + 1)))
 			return [0, call] + list(range(min_raise, remaining_chips + 1))
 
 	def get_infoset(self, player=0):
