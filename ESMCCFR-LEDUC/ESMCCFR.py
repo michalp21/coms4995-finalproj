@@ -86,11 +86,11 @@ class ESMCCFR_P:
 			value = 0
 			value_action = [0] * len(player_strategy)
 			for action_index, action in enumerate(possible_actions):
-				# need to define adding an action to a history, make Action class
+				# need to define adding an action to a bets, make Action class
 				prev_round = gamestate.round
 				gamestate.update(player_turn, action)
 
-				# Traverse each action (per iteration of loop) (each action changes the history)
+				# Traverse each action (per iteration of loop) (each action changes the bets)
 				va = self.traverse_ESMCCFR(gamestate, player)
 				gamestate.reverse_update(player_turn, action, prev_round)
 

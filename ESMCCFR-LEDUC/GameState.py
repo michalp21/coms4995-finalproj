@@ -19,7 +19,7 @@ class GameState:
 		self.p1_contrib = self.game_setup.big_blind
 		self.p2_contrib = self.game_setup.small_blind
 
-		self.history = [[] for _ in range(self.game_def.rounds)]
+		self.bets = [[] for _ in range(self.game_def.rounds)]
 
 	def _other_player(self, player):
 		return 3 - player
@@ -38,7 +38,7 @@ class GameState:
 
 	def __repr__(self):
 		return ('%s, Actions: %s, Round: %d' %
-			(str(self.deal), repr_history(self.history), self.round))
+			(str(self.deal), repr_bets(self.bets), self.round))
 
 	def get_possible_actions(self, player):
 
@@ -61,7 +61,7 @@ class GameState:
 		return InfoSet(
 			hole=self.deal.player(player),
 			board=self.deal.board[0:self.round],
-			history=self.history)
+			bets=self.bets)
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1
@@ -91,7 +91,7 @@ class GameState:
 	def update(self, player, amount):
 		assert self.folded_player == 0
 		assert self._my_contrib(player) <= self._other_contrib(player)
-		self.history[self.round].append(amount)
+		self.bets[self.round].append(amount)
 
 		assert amount >= 0
 		self._increase_contrib(player, amount)
@@ -102,7 +102,7 @@ class GameState:
 			return
 
 		# on check, if not first action in round, advance round
-		if self._my_contrib(player) == self._other_contrib(player) and len(self.history[self.round]) > 1:
+		if self._my_contrib(player) == self._other_contrib(player) and len(self.bets[self.round]) > 1:
 			self.round += 1
 			self.player_turn = 1 if self.game_def.switch else 2
 		else:
@@ -110,7 +110,7 @@ class GameState:
 
 	def reverse_update(self, player, amount, round):
 		self.round = round
-		del self.history[self.round][-1]
+		del self.bets[self.round][-1]
 		self._increase_contrib(player, -1 * amount)
 		self.folded_player = 0
 		self.player_turn = player

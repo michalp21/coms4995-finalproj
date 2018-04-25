@@ -32,6 +32,6 @@ def repr_board(board):
 def repr_hole(hole):
     return repr([Card.int_to_str(c) for c in hole])
 
-def repr_history(history):
+def repr_bets(bets):
     return ':'.join(
-        [','.join(str(h) for h in history[k])for k in sorted(history)])
+        [','.join(str(h) for h in bets[k])for k in sorted(bets)])

@@ -7,11 +7,11 @@ from Utilities import *
 
 class InfoSet:
 
-	def __init__(self, hole, board, history):
-		if len(history) == 2:
-			self.data = "%s:%s:%s,%s" % (hole, board, history[0], history[1])
+	def __init__(self, hole, board, bets):
+		if len(bets) == 2:
+			self.data = "%s:%s:%s,%s" % (hole, board, bets[0], bets[1])
 		else:
-			self.data = "%s:%s:%s,%s,%s,%s" % (hole, board, history[0], history[1], history[2], history[3])
+			self.data = "%s:%s:%s,%s,%s,%s" % (hole, board, bets[0], bets[1], bets[2], bets[3])
 
 	def __eq__(self, other):
 		return self.data == other.data
