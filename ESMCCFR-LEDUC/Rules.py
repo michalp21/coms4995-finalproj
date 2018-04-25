@@ -22,7 +22,7 @@ def _leduc_rank(card, flop_card):
 		if card_rank == 'A':
 			return 4
 		elif card_rank == 'K':
-			return 5	
+			return 5
 		elif card_rank == 'Q':
 			return 6
 		else:
@@ -36,9 +36,11 @@ def _kuhn_evaluate(deal):
 	# no board, one card hole, bigger card wins
 	return deal.big[0] - deal.small[0]
 
+_hunl_evaluator = Evaluator()
+
 def _hunl_evaluate(deal):
 	board = deal.board[0] + deal.board[1] + deal.board[2]
-	return hunl_evaluator.evaluate(deal.small, board) - hunl_evaluator.evaluate(deal.big, board)
+	return _hunl_evaluator.evaluate(deal.small, board) - _hunl_evaluator.evaluate(deal.big, board)
 
 def _hunl_deal():
 	deck = Deck(52)
@@ -68,7 +70,7 @@ Rules.kuhn = Rules(evaluate=_kuhn_evaluate,
 	rounds=1,
 	switch=False)
 
-Rules.hunl = Rules(evaluate=Evaluator().evaluate,
+Rules.hunl = Rules(evaluate=_hunl_evaluate,
 	deal=_hunl_deal,
 	rounds=4,
 	switch=True)

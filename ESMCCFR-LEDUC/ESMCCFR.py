@@ -15,23 +15,20 @@ import csv
 import pickle
 
 class ESMCCFR_P:
-	def __init__(self, deck_size):
-		assert deck_size == 6 or deck_size == 52
+	def __init__(self, rules, setup):
+		self.rules = rules
+		self.setup = setup
 		self.PLAYERS = [1,2]
 		self.infoset_strategy_map = {}
-		self.deck_size = deck_size
 
 	def get_random_bet(self, player_strategy):
 		# return the index of the bet the strategy chooses to take
 		return random.choices(list(range(len(player_strategy))),
 			weights=player_strategy, k=1)[0]
 
-	def new_State(self):
-		# create a game in which "chance" has taken all bets, but the players will not be aware
-		game_def = Rules.leduc
-		game_setup = Setup(small_blind=1, big_blind=2, stack_size=5)
+	def new_game(self):
 		round = 0
-		return State(game_definition=game_def, game_setup=game_setup, deal=game_def.deal())
+		return State(rules=self.rules, setup=self.setup, deal=self.rules.deal())
 
 	def run(self,T):
 		utility = 0
@@ -41,7 +38,7 @@ class ESMCCFR_P:
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for player in self.PLAYERS:
-				utility += self.traverse_ESMCCFR(self.new_State(), player)
+				utility += self.traverse_ESMCCFR(self.new_game(), player)
 				printProgressBar(t+1, T)
 		stop = timeit.default_timer()
 
@@ -61,17 +58,17 @@ class ESMCCFR_P:
 
 		return self.infoset_strategy_map
 
-	def traverse_ESMCCFR(self, State, player):
+	def traverse_ESMCCFR(self, state, player):
 
-		if State.is_terminal():
-			return State.get_utility(player)
+		if state.is_terminal():
+			return state.get_utility(player)
 
 		#default to chance player
 		other_player = 3 - player
-		player_turn = State.get_players_turn()
-		possible_bets = State.get_possible_bets(player_turn)
+		player_turn = state.get_players_turn()
+		possible_bets = state.get_possible_bets()
 		# Determine the strategy at this infoset
-		infoset = State.get_infoset(player_turn)
+		infoset = state.get_infoset(player_turn)
 		if infoset in self.infoset_strategy_map.keys():
 			strategy = self.infoset_strategy_map[infoset]
 		else:
@@ -87,12 +84,11 @@ class ESMCCFR_P:
 			value_bet = [0] * len(player_strategy)
 			for bet_index, bet in enumerate(possible_bets):
 				# need to define adding an bet to a bets, make bet class
-				prev_round = State.round
-				State.update(player_turn, bet)
+				memento = state.update(bet)
 
 				# Traverse each bet (per iteration of loop) (each bet changes the bets)
-				va = self.traverse_ESMCCFR(State, player)
-				State.reverse_update(player_turn, bet, prev_round)
+				va = self.traverse_ESMCCFR(state, player)
+				state.reverse_update(memento)
 
 				value_bet[bet_index] = va
 
@@ -110,15 +106,14 @@ class ESMCCFR_P:
 			bet = possible_bets[bet_index]
 			strategy.count[bet_index] += 1
 
-			prev_round = State.round
-			State.update(player_turn, bet)
-			val = self.traverse_ESMCCFR(State, player)
-			State.reverse_update(player_turn, bet, prev_round)
+			memento = state.update(bet)
+			val = self.traverse_ESMCCFR(state, player)
+			state.reverse_update(memento)
 			return val
 		else:
 			raise Exception('How did we get here? There are no other players')
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(52)
+	ESMCCFR_P = ESMCCFR_P(rules=Rules.hunl, setup=Setup(stack_size=5, big_blind=2, small_blind=1))
 	ESMCCFR_P.run(10000)
