@@ -1,4 +1,3 @@
-from Player import Player
 from ESMCCFR import ESMCCFR_P
 import random
 from Strategy import Strategy

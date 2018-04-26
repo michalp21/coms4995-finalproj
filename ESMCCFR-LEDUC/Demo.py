@@ -58,7 +58,7 @@ def play_game(rules, setup, pov_player, opponent):
 
 
 def main():
-  rules = Rules.hunl
+  rules = Rules.leduc
   setup = Setup(small_blind=1, big_blind=2, stack_size=5)
   pov_player = Human(rules, setup)
   opponent = ESMCCFRPlusTraining(rules, setup)
