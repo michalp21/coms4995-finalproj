@@ -95,7 +95,7 @@ class ESMCCFR_P:
 				value_bet[bet_index] = va
 
 				# Update the expected value
-				value += player_strategy[bet_index] * value_bet[bet_index]
+				value += player_strategy[bet_index] * va
 			for bet_index in range(len(possible_bets)):
 				# Update the cumulative regret of each bet
 				strategy.regret_sum[bet_index] += value_bet[bet_index] - value
