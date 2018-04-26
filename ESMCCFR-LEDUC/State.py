@@ -46,12 +46,12 @@ class State:
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
 		remaining_chips = self.setup.stack_size - self._my_contrib(player)
-		if self._my_contrib(player) == self.setup.small_blind:
-			min_raise = self.setup.small_blind + self.setup.big_blind
+		if self._other_contrib(player) == self.setup.big_blind:
+			min_raise = call + self.setup.big_blind
 		elif call == 0:
-			min_raise = 1
+			min_raise = self.setup.big_blind
 		else:
-			min_raise = min(call + call, remaining_chips)
+			min_raise = min(2 * call, remaining_chips)
 
 		if call == 0:
 			return [0] + list(range(min_raise, remaining_chips + 1))
