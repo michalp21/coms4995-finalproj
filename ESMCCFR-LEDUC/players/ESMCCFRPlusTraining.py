@@ -11,6 +11,7 @@ class ESMCCFRPlusTraining:
 	def train(self, T=1000):
 		esmccfr = ESMCCFR_P(self.rules, self.setup)
 		self.strategy_map = esmccfr.run(T)
+		return self
 
 	def bet(self, state):
 		bets = state.get_possible_bets()
