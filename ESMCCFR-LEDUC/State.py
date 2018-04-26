@@ -62,7 +62,7 @@ class State:
 
 	def get_infoset(self, player=0):
 		return InfoSet(
-			hole=self.deal.player(player if player > 0 else self.get_players_turn),
+			hole=self.deal.player(player if player > 0 else self.get_players_turn()),
 			board=self.deal.board[0:self.round],
 			bets=self.bets)
 
