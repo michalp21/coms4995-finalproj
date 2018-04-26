@@ -1,8 +1,10 @@
 import random
 import sys
+import pickle
+from pprint import pprint
 
 import acpc_python_client as acpc
-from State import State as gs
+from InfoSet import InfoSet
 
 class Libratus(acpc.Agent):
     def __init__(self):
@@ -12,55 +14,78 @@ class Libratus(acpc.Agent):
         self.action_probabilities[0] = 0.3  # fold probability
         self.action_probabilities[1] = (1 - self.action_probabilities[0]) * 0.5  # call probability
         self.action_probabilities[2] = (1 - self.action_probabilities[0]) * 0.5  # raise probability
-        
-        self.cards = set()
+        # self.infoset_strategy_map = pickle.load(open('strategy.pkl', 'rb'))
 
-        self.startingplayer = int(not gs.leduc['starting_player'])
+        # self.cards = set()
+        self.bets = None
+        self.contrib = None
+
+        self.startingplayer = 0
         self.player = None
 
     def on_game_start(self, game):
-        self.startingplayer = int(not self.startingplayer)
+        self.startingplayer = 1 - self.startingplayer
         self.player = self.startingplayer
         print("Self is:",self.player)
 
+        self.bets = [[], []] #rounds
+        self.contrib = {0:[], 1:[]} #players
+
     def on_next_turn(self, game, match_state, is_acting_player):
+        vp = match_state.get_viewing_player()
         state = match_state.get_state()
         rround = state.get_round()
         num_actions = state.get_num_actions(rround)
+        hole_card = state.get_hole_card(vp, 0)
+        hole_card_o = state.get_hole_card(1 - vp, 0) #meaningless
+        board_card = -1
 
         if rround > 0 and num_actions == 0:
             self.player = self.startingplayer
 
-        if state.get_hole_card(self.player, 0) not in self.cards:
-            self.cards.add(state.get_hole_card(0, 0))
+        # if state.get_hole_card(self.player, 0) not in self.cards:
+        #     self.cards.add(state.get_hole_card(0, 0))
 
         print("Round:",rround,"#Actions:",num_actions)
         print("  Self is acting:",is_acting_player)
 
-        print("  Hole card"+str(self.player)+":",state.get_hole_card(self.player, 0))
+        print(" *vp",vp)
+
+        #Keep track of total spending
+        self.contrib[self.player].append(state.get_spent(self.player))
+
+        #Find action amounts for previous action
+        r,a = rround,num_actions-1
         if rround > 0:
-            print("  Board card:",state.get_board_card(0))
-            if state.get_hole_card(self.player, 0) == state.get_hole_card(int(not self.player), 0) or\
-                state.get_hole_card(self.player, 0) == state.get_board_card(0) or \
-                state.get_board_card(0) == state.get_hole_card(int(not self.player), 0):
-                print(" MEGA BAD DUDUDUDUUDUDUDDE ")
-
-        history = {0:[], 1:[]}
-        for r in range(rround+1):
-            for a in range(num_actions):
-                action_type = state.get_action_type(r, a)
-                action_player = state.get_acting_player(r, a)
-                action_amount = 0
-                if action_type == acpc.ActionType.RAISE:
-                    action_amount = state.get_action_size(r, a)
-                history[r].append(action_type)
-                
-        print(history)
-
-        # if num_actions > 0:
-        #     print("  p",self.player,state.get_acting_player(rround,num_actions-1) == self.player)
+            if a < 0: r-=1; a=state.get_num_actions(r)-1;
+        if a >= 0: 
+            action_type = state.get_action_type(r, a)
+            action_player = state.get_acting_player(r, a)
+            action_amount = 0
+            if action_type == acpc.ActionType.RAISE:
+                action_amount = state.get_action_size(r, a)
+            elif action_type == acpc.ActionType.CALL:
+                if a < 1:
+                    action_amount = 0
+                else:
+                    caller = state.get_acting_player(r,a)
+                    action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
+            # self.bets[r].append((action_type,action_amount,state.get_spent(action_player),action_player))
+            self.bets[r].append(action_amount)
 
         if is_acting_player:
+            # infoset = InfoSet(hole_card, board_card, self.bets)
+            # if infoset in infoset_strategy_map.keys():
+            #     strategy = infoset_strategy_map[infoset]
+            #     print("This strategy has seen this infoset before, and will play the following actions with the following probabilities")
+            #     print(possible_actions, strategy.get_average_strategy())
+            # else:
+            #     print("This strategy has never seen the following infoset before, and will therefore play randomly")
+            #     print(infoset)
+            # action = utility_methods.get_random_action(strategy.get_average_strategy())
+            # print("Opponent has decided to take action", possible_actions[action])
+            # gamestate.update(players_turn, possible_actions[action])
+
             # Create current action probabilities, leave out invalid actions
             current_probabilities = [0] * 3
             if self.is_fold_valid():
@@ -89,25 +114,17 @@ class Libratus(acpc.Agent):
                 raise_max = self.get_raise_max()
                 raise_size = raise_min + (raise_max - raise_min) * random.random()
                 self.set_next_action(action_type, int(round(raise_size)))
-                # print(action_type,int(round(raise_size)))
             else:
                 self.set_next_action(action_type)
-                # print(action_type)
 
-
-        # for i in range(num_actions):
-        #     get_acting_player(rround, i)
-
-        self.player = int(not self.player)
+        self.player = 1 - self.player
 
 
     def on_game_finished(self, game, match_state):
-        # state = match_state.get_state()
-        # rround = state.get_round()
-        # num_actions = state.get_num_actions(rround)
-        # for i in range(num_actions):
-        #     get_acting_player(rround, i)
-        print(self.cards,"\n")
+        pprint(self.bets)
+        print()
+        # print(self.cards,"\n")
+        
 
 if __name__ == "__main__":
     if len(sys.argv) < 4:
@@ -115,4 +132,6 @@ if __name__ == "__main__":
         sys.exit(1)
 
     client = acpc.Client(sys.argv[1], sys.argv[2], sys.argv[3])
-    client.play(Libratus())
+    L = Libratus()
+    client.play(L)
+    # print(L.fail/L.total)
