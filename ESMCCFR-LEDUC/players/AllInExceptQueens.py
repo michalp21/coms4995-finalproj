@@ -18,5 +18,5 @@ class AllInExceptQueens:
 		else:
 			return bets[-1]
 
-	def name(self):
+	def __str__(self):
 		return "AllInExceptQueens"

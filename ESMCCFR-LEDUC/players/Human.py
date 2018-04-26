@@ -13,6 +13,6 @@ class Human:
 			action = int(input("\tSelect action from %s:\n\t>" % str(bets)))
 		return action
 
-	def name(self):
+	def __str__(self):
 		return self._name
 

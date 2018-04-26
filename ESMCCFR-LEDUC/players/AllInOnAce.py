@@ -11,5 +11,5 @@ class AllInOnAce:
 			return state.get_possible_bets()[-1]
 		return 0
 
-	def name(self):
+	def __str__(self):
 		return "AllIBot"

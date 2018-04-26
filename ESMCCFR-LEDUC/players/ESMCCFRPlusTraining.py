@@ -25,5 +25,5 @@ class ESMCCFRPlusTraining:
 		return bets[random.choices(list(range(len(player_strategy))),
 			weights=player_strategy, k=1)[0]]
 
-	def name(self):
-		return "EsmccfrBot"
+	def __str__(self):
+		return "EsmccfrBot\t"

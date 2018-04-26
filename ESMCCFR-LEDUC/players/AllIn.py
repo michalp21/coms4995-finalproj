@@ -9,5 +9,5 @@ class AllIn:
 	def bet(self, state):
 		return state.get_possible_bets()[-1]
 
-	def name(self):
+	def __str__(self):
 		return "AllInBot"
