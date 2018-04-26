@@ -13,7 +13,7 @@ from Setup import Setup
 from Strategy import Strategy
 from players.AllInOnAce import AllInOnAce
 
-round_names = ['Pre-flop', 'Flop', 'Turn', 'River']
+round_names = ['Preflop', 'Flop', 'Turn', 'River']
 
 rules = Leduc()
 
@@ -29,20 +29,24 @@ def play_game(rules, setup, pov_player, opponent):
   round = 0
   gs= State(rules=rules, setup=setup, deal=rules.deal())
 
-  print("\t%s round, your cards: %s" % (round_names[round], pp(gs.deal.big if pov_seat == 1 else gs.deal.small)))
+  print("\tround=%s, %s=%s, %s starts" %
+    (round_names[round], pov_player.name(),
+     pp(gs.deal.big if pov_seat == 1 else gs.deal.small),
+     pov_player.name() if pov_seat == 2 else opponent.name()))
 
   while not gs.is_terminal():
     player_turn = gs.get_players_turn()
     player = pov_player if player_turn == pov_seat else opponent
     bet = player.bet(gs)
     gs.update(bet)
-    print("\t\t%s bet %d. %d v. %d" %
+    print("\t\t%s bet=%d. %d v. %d" %
       (player.name(), bet,
        gs._my_contrib(pov_seat),
        gs._other_contrib(pov_seat)))
 
     if gs.round > round and gs.round < len(gs.deal.board):
-      print("\t%s round: %s" % (round_names[gs.round], pp(gs.deal.board[gs.round-1])))
+      # print round and new cards
+      print("\t%s=%s" % (round_names[gs.round], pp(gs.deal.board[gs.round-1])))
       round = gs.round
 
   # after end
@@ -52,9 +56,9 @@ def play_game(rules, setup, pov_player, opponent):
     print("\t%s folded" % (pov_player
       if gs.folded_player == pov_seat else opponent).name())
   else:
-    print("\tShowdown: player cards: %s. Opponent: %s. Board: %s" %
-      (pp(gs.deal.big if pov_seat == 1 else gs.deal.small),
-       pp(gs.deal.small if pov_seat == 1 else gs.deal.big),
+    print("\tShowdown:  %s=%s. %s=%s. Board=%s." %
+      (pov_player.name(), pp(gs.deal.big if pov_seat == 1 else gs.deal.small),
+       opponent.name(), pp(gs.deal.small if pov_seat == 1 else gs.deal.big),
        pp(gs.deal.join_board())))
 
   print("\t%s %s %d dollars" % (pov_player.name(), ('won' if util >= 0 else 'lost'), abs(util)))

@@ -25,4 +25,4 @@ class ESMCCFRPlusTraining:
 			weights=player_strategy, k=1)[0]]
 
 	def name(self):
-		return "ESMCCFR Bot"
+		return "EsmccfrBot"

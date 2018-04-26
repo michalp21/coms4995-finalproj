@@ -7,7 +7,7 @@ class AllInOnAce:
 		pass
 
 	def bet(self, state):
-		if state.get_infoset().hole[0] == 1
+		if state.get_infoset().hole[0] == 1:
 			return state.get_possible_bets()[-1]
 		return 0
 
