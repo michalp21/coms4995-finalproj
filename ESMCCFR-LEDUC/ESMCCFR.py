@@ -2,7 +2,9 @@
 from State import State
 from InfoSet import InfoSet
 from Strategy import Strategy
-from Rules import Rules
+from rules.Hunl import Hunl
+from rules.Leduc import Leduc
+from rules.Kuhn import Kuhn
 from Setup import Setup
 from Utilities import *
 from collections import defaultdict
@@ -115,5 +117,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(rules=Rules.leduc, setup=Setup(stack_size=5, big_blind=1, small_blind=1))
+	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=5, big_blind=1, small_blind=1))
 	ESMCCFR_P.run(10000)

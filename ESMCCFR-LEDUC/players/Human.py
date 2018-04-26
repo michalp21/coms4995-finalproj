@@ -10,7 +10,7 @@ class Human:
 		bets = state.get_possible_bets()
 		action = -1
 		while (action not in bets):
-			action = int(input("Select action from %s:\n" % str(bets)))
+			action = int(input("\tSelect action from %s:\n\t>" % str(bets)))
 		return action
 
 	def name(self):

@@ -83,12 +83,13 @@ class State:
 
 		# showdown cases
 		result = self.rules.evaluate(self.deal)
+		reverse_pov = 1 if player == 2 else -1
 		if result == 0:
 			return 0
 		elif result > 0:
-			return self._other_contrib(player)
+			return reverse_pov * self._other_contrib(player)
 		else:
-			return -1 * self._my_contrib(player)
+			return -1 * reverse_pov * self._my_contrib(player)
 
 
 	def update(self, bet):
