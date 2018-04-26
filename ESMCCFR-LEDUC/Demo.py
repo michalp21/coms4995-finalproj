@@ -4,6 +4,7 @@ from deuces2.deck import Deck
 from deuces2.card import Card
 from players.Human import Human
 from players.AllIn import AllIn
+from players.AllInExceptQueens import AllInExceptQueens
 from players.ESMCCFRPlusTraining import ESMCCFRPlusTraining
 from State import State
 from rules.Hunl import Hunl
@@ -67,13 +68,13 @@ def play_game(rules, setup, pov_player, opponent):
 
 def main():
   setup = Setup(small_blind=1, big_blind=2, stack_size=5)
-  pov_player = AllIn(rules, setup)
+  pov_player = AllInExceptQueens(rules, setup)
   #pov_player = Human(rules, setup)
-  opponent = AllInOnAce(rules, setup)
+  opponent = ESMCCFRPlusTraining(rules, setup)
   #opponent = ESMCCFRPlusTraining(rules, setup)
 
   pov_player.train(1)
-  opponent.train(250000)
+  opponent.train(250)
 
   games = 0
   total = 0
