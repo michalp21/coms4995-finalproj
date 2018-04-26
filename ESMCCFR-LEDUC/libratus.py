@@ -5,6 +5,7 @@ from pprint import pprint
 
 import acpc_python_client as acpc
 from InfoSet import InfoSet
+# from ESMCCFR import ESMCCFR_P
 
 class Libratus(acpc.Agent):
     def __init__(self):
@@ -14,23 +15,40 @@ class Libratus(acpc.Agent):
         self.action_probabilities[0] = 0.3  # fold probability
         self.action_probabilities[1] = (1 - self.action_probabilities[0]) * 0.5  # call probability
         self.action_probabilities[2] = (1 - self.action_probabilities[0]) * 0.5  # raise probability
-        # self.infoset_strategy_map = pickle.load(open('strategy-djechlin.pkl', 'rb'))
+        self.infoset_strategy_map = pickle.load(open('strategy-djechlin.pkl', 'rb'))
 
         # self.cards = set()
         self.bets = None
         self.contrib = None
 
-        self.startingplayer = 1
+        self.startingplayer = 0
         self.player = None
 
+    def _get_random_bet(self, player_strategy):
+        return random.choices(list(range(len(player_strategy))),
+            weights=player_strategy, k=1)[0]
+
+    def _convert_card(self, card):
+        if card in {42, 43}:
+            return [1]
+        elif card in {46, 47}:
+            return [2]
+        elif card in {50, 51}:
+            return [3]
+        elif card == -1:
+            return []
+        else:
+            raise Exception('Invalid card')
+
     def on_game_start(self, game):
-        self.startingplayer = 1 - self.startingplayer
         self.player = self.startingplayer
-        print("Self is:",self.player)
+
+        print("==========")
 
         self.bets = [[], []] #rounds
-        self.contrib = {0:[], 1:[]} #players
+        self.contrib = [[100], [100]] #players
 
+    #TODO: check BETS (history) stored correctly //should be ok...?
     def on_next_turn(self, game, match_state, is_acting_player):
         vp = match_state.get_viewing_player()
         state = match_state.get_state()
@@ -40,20 +58,23 @@ class Libratus(acpc.Agent):
         hole_card_o = state.get_hole_card(1 - vp, 0) #meaningless
         board_card = -1
 
+        if rround > 0:
+            board_card = state.get_board_card(0)
+
         if rround > 0 and num_actions == 0:
             self.player = self.startingplayer
+
+        spent = state.get_spent(1-self.player)
 
         # if state.get_hole_card(self.player, 0) not in self.cards:
         #     self.cards.add(state.get_hole_card(0, 0))
 
-        print("Round:",rround,"#Actions:",num_actions)
-        print("  Self is acting:",is_acting_player)
-
-        print(" *vp",vp)
+        print("P" + str(self.player) + "(" + str(vp) + ")","Round:",rround,"#Actions:",num_actions)
 
         #Keep track of total spending
-        self.contrib[self.player].append(state.get_spent(self.player))
-        self.contrib[self.player].append(state.get_spent(self.player))
+        #If not first move
+        if rround + num_actions > 0:
+            self.contrib[1-self.player].append(spent)
 
         #Find action amounts for previous action
         r,a = rround,num_actions-1
@@ -76,59 +97,81 @@ class Libratus(acpc.Agent):
             # self.bets[r].append((action_type,action_amount,state.get_spent(action_player),action_player))
             self.bets[r].append(action_amount)
 
+        print("CONTRIB (p0): ",end="")
+        pprint(self.contrib[0])
+        print("CONTRIB (p1): ",end="")
+        pprint(self.contrib[1])
+        print("BETS (r0):    ",end="")
+        pprint(self.bets[0])
+        print("BETS (r1):    ",end="")
+        pprint(self.bets[1])
+
         if is_acting_player:
+            hole_card = self._convert_card(hole_card)
+            board_card = self._convert_card(board_card)
             # infoset = InfoSet(hole_card, board_card, self.bets)
-            # if infoset in infoset_strategy_map.keys():
-            #     strategy = infoset_strategy_map[infoset]
-            #     print("This strategy has seen this infoset before, and will play the following actions with the following probabilities")
-            #     print(possible_actions, strategy.get_average_strategy())
-            # else:
-            #     print("This strategy has never seen the following infoset before, and will therefore play randomly")
-            #     print(infoset)
-            # action = utility_methods.get_random_action(strategy.get_average_strategy())
-            # print("Opponent has decided to take action", possible_actions[action])
-            # gamestate.update(players_turn, possible_actions[action])
-
-            # Create current action probabilities, leave out invalid actions
-            current_probabilities = [0] * 3
-            if self.is_fold_valid():
-                current_probabilities[0] = self.action_probabilities[0]
-            # call is always valid action
-            current_probabilities[1] = self.action_probabilities[1]
-            if self.is_raise_valid():
-                current_probabilities[2] = self.action_probabilities[2]
-
-            # Normalize the probabilities
-            probabilities_sum = sum(current_probabilities)
-            current_probabilities = [p / probabilities_sum for p in current_probabilities]
-
-            # Randomly select one action
-            action_index = -1
-            r = random.random()
-            for i in range(3):
-                if r <= current_probabilities[i]:
-                    action_index = i
+            infoset = tuple()
+            strategy = None
+            if infoset in self.infoset_strategy_map:
+                strategy = self.infoset_strategy_map[infoset]
+                bet = self._get_random_bet(strategy.get_average_strategy())
+                action_type = None
+                if bet == 0:
+                    action_type = self.actions[0]
                 else:
-                    r -= current_probabilities[i]
-            action_type = self.actions[action_index]
-            if action_type == acpc.ActionType.RAISE \
-                    and game.get_betting_type() == acpc.BettingType.NO_LIMIT:
-                raise_min = self.get_raise_min()
-                raise_max = self.get_raise_max()
-                raise_size = raise_min + (raise_max - raise_min) * random.random()
-                self.set_next_action(action_type, int(round(raise_size)))
+                    if rround + num_actions == 0:
+                        action_type = self.actions[1]
+                    # else:
+                    #     if len(self.contrib[self.player]) > 0:
+                    #         action_type = 
+                # if action_type == acpc.ActionType.RAISE and game.get_betting_type() == acpc.BettingType.NO_LIMIT:
+                #     self.set_next_action(action_type, bet)
+                # else:
+                #     self.set_next_action(action_type)
             else:
-                self.set_next_action(action_type)
+                # print("This strategy has never seen the following infoset before, and will therefore play randomly")
+                # print(infoset)
+
+                # Create current action probabilities, leave out invalid actions
+                strategy = [0] * 3
+                if self.is_fold_valid():
+                    strategy[0] = self.action_probabilities[0]
+                # call is always valid action
+                strategy[1] = self.action_probabilities[1]
+                if self.is_raise_valid():
+                    strategy[2] = self.action_probabilities[2]
+
+                # Normalize the probabilities
+                probabilities_sum = sum(strategy)
+                strategy = [p / probabilities_sum for p in strategy]
+
+                action_type = self.actions[self._get_random_bet(strategy)]
+                if action_type == acpc.ActionType.RAISE \
+                        and game.get_betting_type() == acpc.BettingType.NO_LIMIT:
+                    raise_min = self.get_raise_min()
+                    raise_max = self.get_raise_max()
+                    raise_size = raise_min + (raise_max - raise_min) * random.random()
+                    self.set_next_action(action_type, int(round(raise_size)))
+                    print(" ", action_type, int(round(raise_size)))
+                else:
+                    self.set_next_action(action_type)
+                    print(" ", action_type)
 
         self.player = 1 - self.player
 
-
     def on_game_finished(self, game, match_state):
-        pprint(self.bets)
-        print()
+        print("==========")
+        # print("CONTRIB (p0): ",end="")
+        # pprint(self.contrib[0])
+        # print("CONTRIB (p1): ",end="")
+        # pprint(self.contrib[1])
+        # print("BETS (r0):    ",end="")
+        # pprint(self.bets[0])
+        # print("BETS (r1):    ",end="")
+        # pprint(self.bets[1])
         # print(self.cards,"\n")
+        print()
         
-
 if __name__ == "__main__":
     if len(sys.argv) < 4:
         print("Usage {game_file_path} {dealer_hostname} {dealer_port}")
@@ -137,4 +180,3 @@ if __name__ == "__main__":
     client = acpc.Client(sys.argv[1], sys.argv[2], sys.argv[3])
     L = Libratus()
     client.play(L)
-    # print(L.fail/L.total)
