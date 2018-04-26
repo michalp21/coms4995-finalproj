@@ -14,13 +14,13 @@ class Libratus(acpc.Agent):
         self.action_probabilities[0] = 0.3  # fold probability
         self.action_probabilities[1] = (1 - self.action_probabilities[0]) * 0.5  # call probability
         self.action_probabilities[2] = (1 - self.action_probabilities[0]) * 0.5  # raise probability
-        # self.infoset_strategy_map = pickle.load(open('strategy.pkl', 'rb'))
+        # self.infoset_strategy_map = pickle.load(open('strategy-djechlin.pkl', 'rb'))
 
         # self.cards = set()
         self.bets = None
         self.contrib = None
 
-        self.startingplayer = 0
+        self.startingplayer = 1
         self.player = None
 
     def on_game_start(self, game):
@@ -53,6 +53,7 @@ class Libratus(acpc.Agent):
 
         #Keep track of total spending
         self.contrib[self.player].append(state.get_spent(self.player))
+        self.contrib[self.player].append(state.get_spent(self.player))
 
         #Find action amounts for previous action
         r,a = rround,num_actions-1
@@ -67,6 +68,8 @@ class Libratus(acpc.Agent):
             elif action_type == acpc.ActionType.CALL:
                 if a < 1:
                     action_amount = 0
+                elif a < 2:
+                    action_amount = self.contrib[action_player][-1]
                 else:
                     caller = state.get_acting_player(r,a)
                     action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
