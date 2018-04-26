@@ -1,4 +1,4 @@
-class AllInExceptQueen:
+class AllInExceptQueens:
 
 	def __init__(self, rules, setup):
 		self.rules = rules
@@ -19,4 +19,4 @@ class AllInExceptQueen:
 			return bets[-1]
 
 	def name(self):
-		return "AllInExceptQueen"
+		return "AllInExceptQueens"
