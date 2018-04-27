@@ -40,25 +40,38 @@ class State:
 		return ('%s, bets: %s, Round: %d' %
 			(str(self.deal), repr_bets(self.bets), self.round))
 
-	def get_possible_bets(self):
+	def get_possible_bets(self, pretty=False):
 		player = self.player_turn
 
 		# returns a list of amounts of chips that can be added to pot in appropriate increment
 		call = self._other_contrib(player) - self._my_contrib(player)
 		remaining_chips = self.setup.stack_size - self._my_contrib(player)
+
 		if self._other_contrib(player) == self.setup.big_blind:
 			min_raise = call + self.setup.big_blind
 		elif call == 0:
 			min_raise = self.setup.big_blind
 		else:
-			min_raise = min(2 * call, remaining_chips)
+			min_raise = 2 * call
 
-		if call == 0:
-			return [0] + list(range(min_raise, remaining_chips + 1))
-		elif self._my_contrib(player) + call == self.setup.stack_size:
-			return [0, call]
+		# all in is not a raise here
+		raises = list(range(min_raise, remaining_chips))
+		bets = list(set([0, call] + raises + [remaining_chips]))
+
+		if not pretty:
+			return bets
 		else:
-			return [0, call] + list(range(min_raise, remaining_chips + 1))
+			ret = dict()
+			if call == 0:
+				ret['check'] = 0
+			else:
+				ret['fold'] = 0
+				ret['call'] = call
+			if len(raises) > 0:
+				ret['raises'] = raises
+			if call != remaining_chips:
+				ret['allIn'] = remaining_chips
+			return ret
 
 	def get_infoset(self, player=0):
 		return InfoSet(
