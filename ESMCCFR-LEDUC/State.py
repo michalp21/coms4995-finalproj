@@ -43,34 +43,51 @@ class State:
 	def get_possible_bets(self, pretty=False):
 		player = self.player_turn
 
-		# returns a list of amounts of chips that can be added to pot in appropriate increment
-		call = self._other_contrib(player) - self._my_contrib(player)
+		debt = self._other_contrib(player) - self._my_contrib(player)
 		remaining_chips = self.setup.stack_size - self._my_contrib(player)
 
-		if self._other_contrib(player) == self.setup.big_blind:
+		if debt == 0:
+			check = 0
+			call = -1
+			fold = -1
+		else:
+			check = -1
+			call = debt
+			fold = 0
+
+		if debt < remaining_chips:
+			all_in = remaining_chips
+		else:
+			all_in = -1
+
+		if player == 2 and self._my_contrib(player) == self.setup.small_blind:
 			min_raise = call + self.setup.big_blind
 		elif call == 0:
-			min_raise = self.setup.big_blind
+			min_raise = 1
 		else:
 			min_raise = 2 * call
 
-		# all in is not a raise here
 		raises = list(range(min_raise, remaining_chips))
-		bets = list(set([0, call] + raises + [remaining_chips]))
 
 		if not pretty:
-			return bets
+			return (([check] if check >= 0 else [])
+			+ ([call] if call >= 0 else [])
+			+ ([fold] if fold >= 0 else [])
+			+ raises
+			+ ([all_in] if all_in >= 0 else []))
+
 		else:
 			ret = dict()
-			if call == 0:
-				ret['check'] = 0
-			else:
+			if check >= 0:
+				ret['check'] = check
+			if fold >= 0:
 				ret['fold'] = 0
+			if call >= 0:
 				ret['call'] = call
 			if len(raises) > 0:
 				ret['raises'] = raises
-			if call != remaining_chips:
-				ret['allIn'] = remaining_chips
+			if all_in >= 0:
+				ret['allIn'] = all_in
 			return ret
 
 	def get_infoset(self, player=0):
