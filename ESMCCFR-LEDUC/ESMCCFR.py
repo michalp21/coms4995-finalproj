@@ -54,7 +54,7 @@ class ESMCCFR_P:
 			for i in infosets:
 				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
 
-		with open('strategy.pkl', 'wb') as pklfile:
+		with open('strategy1.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 		return self.infoset_strategy_map

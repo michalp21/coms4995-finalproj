@@ -53,18 +53,21 @@ class State:
 
 		ret = dict()
 		if debt == 0:
-			ret['check'] = 0
+			ret['check'] = [0]
 		else:
-			ret['fold'] = 0
-			ret['call'] = debt
+			ret['fold'] = [0]
+			ret['call'] = [debt]
 
 		if remaining_chips > min_raise:
 			ret['raises'] = list(range(min_raise, remaining_chips))
 
 		if debt < remaining_chips:
-			ret['allIn'] = remaining_chips
+			ret['allIn'] = [remaining_chips]
 
 		return ret
+
+	def get_word(self, pretty, bet):
+		return [key for key, value in pretty.items() if bet in value][0]
 
 	def get_possible_bets(self, pretty=False):
 		debt = self._debt(self.player_turn)
