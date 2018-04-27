@@ -29,7 +29,6 @@ class ESMCCFR_P:
 			weights=player_strategy, k=1)[0]
 
 	def new_game(self):
-		round = 0
 		return State(rules=self.rules, setup=self.setup, deal=self.rules.deal())
 
 	def run(self,T):
