@@ -8,8 +8,8 @@ class Human:
 		return self
 
 	def bet(self, state):
-		pretty = state.get_possible_bets(pretty=True)
-		bets = state.get_possible_bets(pretty=False)
+		pretty = state.get_possible_bets_pretty()
+		bets = state.get_possible_bets()
 		action = -1
 		while (action not in bets):
 			action = int(input("\tSelect action from %s:\n\t>" % str(pretty)))

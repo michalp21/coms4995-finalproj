@@ -27,6 +27,12 @@ class State:
 	def _my_contrib(self, player):
 		return self.big_contrib if player == 1 else self.small_contrib
 
+	def _debt(self, player):
+		return self._other_contrib(player) - self._my_contrib(player)
+
+	def _remaining(self, player):
+		return self.setup.stack_size - self._my_contrib(player)
+
 	def _increase_contrib(self, player, amount):
 		if player == 1:
 			self.big_contrib += amount
@@ -40,55 +46,31 @@ class State:
 		return ('%s, bets: %s, Round: %d' %
 			(str(self.deal), repr_bets(self.bets), self.round))
 
-	def get_possible_bets(self, pretty=False):
-		player = self.player_turn
+	def get_possible_bets_pretty(self):
+		debt = self._debt(self.player_turn)
+		remaining_chips = self._remaining(self.player_turn)
+		min_raise = debt + max(self.setup.big_blind, debt)
 
-		debt = self._other_contrib(player) - self._my_contrib(player)
-		remaining_chips = self.setup.stack_size - self._my_contrib(player)
-
+		ret = dict()
 		if debt == 0:
-			check = 0
-			call = -1
-			fold = -1
+			ret['check'] = 0
 		else:
-			check = -1
-			call = debt
-			fold = 0
+			ret['fold'] = 0
+			ret['call'] = debt
+
+		if remaining_chips > min_raise:
+			ret['raises'] = list(range(min_raise, remaining_chips))
 
 		if debt < remaining_chips:
-			all_in = remaining_chips
-		else:
-			all_in = -1
+			ret['allIn'] = remaining_chips
 
-		if player == 2 and self._my_contrib(player) == self.setup.small_blind:
-			min_raise = call + self.setup.big_blind
-		elif call == 0:
-			min_raise = 1
-		else:
-			min_raise = 2 * call
+		return ret
 
-		raises = list(range(min_raise, remaining_chips))
-
-		if not pretty:
-			return (([check] if check >= 0 else [])
-			+ ([call] if call >= 0 else [])
-			+ ([fold] if fold >= 0 else [])
-			+ raises
-			+ ([all_in] if all_in >= 0 else []))
-
-		else:
-			ret = dict()
-			if check >= 0:
-				ret['check'] = check
-			if fold >= 0:
-				ret['fold'] = 0
-			if call >= 0:
-				ret['call'] = call
-			if len(raises) > 0:
-				ret['raises'] = raises
-			if all_in >= 0:
-				ret['allIn'] = all_in
-			return ret
+	def get_possible_bets(self, pretty=False):
+		debt = self._debt(self.player_turn)
+		remaining_chips = self._remaining(self.player_turn)
+		min_raise = debt + max(self.setup.big_blind, debt)
+		return list(set([0, debt] + list(range(min_raise, remaining_chips+1))))
 
 	def get_infoset(self, player=0):
 		return InfoSet(
