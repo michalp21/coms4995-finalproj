@@ -3,20 +3,33 @@ class AllInExceptQueens:
 	def __init__(self, rules, setup):
 		self.rules = rules
 
+	def take_seat(self, is_small_blind):
+		self.is_small_blind = is_small_blind
+
+	def receive_cards(self, cards):
+		self.has_queen = (cards[0] == 3)
+
 	def train(self, T=None):
 		pass
 
-	def bet(self, state):
-		bets = state.get_possible_bets()
-		# if starting player, throw out queens
-		# all in otherwise
-		if state.get_players_turn() == 2 and len(bets) > 2:
-			if state.get_infoset().hole[0] in (1, 2):
-				return bets[-1]
-			else:
-				return 0
-		else:
-			return bets[-1]
+	def advance_round(self, cards):
+		pass
+
+	def opponent_bets(self, bet):
+		pass
+
+	def bet(self, actions):
+
+		if not self.has_queen and 'allIn' in actions:
+			return actions['allIn'][0]
+		if not self.has_queen and 'call' in actions:
+			return actions['call'][0]
+		if 'check' in actions:
+			return actions['check'][0]
+		if 'fold' in actions:
+			return actions['fold'][0]
+
+		raise Error("actions seem bad: %s", str(actions))
 
 	def __str__(self):
 		return "AllInExceptQueens"
