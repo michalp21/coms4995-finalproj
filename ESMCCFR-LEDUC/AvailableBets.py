@@ -50,3 +50,6 @@ class AvailableBets():
 			bets['allIn'] = [remaining]
 
 		return bets
+
+	def get_word(self, actions, bet):
+		return [key for key, value in actions.items() if bet in value][0]

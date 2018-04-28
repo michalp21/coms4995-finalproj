@@ -8,6 +8,7 @@ from InfoSet import InfoSet
 from State import State
 from rules.Leduc import Leduc
 from Setup import Setup
+from AvailableBets import AvailableBets
 # from ESMCCFR import ESMCCFR_P
 
 class Libratus(acpc.Agent):
@@ -19,7 +20,8 @@ class Libratus(acpc.Agent):
         self.action_probabilities[1] = (1 - self.action_probabilities[0]) * 0.5  # call probability
         self.action_probabilities[2] = (1 - self.action_probabilities[0]) * 0.5  # raise probability
         self.infoset_strategy_map = pickle.load(open('strategy1.pkl', 'rb'))
-
+        self.setup = Setup(stack_size=5, big_blind=1, small_blind=1)
+        self.available_bets = AvailableBets(self.setup)
         # self.cards = set()
         self.bets = None
         self.contrib = None
@@ -128,7 +130,7 @@ class Libratus(acpc.Agent):
             infoset = tuple() #uncomment to go to else
 
             #fix deal
-            state = State(Leduc(), Setup(stack_size=5, big_blind=1, small_blind=1), Leduc().deal())
+            state = State(Leduc(), self.setup, Leduc().deal())
             state.round = rround
             state.player_turn = 2 if vp == 0 else 1
             state.folded_player = 0
@@ -145,10 +147,13 @@ class Libratus(acpc.Agent):
             if infoset in self.infoset_strategy_map:
                 strategy = self.infoset_strategy_map[infoset]
                 assert(strategy)
+                pov = state._my_contrib(state.players_turn())
+                oppo = state._other_contrib(state.players_turn())
                 bet = self._get_random_bet(strategy.get_average_strategy())
-                bet = state.get_possible_bets()[bet]
-                print(" |",state.get_possible_bets_pretty())
-                d = state.get_word(state.get_possible_bets_pretty(), bet)
+                bet = avaialable_bets.get_bets_as_number(pov, oppo)
+                print(" |",available_bets.get_bets_by_action_type(pov, oppo))
+                d = available_bets.get_word(
+                    available_bets.get_bets_by_action_type(pov, oppo), bet)
                 action_type = None
 
                 action_type = {

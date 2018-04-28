@@ -30,9 +30,6 @@ class State:
 	def _debt(self, player):
 		return self._other_contrib(player) - self._my_contrib(player)
 
-	def _remaining(self, player):
-		return self.setup.stack_size - self._my_contrib(player)
-
 	def _increase_contrib(self, player, amount):
 		if player == 1:
 			self.big_contrib += amount
@@ -45,35 +42,6 @@ class State:
 	def __repr__(self):
 		return ('%s, bets: %s, Round: %d' %
 			(str(self.deal), repr_bets(self.bets), self.round))
-
-	def get_possible_bets_pretty(self):
-		debt = self._debt(self.player_turn)
-		remaining_chips = self._remaining(self.player_turn)
-		min_raise = debt + max(self.setup.big_blind, debt)
-
-		ret = dict()
-		if debt == 0:
-			ret['check'] = [0]
-		else:
-			ret['fold'] = [0]
-			ret['call'] = [debt]
-
-		if remaining_chips > min_raise:
-			ret['raises'] = list(range(min_raise, remaining_chips))
-
-		if debt < remaining_chips:
-			ret['allIn'] = [remaining_chips]
-
-		return ret
-
-	def get_word(self, pretty, bet):
-		return [key for key, value in pretty.items() if bet in value][0]
-
-	def get_possible_bets(self, pretty=False):
-		debt = self._debt(self.player_turn)
-		remaining_chips = self._remaining(self.player_turn)
-		min_raise = debt + max(self.setup.big_blind, debt)
-		return list(set([0, debt] + list(range(min_raise, remaining_chips+1))))
 
 	def get_infoset(self, player=0):
 		return InfoSet(
