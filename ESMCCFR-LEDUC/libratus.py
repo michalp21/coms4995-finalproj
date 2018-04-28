@@ -27,6 +27,7 @@ class Libratus(acpc.Agent):
         self.startingplayer = 0
         self.player = None
 
+        print("Hole / Board / Bets0 / Bets1")
         print('\n'.join(sorted([str(k) for k in self.infoset_strategy_map.keys()])))
 
     def _get_random_bet(self, player_strategy):
@@ -51,7 +52,7 @@ class Libratus(acpc.Agent):
         print("==========")
 
         self.bets = [[], []] #rounds
-        self.contrib = [[1], [1]] #players
+        self.contrib = [[game.get_blind(0)], [game.get_blind(1)]] #players
 
     def on_next_turn(self, game, match_state, is_acting_player):
         vp = match_state.get_viewing_player()
@@ -75,16 +76,19 @@ class Libratus(acpc.Agent):
 
         print("\nP" + str(self.player) + "(" + str(vp) + ")","Round:",rround,"#Actions:",num_actions)
 
-        #Keep track of total spending
-        #If not first move
-        if rround + num_actions > 0:
-            self.contrib[1-self.player].append(spent)
-
-        #Find action amounts for previous action
+        #Get previous action/round
         r,a = rround,num_actions-1
         if rround > 0:
             if a < 0: r-=1; a=state.get_num_actions(r)-1;
-        if a >= 0: 
+
+        #Keep track of total spending
+        #If not first move
+        prev = state.get_acting_player(r, a)
+        if rround + num_actions > 0:
+            self.contrib[prev].append(spent)
+
+        #Find action amounts for previous action
+        if a >= 0:
             action_type = state.get_action_type(r, a)
             action_player = state.get_acting_player(r, a)
             action_amount = 0
@@ -92,16 +96,20 @@ class Libratus(acpc.Agent):
                 action_amount = state.get_action_size(r, a)
             elif action_type == acpc.ActionType.CALL:
                 if a < 1:
+                    print("==0")
                     action_amount = 0
                 elif a < 2:
+                    print("==1")
                     action_amount = self.contrib[action_player][-1]
                 else:
-                    caller = state.get_acting_player(r,a)
+                    print(">=2")
+                    caller = state.get_acting_player(r, a)
                     action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
-            # self.bets[r].append((action_type,action_amount,state.get_spent(action_player),action_player))
             self.bets[r].append(action_amount)
+            # self.bets[r].append((action_type,action_amount,state.get_spent(action_player),action_player))
 
         print("~pre",state.get_action_type(r, a))
+        print("Stack:",game.get_stack(self.player),"Blind",game.get_blind(self.player))
         print("CONTRIB (p0): ",end="")
         pprint(self.contrib[0])
         print("CONTRIB (p1): ",end="")
@@ -139,25 +147,27 @@ class Libratus(acpc.Agent):
                 assert(strategy)
                 bet = self._get_random_bet(strategy.get_average_strategy())
                 bet = state.get_possible_bets()[bet]
-                print("Bet:",bet)
-                print(state.get_possible_bets_pretty())
+                print(" |",state.get_possible_bets_pretty())
                 d = state.get_word(state.get_possible_bets_pretty(), bet)
                 action_type = None
 
                 action_type = {
-                'fold': self.actions[0],
-                 'check': self.actions[1],
-                 'call': self.actions[1],
-                 'raises': self.actions[2],
-                 'allIn': self.actions[2]
-                 }[d]
+                    'fold': self.actions[0],
+                    'check': self.actions[1],
+                    'call': self.actions[1],
+                    'raises': self.actions[2],
+                    'allIn': self.actions[2]
+                }[d]
                 
+                print(" | Bet:",bet,"Type:",action_type)
+
+
                 if action_type == acpc.ActionType.FOLD and not self.is_fold_valid():
                     print("Fold :(")
                 if action_type == acpc.ActionType.RAISE and not self.is_raise_valid():
                     print("Raise :( " + str(bet) + "contrib " + str(state.big_contrib) + " " + str(state.small_contrib))
 
-                print(" ", infoset, "* * *")
+                print(" |", infoset)
                 if action_type == acpc.ActionType.RAISE and game.get_betting_type() == acpc.BettingType.NO_LIMIT:
                     self.set_next_action(action_type, bet)
                 else:
