@@ -5,7 +5,7 @@ class AvailableBets():
 	def _get_debt(self, pov, oppo):
 		debt = oppo - pov
 		if debt < 0:
-			raise Error(
+			raise Exception(
 				'Debt %d < 0 for pov %d and oppo %d' %
 				(debt, pov, oppo))
 		return debt
@@ -13,7 +13,7 @@ class AvailableBets():
 	def _get_remaining(self, pov):
 		remaining = self.setup.stack_size - pov
 		if remaining <= 0:
-			raise Error(
+			raise Exception(
 				'Remaining %d < 0 for pov %d and stack %d' %
 				(remaining, pov, self.setup.stack_size))
 		return remaining

@@ -29,7 +29,7 @@ class AllInExceptQueens:
 		if 'fold' in actions:
 			return actions['fold'][0]
 
-		raise Error("actions seem bad: %s", str(actions))
+		raise Exception("actions seem bad: %s", str(actions))
 
 	def __str__(self):
 		return "AllInExceptQueens"
