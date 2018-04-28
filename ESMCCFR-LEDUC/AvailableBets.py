@@ -51,5 +51,12 @@ class AvailableBets():
 
 		return bets
 
+	def get_action_type_for_bet(self, pov, oppo, bet):
+		by_type = self.get_bets_by_action_type(pov, oppo)
+		for key in by_type.keys():
+			if bet in by_type[key]:
+				return key
+		raise Exception("Illegal bet")
+
 	def get_word(self, actions, bet):
 		return [key for key, value in actions.items() if bet in value][0]
