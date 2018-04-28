@@ -88,6 +88,10 @@ class Libratus(acpc.Agent):
         prev = state.get_acting_player(r, a)
         if rround + num_actions > 0:
             self.contrib[prev].append(spent)
+            if state.get_action_type(r, a) == acpc.ActionType.RAISE:
+                print("~pre",state.get_action_type(r, a),state.get_action_size(r, a))
+            else:
+                print("~pre",state.get_action_type(r, a))
 
         #Find action amounts for previous action
         if a >= 0:
@@ -98,13 +102,13 @@ class Libratus(acpc.Agent):
                 action_amount = state.get_action_size(r, a)
             elif action_type == acpc.ActionType.CALL:
                 if a < 1:
-                    print("==0")
+                    # print("==0")
                     action_amount = 0
                 elif a < 2:
-                    print("==1")
+                    # print("==1")
                     action_amount = self.contrib[action_player][-1]
                 else:
-                    print(">=2")
+                    # print(">=2")
                     caller = state.get_acting_player(r, a)
                     action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
             self.bets[r].append(action_amount)
@@ -147,13 +151,13 @@ class Libratus(acpc.Agent):
             if infoset in self.infoset_strategy_map:
                 strategy = self.infoset_strategy_map[infoset]
                 assert(strategy)
-                pov = state._my_contrib(state.players_turn())
-                oppo = state._other_contrib(state.players_turn())
+                pov = state._my_contrib(state.get_players_turn())
+                oppo = state._other_contrib(state.get_players_turn())
                 bet = self._get_random_bet(strategy.get_average_strategy())
-                bet = avaialable_bets.get_bets_as_number(pov, oppo)
-                print(" |",available_bets.get_bets_by_action_type(pov, oppo))
-                d = available_bets.get_word(
-                    available_bets.get_bets_by_action_type(pov, oppo), bet)
+                bet = self.available_bets.get_bets_as_numbers(pov, oppo)
+                print(" |",self.available_bets.get_bets_by_action_type(pov, oppo))
+                d = self.available_bets.get_word(
+                    self.available_bets.get_bets_by_action_type(pov, oppo), bet)
                 action_type = None
 
                 action_type = {
