@@ -68,7 +68,7 @@ class ESMCCFR_P:
 		#default to chance player
 		other_player = 3 - player
 		player_turn = state.get_players_turn()
-		possible_bets = available_bets.get_bets_as_numbers(
+		possible_bets = self.available_bets.get_bets_as_numbers(
 			state._my_contrib(player_turn), state._other_contrib(player_turn))
 		# Determine the strategy at this infoset
 		infoset = state.get_infoset(player_turn)

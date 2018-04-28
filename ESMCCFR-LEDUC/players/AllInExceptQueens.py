@@ -3,6 +3,9 @@ class AllInExceptQueens:
 	def __init__(self, rules, setup):
 		self.rules = rules
 
+	def new_game(self):
+		pass
+
 	def take_seat(self, is_small_blind):
 		self.is_small_blind = is_small_blind
 

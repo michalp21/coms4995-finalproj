@@ -14,6 +14,8 @@ from rules.Kuhn import Kuhn
 from Setup import Setup
 from Strategy import Strategy
 from players.AllInOnAce import AllInOnAce
+from State import State
+from AvailableBets import AvailableBets
 
 class Contest:
 
@@ -23,25 +25,46 @@ class Contest:
     self.logger = logger
     self.pov = players[0]
     self.opponent = players[1]
+    self.available_bets = AvailableBets(setup)
 
   def play(self):
+    self.pov.new_game()
+    self.opponent.new_game()
+
     pov_seat = random.choice([1, 2])
     opponent_seat = 3 - pov_seat
+    self.pov.take_seat(pov_seat == 2)
+    self.opponent.take_seat(opponent_seat == 2)
+
+    deal = self.rules.deal()
+    if pov_seat == 2:
+      self.pov.receive_cards(deal.small)
+      self.opponent.receive_cards(deal.big)
+    else:
+      self.pov.receive_cards(deal.big)
+      self.opponent.receive_cards(deal.small)
 
     round = 0
-    gs= State(rules=self.rules, setup=self.setup, deal=self.rules.deal())
+    gs= State(rules=self.rules, setup=self.setup, deal=deal)
 
     self.logger.round(gs, pov_seat)
 
     while not gs.is_terminal():
       turn = gs.get_players_turn()
       player = self.pov if turn == pov_seat else self.opponent
-      bet = player.bet(gs)
+      other = self.opponent if turn == pov_seat else self.pov
+
+      bet = player.bet(self.available_bets.get_bets_by_action_type(
+        gs._my_contrib(turn), gs._other_contrib(turn)))
+      other.opponent_bets(bet)
+
       gs.update(bet)
       self.logger.bet(gs, player, pov_seat, bet)
 
-      if gs.round > round and gs.round < len(gs.deal.board):
+      if (not gs.is_terminal()) and gs.round > round:
         # print round and new cards
+        self.pov.advance_round(deal.board[round])
+        self.opponent.advance_round(deal.board[round])
         self.logger.round(gs, pov_seat)
         round = gs.round
 
@@ -53,9 +76,9 @@ class Contest:
 
 def main():
   rules = Leduc()
-  setup = Setup(small_blind=1, big_blind=2, stack_size=5)
+  setup = Setup(small_blind=1, big_blind=1, stack_size=5)
   pov = AllInExceptQueens(rules, setup)
-  opponent = ESMCCFRPlusTraining(rules, setup).train(2500)
+  opponent = ESMCCFRPlusTraining(rules, setup).train(1000000)
 
   contest = Contest(rules=rules,
     setup=setup,
