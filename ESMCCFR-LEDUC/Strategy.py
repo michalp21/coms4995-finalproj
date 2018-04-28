@@ -13,7 +13,7 @@ class Strategy:
 		average_strategy = []
 		normalizing_sum = sum(self.count)
 		if normalizing_sum > 0:
-			average_strategy = [self.count[i]/normalizing_sum] * self.num_actions
+			average_strategy = [self.count[i]/normalizing_sum for i in range(self.num_actions)]
 		else:
 			average_strategy = [1.0/self.num_actions] * self.num_actions
 		return average_strategy
