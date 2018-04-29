@@ -16,7 +16,7 @@ class Hunl:
 
 	def deal(self):
 		deck = Deck(52)
-		return Deal(big=deck.draw(2),
+		return Deal(rules=self, big=deck.draw(2),
 			small=deck.draw(2),
 			board=[deck.draw(s) for s in (3, 1, 1)])
 

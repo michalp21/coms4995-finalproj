@@ -15,7 +15,8 @@ class ESMCCFRPlusTraining:
 		self.is_small_blind = None
 
 	def new_game(self):
-		self.state = State(self.rules, self.setup, Deal(big=[], small=[], board=[]))
+		self.state = State(self.rules, self.setup,
+			Deal(rules=self.rules, big=[], small=[], board=[]))
 
 	def take_seat(self, is_small_blind):
 		self.is_small_blind = is_small_blind
