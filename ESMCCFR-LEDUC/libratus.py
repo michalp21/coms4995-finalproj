@@ -111,19 +111,21 @@ class Libratus(acpc.Agent):
             action_type = state.get_action_type(r, a)
             action_player = state.get_acting_player(r, a)
             action_amount = 0
+            print("-----")
+            print(self.contrib[action_player])
+            print("-----")
             if action_type == acpc.ActionType.RAISE:
                 action_amount = state.get_action_size(r, a)
             elif action_type == acpc.ActionType.CALL:
-                if a < 1:
-                    print("~pre ==0")
-                    action_amount = 0
-                elif a < 2:
-                    print("~pre ==1")
+                if len(self.contrib[action_player]) == 2:
+                    print("~pre == 2")
                     action_amount = self.contrib[action_player][-1]
-                else:
-                    print("~pre >=2")
+                elif len(self.contrib[action_player]) > 2:
+                    print("~pre > 2")
                     caller = state.get_acting_player(r, a)
                     action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
+                else:
+                    raise Exception("What")
             self.bets[r].append(action_amount)
             # self.bets[r].append((action_type,action_amount,state.get_spent(action_player),action_player))
 
