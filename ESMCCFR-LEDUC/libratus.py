@@ -51,6 +51,14 @@ class Libratus(acpc.Agent):
         else:
             raise Exception('Invalid card')
 
+    def _get_prev_ra(self,state,rround,action):
+        action -= 1
+        if action < 0:
+            rround-=1
+            action = state.get_num_actions(rround)-1
+        return rround, action
+
+
     def on_game_start(self, game):
         self.player = self.startingplayer
 
@@ -87,9 +95,7 @@ class Libratus(acpc.Agent):
         #Get previous action/round
         r,a = rround,num_actions-1
         if rround > 0:
-            if a < 0:
-                r-=1
-                a=state.get_num_actions(r)-1
+            r,a = self._get_prev_ra(state,r,a+1)
                 
                 # if state.get_action_type(r, a) == acpc.ActionType.RAISE:
                 #     print("~pre",state.get_action_type(r, a),state.get_action_size(r, a))
@@ -103,7 +109,7 @@ class Libratus(acpc.Agent):
             self.contrib[prev].append(spent)
             if state.get_action_type(r, a) == acpc.ActionType.RAISE:
                 action_player = state.get_acting_player(r, a)
-                print("~pre",state.get_action_type(r, a),state.get_action_size(r, a) - self.contrib[action_player][-1])
+                print("~pre",state.get_action_type(r, a),state.get_action_size(r, a) - self.contrib[action_player][-2])
             else:
                 print("~pre",state.get_action_type(r, a))
 
@@ -116,7 +122,7 @@ class Libratus(acpc.Agent):
             # print(self.contrib[action_player])
             # print("-----")
             if action_type == acpc.ActionType.RAISE:
-                action_amount = state.get_action_size(r, a)
+                action_amount = state.get_action_size(r, a) - self.contrib[action_player][-2]
             elif action_type == acpc.ActionType.CALL:
                 if len(self.contrib[action_player]) >= 2:
                     # print("~pre > 2")
@@ -140,15 +146,21 @@ class Libratus(acpc.Agent):
 
         if is_acting_player and not state.get_player_folded(1-self.player):
 
-            #Recieve cards
+            #Push cards to AvailableBets.py
             self.charizard.receive_cards(self._convert_card(hole_card))
 
             #If opponent played previous round, execute opponent bet in +Training
             if a + r > 0 and state.get_acting_player(r,a) != self.player:
-                print(">>> Round:",self.charizard.state.round)
-                print("    opponent bet:",self.bets[r][-1])
+                #If opponent played in round before *that*, execute opponent bet in +Training
+                rr, aa = self._get_prev_ra(state,r,a)
+                if state.get_acting_player(rr ,aa) != self.player:
+                    print(" (a) ")
+                    self.charizard.opponent_bets(self.bets[rr][-1])
+                # print(">>> Round:",self.charizard.state.round)
+                # print("    opponent bet:",self.bets[r][-1])
+                print(" (b) ")
                 self.charizard.opponent_bets(self.bets[r][-1])
-                print("<<< round:",self.charizard.state.round)
+                # print("<<< round:",self.charizard.state.round)
 
             #At beginning of round, add board cards
             if rround > 0:
