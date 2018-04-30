@@ -5,6 +5,7 @@ from State import State
 from Deal import Deal
 from AvailableBets import AvailableBets
 
+import pickle
 
 class ESMCCFRPlusTraining:
 
@@ -13,6 +14,8 @@ class ESMCCFRPlusTraining:
 		self.setup = setup
 		self.available_bets = AvailableBets(setup)
 		self.is_small_blind = None
+		# self.train(2500)
+		self.strategy_map = pickle.load(open('strategy1.pkl', 'rb'))
 
 	def new_game(self):
 		self.state = State(self.rules, self.setup,
@@ -28,7 +31,7 @@ class ESMCCFRPlusTraining:
 		else:
 			self.state.deal.big = cards
 
-	def bet(self, actions):
+	def bet(self):
 		if (self.state.player_turn == 2) != self.is_small_blind:
 			raise Exception('Player turn is wrong. I am small: %s, player turn: %d'
 				% (str(self.is_small_blind), self.state.player_turn))
@@ -37,9 +40,9 @@ class ESMCCFRPlusTraining:
 			self.state._my_contrib(self.state.player_turn),
 			self.state._other_contrib(self.state.player_turn))
 
-		if bets != [v for val in actions.values() for v in val]:
-			raise Exception('Internal bets <%s> are not input bets <%s>'
-				% (bets, actions))
+		# if bets != [v for val in actions.values() for v in val]:
+		# 	raise Exception('Internal bets <%s> are not input bets <%s>'
+		# 		% (bets, actions))
 
 		infoset = self.state.get_infoset()
 		print(str(self.is_small_blind) + " " + str(infoset))
