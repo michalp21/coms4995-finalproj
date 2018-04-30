@@ -80,6 +80,7 @@ class State:
 		player = self.player_turn
 		assert self.folded_player == 0
 		assert self._my_contrib(player) <= self._other_contrib(player)
+		assert self.round <= len(self.deal.board)
 		self.bets[self.round].append(bet)
 
 		assert bet >= 0
