@@ -100,11 +100,6 @@ class Libratus(acpc.Agent):
         if rround > 0:
             r,a = self._get_prev_ra(state,r,a+1)
                 
-                # if state.get_action_type(r, a) == acpc.ActionType.RAISE:
-                #     print("~pre",state.get_action_type(r, a),state.get_action_size(r, a))
-                # else:
-                #     print("~pre",state.get_action_type(r, a))
-                
         #Keep track of total spending
         #If not first move
         prev = state.get_acting_player(r, a)
@@ -120,10 +115,6 @@ class Libratus(acpc.Agent):
         if a >= 0:
             action_type = state.get_action_type(r, a)
             action_player = state.get_acting_player(r, a)
-            action_amount = 0
-            # print("-----")
-            # print(self.contrib[action_player])
-            # print("-----")
             if action_type == acpc.ActionType.RAISE:
                 action_amount = state.get_action_size(r, a) - self.contrib[action_player][-2]
             elif action_type == acpc.ActionType.CALL:
@@ -148,28 +139,69 @@ class Libratus(acpc.Agent):
 
         if is_acting_player and not state.get_player_folded(1-self.player):
 
+            updated_round = False
+
             #Push cards to AvailableBets.py
             self.charizard.receive_cards(self._convert_card(hole_card))
 
-            #If opponent played 2 rounds ago, execute opponent bet in +Training
-            if a + r > 0:
+            if a + r >= 0 and not updated_round:
+
                 rr, aa = self._get_prev_ra(state,r,a)
-                if state.get_acting_player(rr ,aa) != self.player:
-                    print(" (opp_a) ",self.bets[rr][-1])
-                    self.charizard.opponent_bets(self.bets[rr][-1])
-                # print("    opponent bet:",self.bets[r][-1])
+                if aa + rr > 0 and rr < r:
+                    if state.get_acting_player(rr, aa) == self.player:
+                        self.charizard.advance_round(self._convert_card(board_card))
+                        updated_round = True
 
-            #If opponent played in last round, execute opponent bet in +Training
-            if a + r >= 0 and state.get_acting_player(r,a) != self.player:
-                print(" (opp_b) ",self.bets[r][-1],end=" ")
-                self.charizard.opponent_bets(self.bets[r][-1])
+                        print(" (opp_d) ",self.bets[r][-1],flush=True)
+                        self.charizard.opponent_bets(self.bets[r][-1])
 
-            #At beginning of round, add board cards
-            if rround > 0:
-                if (num_actions == 0 and self.player == 0 or \
-                    num_actions == 1 and self.player == 1):
-                    self.charizard.advance_round(self._convert_card(board_card))
-                    # print("...r",self.charizard.state.round," l",len(self.charizard.state.deal.board))
+                    if state.get_acting_player(rr, aa) != self.player:
+                        print(" (opp_a) ",self.bets[rr][-1],flush=True)
+                        self.charizard.opponent_bets(self.bets[rr][-1])
+
+                        self.charizard.advance_round(self._convert_card(board_card))
+                        updated_round = True
+
+                        print(" (opp_a) ",self.bets[r][-1],flush=True)
+                        self.charizard.opponent_bets(self.bets[r][-1])
+
+                elif r < rround:
+                    if state.get_acting_player(r, a) != self.player:
+                        print(" (opp_b) ",self.bets[r][-1],flush=True)
+                        self.charizard.opponent_bets(self.bets[r][-1])
+
+                        self.charizard.advance_round(self._convert_card(board_card))
+                        updated_round = True
+                    elif state.get_acting_player(r, a) == self.player:
+                        print(" (opp_c) ",flush=True)
+                        self.charizard.advance_round(self._convert_card(board_card))
+                        updated_round = True
+                else:
+                    print(" (opp_z) ",self.bets[r][-1],flush=True)
+                    self.charizard.opponent_bets(self.bets[r][-1])
+
+            # #If opponent played 2 rounds ago, execute opponent bet in +Training
+            # if a + r > 0:
+            #     rr, aa = self._get_prev_ra(state,r,a)
+            #     if state.get_acting_player(rr ,aa) != self.player and r - rr == 1:
+            #         print(" (opp_a) ",self.bets[rr][-1])
+            #         self.charizard.opponent_bets(self.bets[rr][-1])
+            #         #At beginning of round, add board cards
+            #         if rround > 0 and num_actions == self.player:
+            #             self.charizard.advance_round(self._convert_card(board_card))
+            #             updated_round = True
+
+            #     # print("...r",self.charizard.state.round," l",len(self.charizard.state.deal.board))
+
+            # #If opponent played in last round, execute opponent bet in +Training
+            # if a + r >= 0 and state.get_acting_player(r,a) != self.player:
+            #     print(" (opp_b) ",self.bets[r][-1])
+            #     self.charizard.opponent_bets(self.bets[r][-1])
+            #     #At beginning of round, add board cards
+            #     if rround > 0 and num_actions == self.player and not updated_round:
+            #         self.charizard.advance_round(self._convert_card(board_card))
+            #         updated_round = True
+            
 
             #Determine action_type
             debt = self.contrib[1-self.player][-1] - self.contrib[self.player][-1]
