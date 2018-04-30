@@ -68,7 +68,7 @@ class Libratus(acpc.Agent):
         self.contrib = [[game.get_blind(0)], [game.get_blind(1)]] #players
 
         self.charizard.new_game()
-        self.charizard.take_seat(self.player == 0)
+        
 
     def on_next_turn(self, game, match_state, is_acting_player):
         vp = match_state.get_viewing_player()
@@ -78,6 +78,9 @@ class Libratus(acpc.Agent):
         hole_card = state.get_hole_card(vp, 0)
         hole_card_o = state.get_hole_card(1 - vp, 0) #meaningless
         board_card = -1
+
+        if rround + num_actions == 0:
+            self.charizard.take_seat(vp == 0)
 
         if rround > 0:
             board_card = state.get_board_card(0)
