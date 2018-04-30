@@ -102,7 +102,8 @@ class Libratus(acpc.Agent):
         if rround + num_actions > 0:
             self.contrib[prev].append(spent)
             if state.get_action_type(r, a) == acpc.ActionType.RAISE:
-                print("~pre",state.get_action_type(r, a),state.get_action_size(r, a))
+                action_player = state.get_acting_player(r, a)
+                print("~pre",state.get_action_type(r, a),state.get_action_size(r, a) - self.contrib[action_player][-1])
             else:
                 print("~pre",state.get_action_type(r, a))
 
@@ -111,17 +112,14 @@ class Libratus(acpc.Agent):
             action_type = state.get_action_type(r, a)
             action_player = state.get_acting_player(r, a)
             action_amount = 0
-            print("-----")
-            print(self.contrib[action_player])
-            print("-----")
+            # print("-----")
+            # print(self.contrib[action_player])
+            # print("-----")
             if action_type == acpc.ActionType.RAISE:
                 action_amount = state.get_action_size(r, a)
             elif action_type == acpc.ActionType.CALL:
-                if len(self.contrib[action_player]) == 2:
-                    print("~pre == 2")
-                    action_amount = self.contrib[action_player][-1]
-                elif len(self.contrib[action_player]) > 2:
-                    print("~pre > 2")
+                if len(self.contrib[action_player]) >= 2:
+                    # print("~pre > 2")
                     caller = state.get_acting_player(r, a)
                     action_amount = self.contrib[action_player][-1] - self.contrib[action_player][-2]
                 else:
@@ -148,6 +146,7 @@ class Libratus(acpc.Agent):
             #If opponent played previous round, execute opponent bet in +Training
             if a + r > 0 and state.get_acting_player(r,a) != self.player:
                 print(">>> Round:",self.charizard.state.round)
+                print("    opponent bet:",self.bets[r][-1])
                 self.charizard.opponent_bets(self.bets[r][-1])
                 print("<<< round:",self.charizard.state.round)
 
@@ -155,7 +154,7 @@ class Libratus(acpc.Agent):
             if rround > 0:
                 if (num_actions == 0 and self.player == 0 or \
                     num_actions == 1 and self.player == 1):
-                    print("                                          a d v a n c e ")
+                    # print("                                          a d v a n c e ")
                     self.charizard.advance_round(self._convert_card(board_card))
                     # print("...r",self.charizard.state.round," l",len(self.charizard.state.deal.board))
 
@@ -171,15 +170,14 @@ class Libratus(acpc.Agent):
             bet = self.charizard.bet()
             # print("vvv Round:",self.charizard.state.round)
 
-            
-
             action_type = None
             if debt == 0:
                 action_type = self.actions[1]
             else:
                 action_type = self.actions[0] if bet == 0 else self.actions[1]
-            if bet >= self.get_raise_min():
+            if bet >= minimum_raise - self.contrib[self.player][-1]:
                 action_type = self.actions[2]
+
 
             print(" | Bet:",bet,"Type:",action_type)
 
@@ -190,7 +188,7 @@ class Libratus(acpc.Agent):
 
             # print(" |", infoset)
             if action_type == acpc.ActionType.RAISE and game.get_betting_type() == acpc.BettingType.NO_LIMIT:
-                self.set_next_action(action_type, bet)
+                self.set_next_action(action_type, bet + self.contrib[self.player][-1])
             else:
                 self.set_next_action(action_type)
 
