@@ -9,7 +9,9 @@ class InfoSet:
 
 	def __init__(self, hole, board, bets):
 		self.hole = hole
-		if len(bets) == 2:
+		if len(bets) == 1:
+			self.data = "%s:%s:%s" % (hole[0], board, bets[0])
+		elif len(bets) == 2:
 			self.data = "%s:%s:%s,%s" % (hole[0], board, bets[0], bets[1])
 		else:
 			self.data = "%s:%s:%s,%s,%s,%s" % (hole, board, bets[0], bets[1], bets[2], bets[3])
