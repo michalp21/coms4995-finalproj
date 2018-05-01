@@ -18,7 +18,7 @@ class Leduc:
 		flop = deal.board[0][0]
 		small = self._rank(deal.small[0], flop)
 		big = self._rank(deal.big[0], flop)
-		return big - small
+		return small - big
 
 	def pretty(self, card):
 		return Leduc._pretty_cards[card]
