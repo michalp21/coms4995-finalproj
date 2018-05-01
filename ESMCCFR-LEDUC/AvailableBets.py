@@ -14,7 +14,7 @@ class AvailableBets():
 		remaining = self.setup.stack_size - pov
 		if remaining <= 0:
 			raise Exception(
-				'Remaining %d < 0 for pov %d and stack %d' %
+				'Remaining %d <= 0 for pov %d and stack %d' %
 				(remaining, pov, self.setup.stack_size))
 		return remaining
 

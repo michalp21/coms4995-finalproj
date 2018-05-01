@@ -3,6 +3,7 @@ import sys
 
 import acpc_python_client as acpc
 from rules.Leduc import Leduc
+from rules.Kuhn import Kuhn
 from Setup import Setup
 from players.ESMCCFRPlusTraining import ESMCCFRPlusTraining
 
@@ -14,7 +15,6 @@ class Libratus(acpc.Agent):
         self.action_probabilities[0] = 0.3  # fold probability
         self.action_probabilities[1] = (1 - self.action_probabilities[0]) * 0.5  # call probability
         self.action_probabilities[2] = (1 - self.action_probabilities[0]) * 0.5  # raise probability
-        self.setup = Setup(stack_size=5, big_blind=1, small_blind=1)
 
         self.bets = None
         self.contrib = None
@@ -121,7 +121,7 @@ class Libratus(acpc.Agent):
         board_card = -1
 
         if rround + num_actions == 0:
-            self.state_controller.take_seat(vp == 0)
+            self.state_controller.take_seat(not vp)
 
         if rround > 0:
             board_card = state.get_board_card(0)
