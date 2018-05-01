@@ -1,6 +1,7 @@
 from ESMCCFR import ESMCCFR_P
 import random
 import pickle
+from Utilities import *
 from Strategy import Strategy
 from State import State
 from Deal import Deal
@@ -15,7 +16,9 @@ class ESMCCFRPlusTraining:
 		self.available_bets = AvailableBets(setup)
 		self.is_small_blind = None
 		# self.train(10000)
-		self.strategy_map = pickle.load(open('strategy0.pkl', 'rb'))
+		# self.strategy_map = pickle.load(open('strategy0.pkl', 'rb'))
+		self.strategy_map = load_strategy_from_csv('strategy1.csv')
+		print("Strategy map loaded")
 
 	def new_game(self):
 		self.state = State(self.rules, self.setup,
@@ -48,11 +51,17 @@ class ESMCCFRPlusTraining:
 		infoset = self.state.get_infoset()
 		print(" ",str(self.is_small_blind) + " " + str(infoset))
 
-		if infoset not in self.strategy_map.keys():
-			raise Exception('We are not fully trained on %s' % str(infoset))
+		strategy = None
+		player_strategy = [1/len(bets) for _ in bets]
 
-		strategy = self.strategy_map[infoset]
-		player_strategy = strategy.get_average_strategy()
+		#If infoset is found, play it, otherwise go random
+		if infoset in self.strategy_map.keys():
+			strategy = self.strategy_map[infoset]
+			player_strategy = strategy.get_average_strategy()
+		else:
+			print("Not found")
+			# raise Exception('We are not fully trained on %s' % str(infoset))
+		
 		print("Strategy:",player_strategy)
 		print("Possible bets:",bets)
 

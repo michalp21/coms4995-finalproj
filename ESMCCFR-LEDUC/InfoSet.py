@@ -3,7 +3,6 @@
 # this class should be immutable as it is the key to look up strategies in a map
 
 from deuces2.card import Card
-from Utilities import *
 
 class InfoSet:
 

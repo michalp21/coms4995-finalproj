@@ -19,13 +19,13 @@ class Libratus(acpc.Agent):
         self.bets = None
         self.contrib = None
 
-        self.state_controller = ESMCCFRPlusTraining(rules=Leduc(), setup=Setup(stack_size=5, big_blind=1, small_blind=1))
+        self.state_controller = ESMCCFRPlusTraining(rules=Leduc(), setup=Setup(stack_size=105, big_blind=10, small_blind=10))
 
         self.startingplayer = 0
         self.player = None
 
-        print("Hole : [Board] : [Bets r0] , [Bets r1]")
-        print('\n'.join(sorted([str(k) for k in self.state_controller.strategy_map.keys()])))
+        # print("Hole : [Board] : [Bets r0] , [Bets r1]")
+        # print('\n'.join(sorted([str(k) for k in self.state_controller.strategy_map.keys()])))
 
     def _get_random_bet(self, player_strategy):
         return random.choices(list(range(len(player_strategy))),
@@ -85,9 +85,9 @@ class Libratus(acpc.Agent):
             else:
                 self.state_controller.opponent_bets(self.bets[r][-1])
 
-    def _get_action_type(self, bet):
+    def _get_action_type(self, game, bet):
         debt = self.contrib[1-self.player][-1] - self.contrib[self.player][-1]
-        remaining = 5 - self.contrib[self.player][-1]
+        remaining = game.get_stack(self.player) - self.contrib[self.player][-1]
         minimum_raise = self.get_raise_min()
         maximum_raise = self.get_raise_max()
 
@@ -176,7 +176,7 @@ class Libratus(acpc.Agent):
             bet = self.state_controller.bet()
 
             #Determine action type
-            action_type = self._get_action_type(bet)
+            action_type = self._get_action_type(game, bet)
 
             print("  Bet:",bet,"Type:",action_type)
 

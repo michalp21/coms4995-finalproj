@@ -58,6 +58,9 @@ class ESMCCFR_P:
 		with open('strategy1.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
+		# Robust genetically enhanced super-pickle
+		# save_as_pickled_object(self.infoset_strategy_map, "strategy1.pkl")
+
 		return self.infoset_strategy_map
 
 	def traverse_ESMCCFR(self, state, player):
@@ -118,5 +121,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=5, big_blind=1, small_blind=1))
-	ESMCCFR_P.run(50000)
+	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=105, big_blind=10, small_blind=10))
+	ESMCCFR_P.run(75000)

@@ -98,7 +98,7 @@ assert actions == {
 # Available bets finds a raise
 available_bets = AvailableBets(
 	Setup(small_blind=1, big_blind=2, stack_size=10))
-type = available_bets.get_action_type_for_bet(2, 2, 7)
-assert type == 'raises', type
+tyype = available_bets.get_action_type_for_bet(2, 2, 7)
+assert tyype == 'raises', tyype
 
 print("AvailableBetsTest passed")

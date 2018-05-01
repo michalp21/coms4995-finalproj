@@ -1,4 +1,8 @@
 from deuces2.card import Card
+from InfoSet import InfoSet
+from Strategy import Strategy
+import pickle
+import csv
 
 # Credit: https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
 
@@ -24,6 +28,60 @@ def printProgressBar (iteration, total):
     # Print New Line on Complete
     if iteration == total:
         print()
+
+def load_strategy_from_csv(filename):
+    infoset_strategy_map = {}
+    with open(filename, 'r') as csvfile:
+        csvreader = csv.reader(csvfile)
+        i = 1
+        for row in csvreader:
+            # if i > 10:
+            #     break
+            infoset_str = row[0]
+            avg_str = row[1]
+
+            infoset = InfoSet([None],[],[None,None])
+            infoset.data = infoset_str
+
+            strategy = Strategy(0)
+            strategy.average_strategy = [float(x.strip(" ")) for x in avg_str[1:-1].split(",")]
+            sumstrategy = sum(strategy.average_strategy)
+            for s in strategy.average_strategy:
+                s /= sumstrategy
+
+            infoset_strategy_map[infoset] = strategy
+            print(" ",i, end='\r')
+            i+=1
+
+    return infoset_strategy_map
+
+#https://stackoverflow.com/questions/42653386/does-pickle-randomly-fail-with-oserror-on-large-files?rq=1
+def save_as_pickled_object(obj, filepath):
+    """
+    This is a defensive way to write pickle.write, allowing for very large files on all platforms
+    """
+    max_bytes = 2**31 - 1
+    bytes_out = pickle.dumps(obj)
+    n_bytes = sys.getsizeof(bytes_out)
+    with open(filepath, 'wb') as f_out:
+        for idx in range(0, n_bytes, max_bytes):
+            f_out.write(bytes_out[idx:idx+max_bytes])
+
+def try_to_load_as_pickled_object_or_None(filepath):
+    """
+    This is a defensive way to write pickle.load, allowing for very large files on all platforms
+    """
+    max_bytes = 2**31 - 1
+    try:
+        input_size = os.path.getsize(filepath)
+        bytes_in = bytearray(0)
+        with open(filepath, 'rb') as f_in:
+            for _ in range(0, input_size, max_bytes):
+                bytes_in += f_in.read(max_bytes)
+        obj = pickle.loads(bytes_in)
+    except:
+        return None
+    return obj
 
 
 def repr_board(board):
