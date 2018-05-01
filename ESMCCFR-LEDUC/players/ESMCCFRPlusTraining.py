@@ -1,11 +1,11 @@
 from ESMCCFR import ESMCCFR_P
 import random
+import pickle
 from Strategy import Strategy
 from State import State
 from Deal import Deal
 from AvailableBets import AvailableBets
 
-import pickle
 
 class ESMCCFRPlusTraining:
 
@@ -14,8 +14,8 @@ class ESMCCFRPlusTraining:
 		self.setup = setup
 		self.available_bets = AvailableBets(setup)
 		self.is_small_blind = None
-		# self.train(2500)
-		self.strategy_map = pickle.load(open('strategy1.pkl', 'rb'))
+		# self.train(10000)
+		self.strategy_map = pickle.load(open('strategy0.pkl', 'rb'))
 
 	def new_game(self):
 		self.state = State(self.rules, self.setup,
@@ -31,7 +31,8 @@ class ESMCCFRPlusTraining:
 		else:
 			self.state.deal.big = cards
 
-	def bet(self):
+	#actions param for easy integration with Contest.py
+	def bet(self, actions=None):
 		if (self.state.player_turn == 2) != self.is_small_blind:
 			raise Exception('Player turn is wrong. I am small: %s, player turn: %d'
 				% (str(self.is_small_blind), self.state.player_turn))
@@ -45,16 +46,17 @@ class ESMCCFRPlusTraining:
 		# 		% (bets, actions))
 
 		infoset = self.state.get_infoset()
-		print(str(self.is_small_blind) + " " + str(infoset))
+		print(" ",str(self.is_small_blind) + " " + str(infoset))
 
 		if infoset not in self.strategy_map.keys():
 			raise Exception('We are not fully trained on %s' % str(infoset))
 
 		strategy = self.strategy_map[infoset]
-		player_strategy = strategy.calculate_strategy()
+		player_strategy = strategy.get_average_strategy()
+		print("Strategy:",player_strategy)
+		print("Possible bets:",bets)
 
-		bet = bets[random.choices(list(range(len(player_strategy))),
-			weights=player_strategy, k=1)[0]]
+		bet = bets[random.choices(list(range(len(player_strategy))),weights=player_strategy, k=1)[0]]
 
 		self.state.update(bet)
 		return bet

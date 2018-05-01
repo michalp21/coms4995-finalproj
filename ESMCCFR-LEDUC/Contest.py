@@ -77,8 +77,8 @@ class Contest:
 def main():
   rules = Leduc()
   setup = Setup(small_blind=1, big_blind=1, stack_size=5)
-  pov = AllInExceptQueens(rules, setup)
-  opponent = ESMCCFRPlusTraining(rules, setup).train(1000000)
+  pov = AllIn(rules, setup)
+  opponent = ESMCCFRPlusTraining(rules, setup)#.train(1000000)
 
   contest = Contest(rules=rules,
     setup=setup,
