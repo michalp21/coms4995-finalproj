@@ -48,10 +48,10 @@ class ESMCCFR_P:
 		print("Average game value: %.4f" % (utility / T,))
 
 		#Save Infosets
-		with open('strategy.csv', 'w') as csvfile:
+		with open('strategy1.csv', 'w') as csvfile:
 			csvwriter = csv.writer(csvfile, delimiter = ',')
 
-			infosets = [(k, v.calculate_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
+			infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
 			for i in infosets:
 				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
 
@@ -118,5 +118,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=5, big_blind=1, small_blind=1))
-	ESMCCFR_P.run(10000)
+	ESMCCFR_P = ESMCCFR_P(rules=Kuhn(), setup=Setup(stack_size=2, big_blind=1, small_blind=1))
+	ESMCCFR_P.run(50000)
