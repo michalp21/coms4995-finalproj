@@ -2,9 +2,9 @@
 
 Final Project for COMS4995.
 
-Our goal was to replicate Libratus from an article published in Science titled *Superhuman AI for heads-up no-limit poker: Libratus beats top professionals*, and supplementary materials.
+Our goal was to replicate Libratus from a 2017 article published in Science titled *Superhuman AI for heads-up no-limit poker: Libratus beats top professionals*, and supplementary materials.
 
-Instead of building a poker bot for a full-sized HUNL Poker game, we scaled down to a Leduc game with 105 chips in the stack and 10-chip big and small blinds. With this we could also test against an existing DeepStack implementation on GitHub, which also uses Leduc.
+Instead of building a poker bot for a full-sized HUNL Poker game, we scaled down to a Leduc game with 105 chips in the stack and 10-chip big and small blinds. With this we could also test against a Leduc implementation of DeepStack, a rival Poker AI from 2016, on GitHub.
 
 NOTE: This is a work in progress.
 
