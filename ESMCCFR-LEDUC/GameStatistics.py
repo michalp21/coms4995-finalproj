@@ -1,4 +1,5 @@
 import re
+import sys
 from Summary import Summary
 from rules.Leduc import Leduc
 from Deal import Deal
@@ -104,28 +105,37 @@ def parse_betting(betting):
 	betting1 = re.findall(r'(\D{1}\d*)', betting1) if betting1 else []
 	return (betting0, betting1)
 
-games = []
-with open('deepstack_libratus.txt', 'r') as file:
+def main(server_output):
+	games = []
+	with open(server_output, 'r') as file:
+		for row in file:
+			# arbitrarily choose player to parse
+			if row.startswith('TO 1 at'):
+				matchstate, position, hand_num, betting, cards = row.split(':')
+				cards = parse_cards(cards)
+				betting = parse_betting(betting)		
+				if isTerminal(cards, betting):
+					game = get_stats(position, cards, betting)
+					print(game.p1_pfr, game.p2_pfr, game.p1_vpip, game.p2_vpip, game.pot_size, game.winner)
+					games.append(game)
 
-	for row in file:
-		# arbitrarily choose player to parse
-		if row.startswith('TO 1 at'):
-			matchstate, position, hand_num, betting, cards = row.split(':')
-			cards = parse_cards(cards)
-			betting = parse_betting(betting)		
-			if isTerminal(cards, betting):
-				game = get_stats(position, cards, betting)
-				print(game.p1_pfr, game.p2_pfr, game.p1_vpip, game.p2_vpip, game.pot_size, game.winner)
-				games.append(game)
+		values = [0, 0, 0, 0, 0, 0]
+		for game in games:
+			print(game.p1_pfr)
+			values[0] += game.p1_pfr
+			values[1] += game.p2_pfr
+			values[2] += game.p1_vpip
+			values[3] += game.p2_vpip
+			values[4] += game.pot_size
+			values[5] += game.winner
+	print("\np1pfr, p2pfr, p1vpip, p2vpip, potsize, winner:")
+	print(values)
+	print("\naverage over",len(games),"games:")
+	print([values[i]/len(games) for i in range(len(values))])
 
-	values = [0, 0, 0, 0, 0, 0]
-	for game in games:
-		print(game.p1_pfr)
-		values[0] += game.p1_pfr
-		values[1] += game.p2_pfr
-		values[2] += game.p1_vpip
-		values[3] += game.p2_vpip
-		values[4] += game.pot_size
-		values[5] += game.winner
-print(values)
-print([values[i]/len(games) for i in range(len(values))])
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Usage: python GameStatistics.py {server_output}")
+        sys.exit(1)
+
+    main(sys.argv[1])
