@@ -14,7 +14,7 @@ This walkthrough assumes a Unix environment and Python 3.6.
 
 ### Dealer
 
-Poker games are conducted through a server following the [ACPC Protocol](http://www.computerpokercompetition.org/downloads/documents/protocols/protocol.pdf).  Essentially, the **dealer** acts as the server, to which two **players** connect to play a **game**. After cloning this repo, clone [Deepstack-Leduc](https://github.com/lifrordi/DeepStack-Leduc.git) which bundles together Deepstack and an ACPC server. (Alternatively, an ACPC server without Deepstack can be found [here](https://github.com/ethansbrown/acpc/tree/master/project_acpc_server)). Run `make` in the ACPC server directory. Also clone [acpc-python-client](https://github.com/JakubPetriska/acpc-python-client), a python-wrapper for the client, and run `python setup.py install`.
+Poker games are conducted through a server following the [ACPC Protocol](http://www.computerpokercompetition.org/downloads/documents/protocols/protocol.pdf).  Essentially, the **dealer** acts as the server, to which two **players** connect to play a **game**. After cloning this repo, clone [DeepStack-Leduc](https://github.com/lifrordi/DeepStack-Leduc.git) which bundles together DeepStack and an ACPC server. (Alternatively, an ACPC server without DeepStack can be found [here](https://github.com/ethansbrown/acpc/tree/master/project_acpc_server)). Run `make` in the ACPC server directory. Also clone [acpc-python-client](https://github.com/JakubPetriska/acpc-python-client), a python-wrapper for the client, and run `python setup.py install`.
 
 First we must run the dealer. Use appropriate parameters. Run just `./dealer` to see full usage.
 
@@ -40,13 +40,13 @@ To connect Libratus to the ACPC server as a player, navigate to coms4995-finalpr
 python libratus.py <gameDefFile> localhost 20001
 ```
 
-### Deepstack
+### DeepStack
 
-To play Deepstack, see the prerequisites section of their GitHub. In summary, install [Lua](https://www.lua.org/), [Torch](http://torch.ch/), and [luasocket](http://w3.impa.br/~diego/software/luasocket/). 
+To play DeepStack, see the prerequisites section of their GitHub. In summary, install [Lua](https://www.lua.org/), [Torch](http://torch.ch/), and [luasocket](http://w3.impa.br/~diego/software/luasocket/). 
 
 All parameters, including the game definition can be set in DeepStack-Leduc/Source/Settings/arguments.lua. Be sure we are connecting to localhost on port 20000.
 
-To connect Deepstack to the ACPC server as a player, navigate to DeepStack-Leduc/Source and run the following command in a separate process:
+To connect DeepStack to the ACPC server as a player, navigate to DeepStack-Leduc/Source and run the following command in a separate process:
 
 ```
 th Player/deepstack.lua
@@ -58,13 +58,13 @@ We can also connect other bots to the dealer. We provide the following ACPC-comp
 - allin_net.py - Always raises/calls to the maximum amount possible.
 - example_player.c - Selects a random valid action.
 
-We implemented allin_net.py, while example_player.c came with the ACPC server bundled with Deepstack.
+We implemented allin_net.py, while example_player.c came with the ACPC server bundled with DeepStack.
 
 Run either `python allin_net.py <gameDefFile> <server> <port>` or `./example_player <gameDefFile> <server> <port>`.
 
 ### Output
 
-Each player and the dealer has its own output. The dealer follows the format specified in the ACPC protocol specification. Libratus prints out the infoset, the corresponding strategy, and the available betting actions. Deepstack prints the game state and strategy.
+Each player and the dealer has its own output. The dealer follows the format specified in the ACPC protocol specification. Libratus prints out the infoset, the corresponding strategy, and the available betting actions. DeepStack prints the game state and strategy.
 
 Since the dealer output contains information on both players, we provide a script to generate simple match statistics from the output in Statistics.py
 
@@ -74,9 +74,9 @@ A large portion of Libratus is trained offline, using an algorithm called Extern
 
 The outputted strategy will be loaded and used when Libratus plays against another player.
 
-## Training Deepstack
+## Training DeepStack
 
-A more detailed runthrough of model training for Deepstack can be found on the Tutorial found on their website. First edit Source/Settings/arguments.lua and edit the parameters as appropriate. We define game definition, # cfr iterations, data and model paths, neural network architecture, and more all in this file.
+A more detailed runthrough of model training for DeepStack can be found on the Tutorial found on their website. First edit Source/Settings/arguments.lua and edit the parameters as appropriate. We define game definition, # cfr iterations, data and model paths, neural network architecture, and more all in this file.
 
 The process boils down to the following commands:
 
@@ -88,7 +88,7 @@ th Tree/Tests/test_tree_strategy_filling.lua
 
 First random game data is generated. The model trains using these data in the second command. Finally, we can calculate the exploitability with the third command.
 
-After training, once `params.value_net_name` is set in arguments.lua, the model will be used when Deepstack is run as a player.
+After training, once `params.value_net_name` is set in arguments.lua, the model will be used when DeepStack is run as a player.
 
 ## ACPC Game Definitions 
 
@@ -115,3 +115,7 @@ Game definitions can have the following fields (case is ignored):
 - **numranks** - the number of different ranks in the deck
 - **numholecards** - the number of private cards to deal to each player
 - **numboardcards** - the number of cards revealed on each round
+
+## Further credit/attributions
+
+We would like to thank the research teams behind DeepStack and Libratus for their excellent and groundbreaking research, as well as their thorough documentation. Also for lack of a better place to put this, we used [Deuces](https://github.com/worldveil/deuces) for hand evaluation.
