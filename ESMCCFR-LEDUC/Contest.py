@@ -54,8 +54,8 @@ class Contest:
       player = self.pov if turn == pov_seat else self.opponent
       other = self.opponent if turn == pov_seat else self.pov
 
-      bet = player.bet(self.available_bets.get_bets_by_action_type(
-        gs._my_contrib(turn), gs._other_contrib(turn)))
+      bet = player.bet(self.available_bets.get_bets_by_action_type(gs._my_contrib(turn), gs._other_contrib(turn)),
+                       self.available_bets.get_bets_as_numbers(gs._my_contrib(turn), gs._other_contrib(turn)))
       other.opponent_bets(bet)
 
       gs.update(bet)
@@ -77,7 +77,7 @@ class Contest:
 def main():
   rules = Leduc()
   setup = Setup(small_blind=1, big_blind=1, stack_size=5)
-  pov = AllIn(rules, setup)
+  pov = Human(rules, setup)
   opponent = ESMCCFRPlusTraining(rules, setup)#.train(1000000)
 
   contest = Contest(rules=rules,

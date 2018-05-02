@@ -10,14 +10,15 @@ from AvailableBets import AvailableBets
 
 class ESMCCFRPlusTraining:
 
-	def __init__(self, rules, setup):
+	def __init__(self, rules, setup, blueprint, abstracting=False):
 		self.rules = rules
 		self.setup = setup
 		self.available_bets = AvailableBets(setup)
 		self.is_small_blind = None
 		# self.train(10000)
-		# self.strategy_map = pickle.load(open('strategy0.pkl', 'rb'))
-		self.strategy_map = load_strategy_from_csv('strategy1.csv')
+		self.abstracting = abstracting
+		# self.strategy_map = pickle.load(open('strategy-smol.pkl', 'rb'))
+		self.strategy_map = load_strategy_from_csv(blueprint)
 		print("Strategy map loaded")
 
 	def new_game(self):
@@ -48,7 +49,8 @@ class ESMCCFRPlusTraining:
 		# 	raise Exception('Internal bets <%s> are not input bets <%s>'
 		# 		% (bets, actions))
 
-		infoset = self.state.get_infoset()
+
+		infoset = self.state.get_infoset(abstracting = self.abstracting)
 		print(" ",str(self.is_small_blind) + " " + str(infoset))
 
 		strategy = None
@@ -61,7 +63,7 @@ class ESMCCFRPlusTraining:
 		else:
 			print("Not found")
 			# raise Exception('We are not fully trained on %s' % str(infoset))
-		
+
 		print("Strategy:",player_strategy)
 		print("Possible bets:",bets)
 

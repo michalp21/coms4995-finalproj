@@ -48,14 +48,14 @@ class ESMCCFR_P:
 		print("Average game value: %.4f" % (utility / T,))
 
 		#Save Infosets
-		with open('strategy1.csv', 'w') as csvfile:
-			csvwriter = csv.writer(csvfile, delimiter = ',')
+		# with open('strategy1.csv', 'w') as csvfile:
+		# 	csvwriter = csv.writer(csvfile, delimiter = ',')
 
-			infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
-			for i in infosets:
-				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
+		# 	infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
+		# 	for i in infosets:
+		# 		csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
 
-		with open('strategy1.pkl', 'wb') as pklfile:
+		with open('strategy-smol.pkl', 'wb') as pklfile:
 			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
 		# Robust genetically enhanced super-pickle
@@ -121,5 +121,5 @@ class ESMCCFR_P:
 
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
-	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=105, big_blind=10, small_blind=10))
-	ESMCCFR_P.run(75000)
+	ESMCCFR_P = ESMCCFR_P(rules=Leduc(), setup=Setup(stack_size=5, big_blind=1, small_blind=1))
+	ESMCCFR_P.run(20000)

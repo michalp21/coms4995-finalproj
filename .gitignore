@@ -6,3 +6,4 @@
 
 #Byte-compiled#
 __pycache__/
+*.pyc

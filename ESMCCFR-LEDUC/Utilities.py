@@ -55,7 +55,7 @@ def load_strategy_from_csv(filename):
 
     return infoset_strategy_map
 
-#https://stackoverflow.com/questions/42653386/does-pickle-randomly-fail-with-oserror-on-large-files?rq=1
+#Credit: https://stackoverflow.com/questions/42653386/does-pickle-randomly-fail-with-oserror-on-large-files?rq=1
 def save_as_pickled_object(obj, filepath):
     """
     This is a defensive way to write pickle.write, allowing for very large files on all platforms

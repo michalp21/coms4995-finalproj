@@ -19,7 +19,8 @@ class Libratus(acpc.Agent):
         self.bets = None
         self.contrib = None
 
-        self.state_controller = ESMCCFRPlusTraining(rules=Leduc(), setup=Setup(stack_size=105, big_blind=10, small_blind=10))
+        self.state_controller = ESMCCFRPlusTraining(rules=Leduc(), setup=Setup(stack_size=105, big_blind=10, small_blind=10),
+            blueprint='strategy-leduc-105-10-10.csv', abstracting=False)
 
         self.startingplayer = 0
         self.player = None
