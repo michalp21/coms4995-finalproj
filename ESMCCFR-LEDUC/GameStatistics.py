@@ -1,6 +1,9 @@
 import re
-from GameSummary import GameSummary
-import Evaluator
+from Summary import Summary
+from rules.Leduc import Leduc
+from Deal import Deal
+
+card_to_rank = {'A':1, 'K':2, 'Q':3}
 
 def isTerminal(cards, betting):
 	# if the line looks like 'card|card/card', then it is terminal
@@ -67,7 +70,12 @@ def amt_winner(position, round1_bets, round2_bets, contribs, cards):
 
 	# evaluate cards to determine winner if no one folded yet
 	if winner is None:
-		winner = 0 if Evaluator.leduc_evaluate_str(cards[0], cards[1], cards[2]) > 0 else 1
+		leduc = Leduc()
+		deal = Deal(None, None, None, None)
+		deal.board = [[card_to_rank[cards[0][0]]]]
+		deal.small = [card_to_rank[cards[1][0]]]
+		deal.big = [card_to_rank[cards[2][0]]]
+		winner = 0 if leduc.evaluate(deal) > 0 else 1
 	amt = min(contribs)
 	return amt, winner
 
@@ -77,7 +85,7 @@ def get_stats(position, cards, betting):
 	p1_pfr, p2_pfr, p1_vpip, p2_vpip = pfr_vpip(position, betting[0], p1_contrib, p2_contrib)
 	amt, winner = amt_winner(position, betting[0], betting[1], [p1_contrib, p2_contrib], cards)
 	# need to count the winner and the amount that they won!!!
-	return GameSummary(p1_pfr, p2_pfr, p1_vpip, p2_vpip, amt, winner)
+	return Summary(p1_pfr, p2_pfr, p1_vpip, p2_vpip, amt, winner)
 
 def parse_cards(cards):
 	card0, card1 = cards.split('|')
@@ -97,7 +105,7 @@ def parse_betting(betting):
 	return (betting0, betting1)
 
 games = []
-with open('server_output.txt', 'r') as file:
+with open('deepstack_libratus.txt', 'r') as file:
 
 	for row in file:
 		# arbitrarily choose player to parse
@@ -110,3 +118,14 @@ with open('server_output.txt', 'r') as file:
 				print(game.p1_pfr, game.p2_pfr, game.p1_vpip, game.p2_vpip, game.pot_size, game.winner)
 				games.append(game)
 
+	values = [0, 0, 0, 0, 0, 0]
+	for game in games:
+		print(game.p1_pfr)
+		values[0] += game.p1_pfr
+		values[1] += game.p2_pfr
+		values[2] += game.p1_vpip
+		values[3] += game.p2_vpip
+		values[4] += game.pot_size
+		values[5] += game.winner
+print(values)
+print([values[i]/len(games) for i in range(len(values))])
