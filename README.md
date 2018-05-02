@@ -62,11 +62,15 @@ We implemented allin_net.py, while example_player.c came with the ACPC server bu
 
 Run either `python allin_net.py <gameDefFile> <server> <port>` or `./example_player <gameDefFile> <server> <port>`.
 
-### Output
+### Output and Statistics
 
 Each player and the dealer has its own output. The dealer follows the format specified in the ACPC protocol specification. Libratus prints out the infoset, the corresponding strategy, and the available betting actions. DeepStack prints the game state and strategy.
 
-Since the dealer output contains information on both players, we provide a script to generate simple match statistics from the output in Statistics.py
+Since the dealer output contains information on both players, we provide a script to generate simple match statistics from the output in GameStatistics.py. Run like so:
+```
+python GameStatistics.py <dealer_output_file>
+```
+Output from several test runs on Leduc with a stack of 105 and blinds of 10 chips can be shown in dealer_output directory, as well as a chart containing parsed game statistics from the same runs.
 
 ## Training Libratus
 
