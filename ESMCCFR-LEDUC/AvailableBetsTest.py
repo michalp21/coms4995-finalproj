@@ -41,6 +41,7 @@ available_bets = AvailableBets(
 	Setup(small_blind=2, big_blind=5, stack_size=11))
 bets = available_bets.get_bets_as_numbers(2, 5)
 actions = available_bets.get_bets_by_action_type(2, 5)
+abstracted = available_bets.get_bets_by_action_type(2, 5, True)
 assert bets == [0, 3, 8, 9], str(bets)
 assert actions == {
 	'fold': [0],
@@ -48,6 +49,12 @@ assert actions == {
 	'raises': [8],
 	'allIn': [9]
 }, str(actions)
+assert abstracted == {
+	'fold': [0],
+	'call': [3],
+	'raises': [8],
+	'allIn': [9]
+}, str(absracted)
 
 # All in call must be available
 available_bets = AvailableBets(
@@ -65,12 +72,18 @@ available_bets = AvailableBets(
 	Setup(small_blind=2, big_blind=5, stack_size=11))
 bets = available_bets.get_bets_as_numbers(5, 5)
 actions = available_bets.get_bets_by_action_type(5, 5)
+abstracted = available_bets.get_bets_by_action_type(5, 5, True)
 assert bets == [0, 5, 6], str(bets)
 assert actions == {
 	'check': [0],
 	'raises': [5],
 	'allIn': [6]
 }, str(actions)
+assert abstracted == {
+	'check': [0],
+	'allIn': [6]
+}, str(abstracted)
+
 
 # All in raise must be available
 available_bets = AvailableBets(
@@ -88,12 +101,18 @@ available_bets = AvailableBets(
 	Setup(small_blind=1, big_blind=1, stack_size=5))
 bets = available_bets.get_bets_as_numbers(1, 1)
 actions = available_bets.get_bets_by_action_type(1, 1)
+abstracted = available_bets.get_bets_by_action_type(1, 1 ,True)
 assert bets == [0, 1, 2, 3, 4], str(bets)
 assert actions == {
 	'check': [0],
 	'raises': [1, 2, 3],
 	'allIn': [4]
 }, str(actions)
+assert abstracted == {
+	'check': [0],
+	'raises': [2],
+	'allIn': [4]
+}
 
 # Available bets finds a raise
 available_bets = AvailableBets(

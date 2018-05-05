@@ -30,10 +30,12 @@ class AvailableBets():
 			list(range(minimum_raise, remaining+1))
 			+ [remaining])))
 
-	def get_bets_by_action_type(self, pov, oppo):
+	def get_bets_by_action_type(self, pov, oppo, abstracted=False):
 		debt = self._get_debt(pov, oppo)
 		remaining = self._get_remaining(pov)
 		minimum_raise = self._get_minimum_raise(debt)
+		if abstracted:
+			minimum_raise += minimum_raise % 2
 
 		bets = dict()
 		if debt == 0:
@@ -43,8 +45,9 @@ class AvailableBets():
 			bets['call'] = [debt]
 
 		# all in is not considered a raise here
-		if remaining > minimum_raise:
-			bets['raises'] = list(range(minimum_raise, remaining))
+		raises = list(range(minimum_raise, remaining, 2 if abstracted else 1))
+		if len(raises) > 0:
+			bets['raises'] = raises
 
 		if debt < remaining:
 			bets['allIn'] = [remaining]
