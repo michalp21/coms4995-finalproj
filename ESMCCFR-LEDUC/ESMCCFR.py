@@ -47,19 +47,19 @@ class ESMCCFR_P:
 		print("Time elapsed: %.2f" % (stop - start,))
 		print("Average game value: %.4f" % (utility / T,))
 
-		#Save Infosets
-		# with open('strategy1.csv', 'w') as csvfile:
-		# 	csvwriter = csv.writer(csvfile, delimiter = ',')
+		#Save Infosets - csv (required for large strategy files)
+		with open('strategy-leduc-105-10-10.csv', 'w') as csvfile:
+			csvwriter = csv.writer(csvfile, delimiter = ',')
+			infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
+			for i in infosets:
+				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
 
-		# 	infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
-		# 	for i in infosets:
-		# 		csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
+		#Save Infosets - pickle
+		# with open('strategy-leduc-105-10-10.pkl', 'wb') as pklfile:
+		# 	pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
 
-		with open('strategy-smol.pkl', 'wb') as pklfile:
-			pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
-
-		# Robust genetically enhanced super-pickle
-		# save_as_pickled_object(self.infoset_strategy_map, "strategy1.pkl")
+		#Save Infosets - super pickle
+		# save_as_pickled_object(self.infoset_strategy_map, "strategy-leduc-105-10-10.pkl")
 
 		return self.infoset_strategy_map
 
