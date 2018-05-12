@@ -43,28 +43,11 @@ class State:
 		return ('%s, bets: %s, Round: %d' %
 			(str(self.deal), repr_bets(self.bets), self.round))
 
-	def get_infoset(self, player=0, abstracting = False):
-		if abstracting and len(self.bets) < self._my_contrib(player)/2:
-			half_bets = [[bet/2 for bet in r] for r in self.bets]
-			round_up = False
-			new_bets = []
-			for r in half_bets:
-				new_r = []
-				for bet in r:
-					if isinstance(bet, int):
-						new_bet = math.ceil(bet) if round_up else math.floor(bet)
-						round_up = not round_up
-						new_r.append(new_bet)
-				new_bets.append(new_r)
-			return InfoSet(
-				hole=self.deal.player(player if player > 0 else self.get_players_turn()),
-				board=self.deal.board[0:self.round],
-				bets=new_bets)
-		else:
-			return InfoSet(
-				hole=self.deal.player(player if player > 0 else self.get_players_turn()),
-				board=self.deal.board[0:self.round],
-				bets=self.bets)
+	def get_infoset(self, player=0):
+		return InfoSet(
+			hole=self.deal.player(player if player > 0 else self.get_players_turn()),
+			board=self.deal.board[0:self.round],
+			bets=self.bets)
 
 	def is_terminal(self):
 		# there are 2 rounds, 0 and 1

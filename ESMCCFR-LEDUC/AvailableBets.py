@@ -21,13 +21,15 @@ class AvailableBets():
 	def _get_minimum_raise(self, debt):
 		return debt + max(self.setup.big_blind, debt)
 
-	def get_bets_as_numbers(self, pov, oppo):
+	def get_bets_as_numbers(self, pov, oppo, abstracted=False):
 		debt = self._get_debt(pov, oppo)
 		remaining = self._get_remaining(pov)
 		minimum_raise = self._get_minimum_raise(debt)
+		if abstracted:
+			minimum_raise += minimum_raise % 2
 		# set dedupes
 		return list(sorted(set([0, debt] +
-			list(range(minimum_raise, remaining+1))
+			list(range(minimum_raise, remaining+1, 2 if abstracted else 1))
 			+ [remaining])))
 
 	def get_bets_by_action_type(self, pov, oppo, abstracted=False):

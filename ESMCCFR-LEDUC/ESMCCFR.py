@@ -17,12 +17,13 @@ import csv
 import pickle
 
 class ESMCCFR_P:
-	def __init__(self, rules, setup):
+	def __init__(self, rules, setup, abstracted=False):
 		self.rules = rules
 		self.setup = setup
 		self.available_bets = AvailableBets(setup)
 		self.PLAYERS = [1,2]
 		self.infoset_strategy_map = {}
+		self.abstracted = abstracted
 
 	def get_random_bet(self, player_strategy):
 		# return the index of the bet the strategy chooses to take
@@ -72,7 +73,8 @@ class ESMCCFR_P:
 		other_player = 3 - player
 		player_turn = state.get_players_turn()
 		possible_bets = self.available_bets.get_bets_as_numbers(
-			state._my_contrib(player_turn), state._other_contrib(player_turn))
+			state._my_contrib(player_turn), state._other_contrib(player_turn),
+			self.abstracted)
 		# Determine the strategy at this infoset
 		infoset = state.get_infoset(player_turn)
 		if infoset in self.infoset_strategy_map.keys():
