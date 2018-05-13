@@ -25,6 +25,6 @@ class Leduc:
 
 	def deal(self):
 		deck = Deck(6)
-		return Deal(rules=self, big=[deck.draw(1)],
-			small=[deck.draw(1)],
-			board=[[deck.draw(1)]])
+		return Deal(rules=self, big=(deck.draw(1),),
+			small=(deck.draw(1),),
+			board=( (deck.draw(1),) ,) )

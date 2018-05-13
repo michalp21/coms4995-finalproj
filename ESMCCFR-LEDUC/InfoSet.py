@@ -9,11 +9,19 @@ class InfoSet:
 	def __init__(self, hole, board, bets):
 		self.hole = hole
 		if len(bets) == 1:
-			self.data = "%s:%s:%s" % (hole[0], board, bets[0])
+			hash(hole[0])
+			hash(board)
+			self.data = (hole[0], board, tuple(bets[0]))
 		elif len(bets) == 2:
-			self.data = "%s:%s:%s,%s" % (hole[0], board, bets[0], bets[1])
+			hash(hole[0])
+			hash(board)
+			self.data = (hole[0], board, tuple(bets[0]), tuple(bets[1]))
 		else:
-			self.data = "%s:%s:%s,%s,%s,%s" % (hole, board, bets[0], bets[1], bets[2], bets[3])
+			self.data = (hole, board,
+				tuple(bets[0]),
+				tuple(bets[1]),
+				tuple(bets[2]),
+				tuple(bets[3]))
 
 	def __eq__(self, other):
 		return self.data == other.data
@@ -22,4 +30,4 @@ class InfoSet:
 		return hash((self.data,))
 
 	def __repr__(self):
-		return self.data
+		return str(self.data)
