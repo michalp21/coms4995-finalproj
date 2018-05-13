@@ -4,8 +4,8 @@ import csv
 
 def save(filename, infoset_strategy_map):
 	with open(filename, 'w') as f:
-		writer = csv.writer(csvfile, delimiter=';', quoting=csv.QUOTE_NONE)
-		infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
+		writer = csv.writer(f, delimiter=';', quoting=csv.QUOTE_NONE)
+		infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in infoset_strategy_map.items()]
 		for count, i in enumerate(infosets):
 			infoset = i[0]
 			writer.writerow([infoset.hole,
@@ -21,7 +21,7 @@ def save(filename, infoset_strategy_map):
 def load(filename):
 	infoset_strategy_map = {}
 	with open(filename, 'r') as f:
-		reader = csv.reader(f)
+		reader = csv.reader(f, delimiter=';')
 		i = 1
 		for row in reader:
 			hole = row[0]
@@ -29,8 +29,6 @@ def load(filename):
 			bets_0 = _comma_split_int(row[2])
 			bets_1 = _comma_split_int(row[3])
 
-			board = () if cards <= 3 else (cards // 3,)
-			hole = cards % 3
 			infoset = InfoSet(hole, board, (bets_0, bets_1))
 
 			strategy = Strategy(0)
@@ -50,4 +48,6 @@ def _comma_join(arr):
 	return ','.join([str(a) for a in arr])
 
 def _comma_split_int(str):
+	if str == '':
+		return []
 	return [int(s) for s in str.split(',')]

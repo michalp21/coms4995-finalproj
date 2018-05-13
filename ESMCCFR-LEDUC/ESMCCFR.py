@@ -2,6 +2,7 @@ from AvailableBets import AvailableBets
 from State import State
 from InfoSet import InfoSet
 from Strategy import Strategy
+from StrategySaver import *
 from rules.Hunl import Hunl
 from rules.Leduc import Leduc
 from rules.Kuhn import Kuhn
@@ -48,7 +49,7 @@ class ESMCCFR_P:
 		print("Time elapsed: %.2f" % (stop - start,))
 		print("Average game value: %.4f" % (utility / T,))
 
-		save('strategy-leduc-105-10-10.csv', infoset_strategy_map)
+		save('strategy-leduc-10-1-1.csv', self.infoset_strategy_map)
 
 		return self.infoset_strategy_map
 
@@ -112,6 +113,6 @@ class ESMCCFR_P:
 if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P(
-		rules=Leduc(), setup=Setup(stack_size=105, big_blind=1, small_blind=1),
+		rules=Leduc(), setup=Setup(stack_size=10, big_blind=1, small_blind=1),
 		abstracted=True)
-	ESMCCFR_P.run(100)
+	ESMCCFR_P.run(20000)

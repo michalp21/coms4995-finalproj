@@ -19,7 +19,7 @@ class ESMCCFRPlusTraining:
 		# self.train(10000)
 		self.abstracting = abstracting
 		# self.strategy_map = pickle.load(open('strategy-smol.pkl', 'rb'))
-		self.strategy_map = load_strategy_from_csv(blueprint)
+		self.strategy_map = load(blueprint)
 		self.surplus = 0
 		print("Strategy map loaded")
 
@@ -74,7 +74,7 @@ class ESMCCFRPlusTraining:
 			self.state._my_contrib(self.state.player_turn),
 			self.state._other_contrib(self.state.player_turn),
 			self.abstracting)
-		return actions['call'] if 'call' in actions else actions['check']
+		return actions['call'][0] if 'call' in actions else actions['check'][0]
 
 	def advance_round(self, cards):
 		self.state.deal.board.append(cards)
