@@ -50,10 +50,14 @@ class ESMCCFR_P:
 
 		#Save Infosets - csv (required for large strategy files)
 		with open('strategy-leduc-105-10-10.csv', 'w') as csvfile:
-			csvwriter = csv.writer(csvfile, delimiter = ',')
+			csvwriter = csv.writer(csvfile, delimiter = ';', quoting=csv.QUOTE_NONE)
 			infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
 			for i in infosets:
-				csvwriter.writerow([i[0],[round(k, 3) for k in i[1]]])
+				csvwriter.writerow(
+					[i[0].cards, ','.join(str(x) for x in i[0].bets_0), ','.join(str(x) for x in i[0].bets_1),
+
+
+					','.join([str(round(k, 3)).lstrip("0") for k in i[1]])])
 
 		#Save Infosets - pickle
 		# with open('strategy-leduc-105-10-10.pkl', 'wb') as pklfile:

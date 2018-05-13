@@ -7,27 +7,14 @@ from deuces2.card import Card
 class InfoSet:
 
 	def __init__(self, hole, board, bets):
-		self.hole = hole
-		if len(bets) == 1:
-			hash(hole[0])
-			hash(board)
-			self.data = (hole[0], board, tuple(bets[0]))
-		elif len(bets) == 2:
-			hash(hole[0])
-			hash(board)
-			self.data = (hole[0], board, tuple(bets[0]), tuple(bets[1]))
-		else:
-			self.data = (hole, board,
-				tuple(bets[0]),
-				tuple(bets[1]),
-				tuple(bets[2]),
-				tuple(bets[3]))
-
+		self.cards = hole[0]
+		if len(board) >= 1:
+			self.cards += 3 * board[0][0]
+		self.bets_0 = tuple(bets[0])
+		self.bets_1 = tuple(bets[1])
 	def __eq__(self, other):
+		return self.cards == other.cards and self.bets_0 == other.bets_0 and self.bets_1 == other.bets_1
 		return self.data == other.data
 
 	def __hash__(self):
-		return hash((self.data,))
-
-	def __repr__(self):
-		return str(self.data)
+		return hash((self.cards, self.bets_0, self.bets_1))
