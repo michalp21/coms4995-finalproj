@@ -87,11 +87,12 @@ class ESMCCFRPlusTraining:
 			raise Exception('Player turn %d is wrong. They are %d.'
 				% (self.state.player_turn, self._opponent_seat()))
 
-		opponent_bets_were = available_bets.get_bets_by_action_type(
-			self._my_contrib(), self._opponent_contrib(), False)
+		if self.abstracting:
+			opponent_bets_were = self.available_bets.get_bets_by_action_type(
+				self._my_contrib(), self._opponent_contrib(), False)
+			if bet in opponent_bets_were['raises']:
+				bet = self._round_opponent_raise(bet, opponent_bets_were)
 
-		if bet in opponent_bets_were['raises']:
-			bet = self._round_opponent_raise(bet, opponent_bets_were)
 		self.state.update(bet)
 
 	def train(self, T=2000):
