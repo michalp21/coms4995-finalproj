@@ -48,23 +48,7 @@ class ESMCCFR_P:
 		print("Time elapsed: %.2f" % (stop - start,))
 		print("Average game value: %.4f" % (utility / T,))
 
-		#Save Infosets - csv (required for large strategy files)
-		with open('strategy-leduc-105-10-10.csv', 'w') as csvfile:
-			csvwriter = csv.writer(csvfile, delimiter = ';', quoting=csv.QUOTE_NONE)
-			infosets = [(k, v.get_average_strategy(), v.count, v.regret_sum) for k,v in self.infoset_strategy_map.items()]
-			for i in infosets:
-				csvwriter.writerow(
-					[i[0].cards, ','.join(str(x) for x in i[0].bets_0), ','.join(str(x) for x in i[0].bets_1),
-
-
-					','.join([str(round(k, 3)).lstrip("0") for k in i[1]])])
-
-		#Save Infosets - pickle
-		# with open('strategy-leduc-105-10-10.pkl', 'wb') as pklfile:
-		# 	pickle.dump(self.infoset_strategy_map, pklfile, protocol=pickle.HIGHEST_PROTOCOL)
-
-		#Save Infosets - super pickle
-		# save_as_pickled_object(self.infoset_strategy_map, "strategy-leduc-105-10-10.pkl")
+		save('strategy-leduc-105-10-10.csv', infoset_strategy_map)
 
 		return self.infoset_strategy_map
 

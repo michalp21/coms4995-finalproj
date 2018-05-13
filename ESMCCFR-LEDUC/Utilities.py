@@ -29,32 +29,6 @@ def printProgressBar (iteration, total):
     if iteration == total:
         print()
 
-def load_strategy_from_csv(filename):
-    infoset_strategy_map = {}
-    with open(filename, 'r') as csvfile:
-        csvreader = csv.reader(csvfile)
-        i = 1
-        for row in csvreader:
-            # if i > 10:
-            #     break
-            infoset_str = row[0]
-            avg_str = row[1]
-
-            infoset = InfoSet([None],[],[None,None])
-            infoset.data = infoset_str
-
-            strategy = Strategy(0)
-            strategy.average_strategy = [float(x.strip(" ")) for x in avg_str[1:-1].split(",")]
-            sumstrategy = sum(strategy.average_strategy)
-            for s in strategy.average_strategy:
-                s /= sumstrategy
-
-            infoset_strategy_map[infoset] = strategy
-            print(" ",i, end='\r')
-            i+=1
-
-    return infoset_strategy_map
-
 #Credit: https://stackoverflow.com/questions/42653386/does-pickle-randomly-fail-with-oserror-on-large-files?rq=1
 def save_as_pickled_object(obj, filepath):
     """
