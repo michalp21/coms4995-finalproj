@@ -19,11 +19,24 @@ class ESMCCFRPlusTraining:
 		self.abstracting = abstracting
 		# self.strategy_map = pickle.load(open('strategy-smol.pkl', 'rb'))
 		self.strategy_map = load_strategy_from_csv(blueprint)
+		self.surplus = 0
 		print("Strategy map loaded")
+
+	def _my_seat(self):
+		return 2 if self.is_small_blind else 1
+
+	def _opponent_seat(self):
+		return 3 - self._my_seat()
+
+	def _my_contrib(self):
+		return self.state._my_contrib(self._my_seat())
+	def _opponent_contrib(self):
+		return self.state._other_contrib(self._my_seat())
 
 	def new_game(self):
 		self.state = State(self.rules, self.setup,
 			Deal(rules=self.rules, big=[], small=[], board=[]))
+		self.surplus = 0
 
 	def take_seat(self, is_small_blind):
 		self.is_small_blind = is_small_blind
@@ -37,40 +50,30 @@ class ESMCCFRPlusTraining:
 
 	#actions param for easy integration with Contest.py
 	def bet(self, actions=None):
-		if (self.state.player_turn == 2) != self.is_small_blind:
-			raise Exception('Player turn is wrong. I am small: %s, player turn: %d'
-				% (str(self.is_small_blind), self.state.player_turn))
+		if self.state.player_turn != self._my_seat():
+			raise Exception('Player turn %d is wrong. I am %d.'
+				% (self.state.player_turn, self._my_seat()))
 
-		bets = self.available_bets.get_bets_as_numbers(
-			self.state._my_contrib(self.state.player_turn),
-			self.state._other_contrib(self.state.player_turn))
-
-		# if bets != [v for val in actions.values() for v in val]:
-		# 	raise Exception('Internal bets <%s> are not input bets <%s>'
-		# 		% (bets, actions))
-
-
-		infoset = self.state.get_infoset(abstracting = self.abstracting)
-		print(" ",str(self.is_small_blind) + " " + str(infoset))
-
-		strategy = None
-		player_strategy = [1/len(bets) for _ in bets]
-
-		#If infoset is found, play it, otherwise go random
-		if infoset in self.strategy_map.keys():
-			strategy = self.strategy_map[infoset]
-			player_strategy = strategy.get_average_strategy()
-		else:
-			print("Not found")
-			# raise Exception('We are not fully trained on %s' % str(infoset))
-
-		print("Strategy:",player_strategy)
-		print("Possible bets:",bets)
-
-		bet = bets[random.choices(list(range(len(player_strategy))),weights=player_strategy, k=1)[0]]
-
+		bet = self._select_bet()
 		self.state.update(bet)
 		return bet
+	def _select_bet(self):
+
+		infoset = self.state.get_infoset()
+
+		if infoset in self.strategy_map.keys():
+			bets = self.available_bets.get_bets_as_numbers(
+			self._my_contrib(), self._other_contrib(), self.abstracting)
+			strategy = self.strategy_map[infoset]
+			player_strategy = strategy.get_average_strategy()
+			return bets[random.choices(list(range(len(player_strategy))),weights=player_strategy, k=1)[0]]
+
+		print("Notice: infoset %s not found; checking/calling" % str(infoset))
+		actions = self.available_bets.get_bets_by_action_type(
+			self.state._my_contrib(self.state.player_turn),
+			self.state._other_contrib(self.state.player_turn),
+			self.abstracting)
+		return actions['call'] if 'call' in actions else actions['check']
 
 	def advance_round(self, cards):
 		self.state.deal.board.append(cards)
@@ -79,15 +82,53 @@ class ESMCCFRPlusTraining:
 				% (str(self.state.deal), self.state.round))
 
 	def opponent_bets(self, bet):
-		if (self.state.player_turn == 1) != self.is_small_blind:
-			raise Exception('Opponent turn is wrong. I am small: %s, player turn: %d'
-				% (str(self.is_small_blind), self.state.player_turn))
+		if self.state.player_turn != self._opponent_seat():
+			raise Exception('Player turn %d is wrong. They are %d.'
+				% (self.state.player_turn, self._opponent_seat()))
+
+		opponent_bets_were = available_bets.get_bets_by_action_type(
+			self._my_contrib(), self._opponent_contrib(), False)
+
+		if bet in opponent_bets_were['raises']:
+			bet = self._round_opponent_raise(bet, opponent_bets_were)
 		self.state.update(bet)
 
-	def train(self, T=10000):
+	def train(self, T=2000):
 		esmccfr = ESMCCFR_P(self.rules, self.setup)
 		self.strategy_map = esmccfr.run(T)
 		return self
+
+	def _round_opponent_raise(self, bet, bets_were):
+		assert bet in bets_were['raises']
+
+		# If the bet is already even, return it without rounding
+		if bet % 2 == 0:
+			return bet
+
+		# if decrementing the bet is not a raise, increment it, possibly  going
+		# all in
+		if not (bet - 1 in bets_were['raises']):
+			surplus = surplus + 1
+			return bet + 1
+
+		# if decrementing the bet is a raise and incrementing is all in, raise
+		if bet - 1 in bets_were['raises'] and not bet + 1 in bets_were['raises']:
+			surplus = surplus - 1
+			return bet - 1
+
+		# if neither increment or decrement is a raise, prefer to round in the
+		# direction that evens out the pot total overall
+		if surplus == 0:
+			surplus = surplus + 1
+			return bet + 1
+		elif surplus > 0:
+			surplus = surplus - 1
+			return bet - 1
+		else:
+			surplus = surplus + 1
+			return bet + 1
+
+
 
 	def __str__(self):
 		return "EsmccfrBot\t"
