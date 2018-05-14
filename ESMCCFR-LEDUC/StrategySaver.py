@@ -28,6 +28,13 @@ def load(filename):
 			print(" ", i, end='\r')
 			i += 1
 
+	#Print Infosets
+	infosets = []
+	for k,v in infoset_strategy_map.items():
+		infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
+	for i in infosets:
+		print(i[0],i[1])
+
 	return infoset_strategy_map
 
 def _write_row(infoset, v):
@@ -38,12 +45,12 @@ def _write_row(infoset, v):
 			_comma_join('%d' % (1000 * round(k, 3)) for k in v.get_average_strategy())]
 
 def _read_row(row):
-	hole = row[0]
+	hole = int(row[0])
 	board = row[1]
 	if board == 0:
 		board = ()
 	else:
-		board = ((board,),)
+		board = ((int(board),),)
 	bets_0 = _comma_split_int(row[2])
 	bets_1 =_comma_split_int(row[3])
 
