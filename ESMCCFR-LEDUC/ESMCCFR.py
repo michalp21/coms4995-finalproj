@@ -115,4 +115,4 @@ if __name__ == "__main__":
 	ESMCCFR_P = ESMCCFR_P(
 		rules=Leduc(), setup=Setup(stack_size=10, big_blind=1, small_blind=1),
 		abstracted=True)
-	ESMCCFR_P.run(20000)
+	ESMCCFR_P.run(200)

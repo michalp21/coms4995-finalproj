@@ -18,4 +18,5 @@ class InfoSet:
 		return hash((self.hole, self.board, self.bets_0, self.bets_1))
 
 	def __repr__(self):
-		return "hole=%d,board=%d,bets_0=%s,bets_1=%s" % (self.hole, self.board, str(self.bets_0), str(self.bets_1))
+		return "hole=%d,board=%d,bets_0=%s,bets_1=%s" % (
+			self.hole, self.board, str(self.bets_0), str(self.bets_1))
