@@ -14,6 +14,18 @@ class InfoSet:
 	def __eq__(self, other):
 		return self.hole == other.hole and self.board == other.board and self.bets_0 == other.bets_0 and self.bets_1 == other.bets_1
 
+	def __lt__(self, other):
+		if self.hole == other.hole:
+			if self.board == other.board:
+				if self.bets_0 == other.bets_0:
+					return self.bets_1 < other.bets_1
+				else:
+					return self.bets_0 < other.bets_0
+			else:
+				return self.board < other.board
+		else:
+			return self.hole < other.hole
+
 	def __hash__(self):
 		return hash((self.hole, self.board, self.bets_0, self.bets_1))
 

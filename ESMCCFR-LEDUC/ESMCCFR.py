@@ -114,5 +114,5 @@ if __name__ == "__main__":
 	# cProfile.runctx("ESMCCFR_P(100000)",globals(),locals())
 	ESMCCFR_P = ESMCCFR_P(
 		rules=Leduc(), setup=Setup(stack_size=10, big_blind=1, small_blind=1),
-		abstracted=True)
-	ESMCCFR_P.run(200)
+		abstracted=False)
+	ESMCCFR_P.run(20000)

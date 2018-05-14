@@ -29,11 +29,11 @@ def load(filename):
 			i += 1
 
 	#Print Infosets
-	infosets = []
-	for k,v in infoset_strategy_map.items():
-		infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
-	for i in infosets:
-		print(i[0],i[1])
+	# infosets = []
+	# for k,v in infoset_strategy_map.items():
+	# 	infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
+	# for i in sorted(infosets, key=lambda j: j[0]):
+	# 	print(i[0],i[1])
 
 	return infoset_strategy_map
 

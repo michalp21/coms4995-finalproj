@@ -64,7 +64,7 @@ class ESMCCFRPlusTraining:
 
 		if infoset in self.strategy_map.keys():
 			bets = self.available_bets.get_bets_as_numbers(
-			self._my_contrib(), self._opponent_contrib(), self.abstracting)
+				self._my_contrib(), self._opponent_contrib(), self.abstracting)
 			strategy = self.strategy_map[infoset]
 			player_strategy = strategy.get_average_strategy()
 			return bets[random.choices(list(range(len(player_strategy))),weights=player_strategy, k=1)[0]]
