@@ -12,7 +12,7 @@ def save(filename, infoset_strategy_map):
 			assert _read_row(row)[0] == infoset
 			writer.writerow(row)
 			if count % 10000 == 0:
-				print("Flushing %d / %d" % (count, len(infosets)))
+				print("Flushing %d" % (count))
 				f.flush()
 			count += 1
 		f.flush()
@@ -29,11 +29,11 @@ def load(filename):
 			i += 1
 
 	#Print Infosets
-	# infosets = []
-	# for k,v in infoset_strategy_map.items():
-	# 	infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
-	# for i in sorted(infosets, key=lambda j: j[0]):
-	# 	print(i[0],i[1])
+	infosets = []
+	for k,v in infoset_strategy_map.items():
+		infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
+	for i in sorted(infosets, key=lambda j: j[0]):
+		print(i[0],i[1])
 
 	return infoset_strategy_map
 
@@ -42,7 +42,7 @@ def _write_row(infoset, v):
 			infoset.board,
 			_comma_join(infoset.bets_0),
 			_comma_join(infoset.bets_1),
-			_comma_join('%d' % (1000 * round(k, 3)) for k in v.get_average_strategy())]
+			_comma_join('%d' % (100000 * round(k, 5)) for k in v.get_average_strategy())]
 
 def _read_row(row):
 	hole = int(row[0])
@@ -57,7 +57,7 @@ def _read_row(row):
 	infoset = InfoSet((hole,), board, (bets_0, bets_1))
 
 	strategy = Strategy(0)
-	strategy.average_strategy = [float(x)/1000 for x in _comma_split_int(row[4])]
+	strategy.average_strategy = [float(x)/100000 for x in _comma_split_int(row[4])]
 	sum_strategy = sum(strategy.average_strategy)
 	for s in strategy.average_strategy:
 		s /= sum_strategy

@@ -76,9 +76,9 @@ class Contest:
 
 def main():
   rules = Leduc()
-  setup = Setup(small_blind=1, big_blind=1, stack_size=5)
+  setup = Setup(small_blind=1, big_blind=1, stack_size=10)
   pov = Human(rules, setup)
-  opponent = ESMCCFRPlusTraining(rules, setup)#.train(1000000)
+  opponent = ESMCCFRPlusTraining(rules, setup, 'strategy-leduc-10-1-1.csv')
 
   contest = Contest(rules=rules,
     setup=setup,
@@ -87,7 +87,7 @@ def main():
 
   games = 0
   total = 0
-  for _ in range(10000):
+  for _ in range(100):
       total += contest.play()
       games += 1
       print("@%d %s Total: (%.2f avg) %d" % (

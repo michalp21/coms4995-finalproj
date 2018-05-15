@@ -49,8 +49,8 @@ class ESMCCFRPlusTraining:
 		else:
 			self.state.deal.big = cards
 
-	#actions param for easy integration with Contest.py
-	def bet(self, actions=None):
+	#actions params for easy integration with Contest.py
+	def bet(self, actions_by_type=None, actions_by_numbers=None, state=None):
 		if self.state.player_turn != self._my_seat():
 			raise Exception('Player turn %d is wrong. I am %d.'
 				% (self.state.player_turn, self._my_seat()))
@@ -66,6 +66,12 @@ class ESMCCFRPlusTraining:
 			bets = self.available_bets.get_bets_as_numbers(
 				self._my_contrib(), self._opponent_contrib(), self.abstracting)
 			strategy = self.strategy_map[infoset]
+			print("  |",infoset)
+			print("  |",bets)
+			print("  |",self.available_bets.get_bets_by_action_type(
+				self.state._my_contrib(self.state.player_turn),
+				self.state._other_contrib(self.state.player_turn)))
+			print("  |",strategy.get_average_strategy())
 			player_strategy = strategy.get_average_strategy()
 			return bets[random.choices(list(range(len(player_strategy))),weights=player_strategy, k=1)[0]]
 

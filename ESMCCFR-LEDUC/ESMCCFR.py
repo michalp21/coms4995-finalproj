@@ -16,6 +16,8 @@ from deuces2.card import Card
 from deuces2.deck import Deck
 import csv
 import pickle
+import multiprocessing
+from multiprocessing import Pool
 
 class ESMCCFR_P:
 	def __init__(self, rules, setup, abstracted=False):
@@ -37,11 +39,15 @@ class ESMCCFR_P:
 	def run(self,T):
 		utility = 0
 		start = timeit.default_timer()
+		# pool = Pool(processes=multiprocessing.cpu_count())
 
 		printProgressBar(0, T)
 		# conduct external-sampling Monte Carlo Counterfactual Regret
 		for t in range(T):
 			for player in self.PLAYERS:
+
+
+
 				utility += self.traverse_ESMCCFR(self.new_game(), player)
 				printProgressBar(t+1, T)
 		stop = timeit.default_timer()

@@ -20,7 +20,7 @@ class Logger:
   			self.pov if gs.get_players_turn() == pov_seat else self.opponent))
 
 	def bet(self, gs, player, pov_seat, bet):
-		print("\t\t%s\tbet=%d; %d v %d" % (
+		print("\t\t%s\tbet=%d; %d v %d\n" % (
 			player,
 			bet, gs._my_contrib(pov_seat), gs._other_contrib(pov_seat)))
 
@@ -43,5 +43,5 @@ class Logger:
 			verb = 'won'
 		else:
 			verb = 'lost'
-		print("\t%s %s %d dollars " % (self.pov, verb, util))
+		print("\t%s %s %d dollars \n" % (self.pov, verb, util))
 

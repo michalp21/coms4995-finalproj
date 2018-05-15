@@ -12,25 +12,22 @@ class AllInExceptQueens:
 	def receive_cards(self, cards):
 		self.has_queen = (cards[0] == 3)
 
-	def train(self, T=None):
-		pass
-
 	def advance_round(self, cards):
 		pass
 
 	def opponent_bets(self, bet):
 		pass
 
-	def bet(self, actions):
+	def bet(self, actions_by_type=None, actions_by_numbers=None):
 
-		if not self.has_queen and 'allIn' in actions:
-			return actions['allIn'][0]
-		if not self.has_queen and 'call' in actions:
-			return actions['call'][0]
-		if 'check' in actions:
-			return actions['check'][0]
-		if 'fold' in actions:
-			return actions['fold'][0]
+		if not self.has_queen and 'allIn' in actions_by_type:
+			return actions_by_type['allIn'][0]
+		if not self.has_queen and 'call' in actions_by_type:
+			return actions_by_type['call'][0]
+		if 'check' in actions_by_type:
+			return actions_by_type['check'][0]
+		if 'fold' in actions_by_type:
+			return actions_by_type['fold'][0]
 
 		raise Exception("actions seem bad: %s", str(actions))
 
