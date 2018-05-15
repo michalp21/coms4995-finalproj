@@ -1,5 +1,10 @@
+import sys
+import os.path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from deuces2.deck import Deck
 from Deal import Deal
+
 
 class Leduc:
 
@@ -11,8 +16,10 @@ class Leduc:
 
 	def _rank(self, card, flop):
 		# A is 1, K is 2, Q is 3
-		product = card * flop
-		return product if flop == card else product + 10
+
+		# Add the number of possible cards to card value
+		# if there is a pair
+		return card+3 if flop == card else card
 
 	def evaluate(self, deal):
 		flop = deal.board[0][0]
@@ -28,3 +35,32 @@ class Leduc:
 		return Deal(rules=self, big=(deck.draw(1),),
 			small=(deck.draw(1),),
 			board=( (deck.draw(1),) ,) )
+
+def unit_test():
+	l = Leduc()
+
+	flop = 1
+	small = l._rank(2, flop)
+	big = l._rank(3, flop)
+	print(small-big)
+	assert small - big < 0
+
+	flop = 1
+	small = l._rank(3, flop)
+	big = l._rank(2, flop)
+	print(small-big)
+	assert small - big > 0
+
+	flop = 1
+	small = l._rank(3, flop)
+	big = l._rank(3, flop)
+	print(small-big)
+	assert small - big == 0
+
+	flop = 3
+	small = l._rank(3, flop)
+	big = l._rank(2, flop)
+	print(small-big)
+
+if __name__ == '__main__':
+    unit_test()
