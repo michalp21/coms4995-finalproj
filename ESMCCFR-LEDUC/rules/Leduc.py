@@ -42,25 +42,22 @@ def unit_test():
 	flop = 1
 	small = l._rank(2, flop)
 	big = l._rank(3, flop)
-	print(small-big)
 	assert small - big < 0
 
 	flop = 1
 	small = l._rank(3, flop)
 	big = l._rank(2, flop)
-	print(small-big)
 	assert small - big > 0
 
 	flop = 1
 	small = l._rank(3, flop)
 	big = l._rank(3, flop)
-	print(small-big)
 	assert small - big == 0
 
 	flop = 3
 	small = l._rank(3, flop)
 	big = l._rank(2, flop)
-	print(small-big)
+	assert small-big > 0
 
 if __name__ == '__main__':
     unit_test()
