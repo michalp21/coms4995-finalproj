@@ -11,11 +11,12 @@ def save(filename, infoset_strategy_map):
 			row = _write_row(infoset, v)
 			assert _read_row(row)[0] == infoset
 			writer.writerow(row)
+			print("  Saving csv %d" % (count), end='\r')
 			if count % 10000 == 0:
-				print("Flushing %d" % (count))
 				f.flush()
 			count += 1
 		f.flush()
+		print("csv Saved")
 
 def load(filename):
 	infoset_strategy_map = {}
@@ -25,15 +26,16 @@ def load(filename):
 		for row in reader:
 			infoset, strategy = _read_row(row)
 			infoset_strategy_map[infoset] = strategy
-			print(" ", i, end='\r')
+			print("  Loading csv", i, end='\r')
 			i += 1
+		print("csv Loaded")
 
 	#Print Infosets
-	infosets = []
-	for k,v in infoset_strategy_map.items():
-		infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
-	for i in sorted(infosets, key=lambda j: j[0]):
-		print(i[0],i[1])
+	# infosets = []
+	# for k,v in infoset_strategy_map.items():
+	# 	infosets.append((k,v.get_average_strategy(),v.count,v.regret_sum))
+	# for i in sorted(infosets, key=lambda j: j[0]):
+	# 	print(i[0],i[1])
 
 	return infoset_strategy_map
 
